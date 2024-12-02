@@ -1,0 +1,41 @@
+name: Angular Build and Deploy
+
+on:
+    push:
+        branches: ["main"]
+    pull_request:
+        branches: ["main"]
+
+jobs:
+    angular:
+        name: Angular Build and Deploy
+        runs-on: ubuntu-latest
+        steps:
+            # Checkout the repository code
+            - name: Checkout the source code
+              uses: actions/checkout@v3
+
+            # Setup Node.js
+            - name: Setup Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 18.x # Use Node.js version 18.x
+
+            # Debug Info
+            - name: Node Versioning Information
+              run: |
+                  node --version
+                  npm --version
+
+            # Install dependencies
+            - name: Install dependencies
+              run: |
+                  npm install
+                  npm ci
+              working-directory: webshop # Specify the Angular project directory
+
+            # Build the Angular app with production configuration
+            - name: Build the Angular app (production)
+              run: npm run build
+              working-directory: webshop # Specify the Angular project directory
+
