@@ -1,4 +1,4 @@
-name: Angular Build and Deploy
+name: Angular Build
 
 on:
     push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
     angular:
-        name: Angular Build and Deploy
+        name: Angular Build
         runs-on: ubuntu-latest
         steps:
             # Checkout the repository code
@@ -35,7 +35,7 @@ jobs:
               working-directory: webshop # Specify the Angular project directory
 
             # Build the Angular app with production configuration
-            - name: Build the Angular app (production)
+            - name: Build the Angular app
               run: npm run build
               working-directory: webshop # Specify the Angular project directory
 
