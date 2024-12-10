@@ -44,6 +44,15 @@ app.use("/retail", retailRoutes);
 const vehicleRoutes = require("./vehicles/vehicles.js");
 app.use("/vehicles", vehicleRoutes);
 
+app.get("/logout", checkAuth, (req, res) => {
+    req.session.destroy();
+    if (req.session) {
+        res.status(500).json({ error: "Error logging out." });
+    } else {
+        res.status(200).json({ message: "Succesfully logged out." });
+    }
+});
+
 let port = 3000;
 app.listen(port);
 console.log("Server running at: http://localhost:" + port);
