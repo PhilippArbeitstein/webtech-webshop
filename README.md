@@ -14,7 +14,6 @@ Dieses Projekt ist Teil des Web-Technologie Kurses an der Alpen Adria Universit�
 -   Implementierung grundlegender Webshop-Funktionen:
     -   Produktübersicht und -details.
     -   Benutzerregistrierung und Login.
-    -   Warenkorb und Checkout.
     -   Admin-Dashboard zur Verwaltung von Produkten und Bestellungen.
 -   Einsatz moderner Webentwicklungsmethoden und Tools wie **TypeScript** und **JWT** für Authentifizierung.
 
@@ -77,8 +76,7 @@ Das Projekt verwendet folgende Technologien und Frameworks:
 ## 🔑 **Funktionen**
 
 -   **Benutzer**:
-    -   Registrierung und Login (mit verschlüsselten Passwörtern).
-    -   Verwaltung des Warenkorbs.
+    -   Registrierung und Login.
     -   Aufgabe von Bestellungen.
 -   **Admin**:
     -   Hinzufügen, Bearbeiten und Löschen von Produkten.
@@ -97,6 +95,6 @@ Das Projekt verwendet folgende Technologien und Frameworks:
 
 ## 👥 **Mitwirkende**
 
--   [Philipp Arbeitstein](https://github.com/PhilippArbeitstein)
--   [Thomas Wobak](https://github.com/profil)
--   [Lukas Wobak](https://github.com/profil)
+-   [Philipp Arbeitstein](https://github.com/PhilippArbeitstein) [RealEstate]
+-   [Thomas Wobak](https://github.com/profil) [Vehicles]
+-   [Lukas Wobak](https://github.com/profil) [Retail]
