@@ -1,9 +1,13 @@
 <div class="flex justify-between items-center px-8 py-4 h-16">
-    <h1 class="md:text-4xl font-bold">Fynd</h1>
+    <a [routerLink]="['/']" class="md:text-4xl font-bold">Fynd</a>
     <div class="flex space-x-6">
-        <a href="#" class="text-lg font-medium hover:underline"
-            >Registriere Dich
-        </a>
-        <a href="#" class="text-lg font-medium hover:underline">Einloggen</a>
+        <a
+            [routerLink]="['/register']"
+            class="text-lg font-medium hover:underline"
+            >Registriere Dich</a
+        >
+        <a [routerLink]="['/login']" class="text-lg font-medium hover:underline"
+            >Einloggen</a
+        >
     </div>
 </div>
