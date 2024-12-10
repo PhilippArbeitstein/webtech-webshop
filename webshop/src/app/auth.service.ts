@@ -3,11 +3,11 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root',
+    providedIn: 'root'
 })
 export class AuthService {
-  private isAuthenticated = new BehaviorSubject<boolean>(false);
-  isLoggedIn$ = this.isAuthenticated.asObservable();
+    private isAuthenticated = new BehaviorSubject<boolean>(false);
+    isLoggedIn$ = this.isAuthenticated.asObservable();
 
-  constructor(private httpClient: HttpClient) {}
+    constructor(private httpClient: HttpClient) {}
 }
