@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { OverlayService } from '../../services/overlay.service';
 import { UserService } from '../../services/user.service';
+import { RouterLink } from '@angular/router';
 
 @Component({
     selector: 'app-profile-overlay',
-    imports: [CommonModule],
+    imports: [CommonModule, RouterLink],
     templateUrl: './profile-overlay.component.html',
     styleUrl: './profile-overlay.component.css'
 })

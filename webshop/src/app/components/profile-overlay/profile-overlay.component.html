@@ -36,6 +36,8 @@
     <div class="px-4 py-6 space-y-4">
         <button
             class="flex items-center w-full px-4 py-2 text-left text-sm font-medium hover:bg-gray-100 hover:rounded-lg"
+            [routerLink]="['/profile']"
+            (click)="overlayService.closeOverlay()"
         >
             <span class="mr-3">👤</span> Your Profile
         </button>
