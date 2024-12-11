@@ -54,6 +54,9 @@ app.use('/retail', retailRoutes);
 const vehicleRoutes = require('./vehicles/vehicles.js');
 app.use('/vehicles', vehicleRoutes);
 
+const userRoutes = require('./user/user.js');
+app.use('/user', userRoutes);
+
 app.get('/logout', checkAuth, (req, res) => {
     req.session.destroy((err) => {
         if (err) {
