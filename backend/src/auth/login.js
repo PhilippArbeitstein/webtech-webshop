@@ -37,4 +37,14 @@ router.post('/', async (req, res) => {
     }
 });
 
+router.get('/session', (req, res) => {
+    if (req.session.isAuth) {
+        return res.status(200).json({
+            loggedIn: true,
+            email: req.session.email
+        });
+    }
+    res.status(401).json({ loggedIn: false });
+});
+
 module.exports = router;

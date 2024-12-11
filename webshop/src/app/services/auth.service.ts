@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { response } from 'express';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 
 @Injectable({
@@ -18,7 +17,9 @@ export class AuthService {
     }): Observable<any> {
         // Pipe is being used to chain RxJS operators. In this case to apply the tap operator to the observable
         return this.httpClient
-            .post('http://localhost:3000/login', loginCredentials)
+            .post('http://localhost:3000/login', loginCredentials, {
+                withCredentials: true
+            })
             .pipe(
                 // Tap is a side-effect, that lets you perform side-effects on each emission of the observable without changing the observables data
                 tap((response: any) => {
@@ -29,5 +30,22 @@ export class AuthService {
                     }
                 })
             );
+    }
+
+    checkSession() {
+        this.httpClient
+            .get('http://localhost:3000/login/session', {
+                withCredentials: true
+            })
+            .subscribe({
+                next: (response: any) => {
+                    console.log('Session response:', response);
+                    this.isAuthenticated.next(response.loggedIn);
+                },
+                error: (error) => {
+                    console.error('Session check failed:', error);
+                    this.isAuthenticated.next(false);
+                }
+            });
     }
 }
