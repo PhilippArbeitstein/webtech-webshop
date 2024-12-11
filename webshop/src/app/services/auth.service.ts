@@ -1,6 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, switchMap, tap } from 'rxjs';
+import { UserService } from './user.service';
+import { response } from 'express';
+import { OverlayService } from './overlay.service';
 
 @Injectable({
     providedIn: 'root'
@@ -9,7 +12,11 @@ export class AuthService {
     private isAuthenticated = new BehaviorSubject<boolean>(false);
     isLoggedIn$ = this.isAuthenticated.asObservable();
 
-    constructor(private httpClient: HttpClient) {}
+    constructor(
+        private httpClient: HttpClient,
+        private userService: UserService,
+        private overlayService: OverlayService
+    ) {}
 
     login(loginCredentials: {
         email: string;
@@ -27,6 +34,34 @@ export class AuthService {
                         this.isAuthenticated.next(true);
                     } else {
                         this.isAuthenticated.next(false);
+                    }
+                }),
+                switchMap((response: any) => {
+                    if (response.message === 'Login successful') {
+                        return this.userService.getCurrentUser(
+                            parseInt(response.id)
+                        );
+                    } else {
+                        throw new Error('Login failed');
+                    }
+                })
+            );
+    }
+
+    logout(): Observable<any> {
+        return this.httpClient
+            .get('http://localhost:3000/logout', {
+                withCredentials: true
+            })
+            .pipe(
+                tap((response: any) => {
+                    if (response.message === 'Logout successful') {
+                        this.overlayService.closeOverlay();
+                        this.isAuthenticated.next(false);
+                        this.userService.loggedInUser =
+                            this.userService.emptyUser;
+                    } else {
+                        this.isAuthenticated.next(true);
                     }
                 })
             );

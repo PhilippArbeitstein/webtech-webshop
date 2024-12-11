@@ -4,6 +4,7 @@ import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
 import { ProfileOverlayComponent } from '../profile-overlay/profile-overlay.component';
+import { OverlayService } from '../../services/overlay.service';
 
 @Component({
     selector: 'app-navbar',
@@ -13,19 +14,13 @@ import { ProfileOverlayComponent } from '../profile-overlay/profile-overlay.comp
 })
 export class NavbarComponent {
     isLoggedIn$!: Observable<boolean>;
-    isOverlayVisible = false;
 
-    constructor(private authService: AuthService) {}
+    constructor(
+        private authService: AuthService,
+        public overlayService: OverlayService
+    ) {}
 
     ngOnInit() {
         this.isLoggedIn$ = this.authService.isLoggedIn$;
-    }
-
-    openProfileOverlay(): void {
-        this.isOverlayVisible = true;
-    }
-
-    closeProfileOverlay(): void {
-        this.isOverlayVisible = false;
     }
 }

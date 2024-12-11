@@ -1,8 +1,9 @@
 <div
     class="fixed top-0 right-0 h-full w-72 bg-white shadow-lg transform transition-transform duration-300 z-40 rounded-l-lg"
     [ngClass]="{
-        'translate-x-0': isVisible,
-        'translate-x-full': !isVisible
+        'translate-x-0 opacity-100': overlayService.isOverlayVisible,
+        'translate-x-full opacity-0 pointer-events-none':
+            !overlayService.isOverlayVisible
     }"
 >
     <!-- Header -->
@@ -19,7 +20,10 @@
             </div>
         </div>
 
-        <button class="text-gray-600 hover:text-black" (click)="closeOverlay()">
+        <button
+            class="text-gray-600 hover:text-black"
+            (click)="overlayService.closeOverlay()"
+        >
             &times;
         </button>
     </div>
@@ -42,6 +46,7 @@
     <div class="absolute bottom-4 w-full px-4">
         <button
             class="flex items-center w-full px-4 py-2 text-left text-sm font-medium text-red-600 hover:bg-gray-100"
+            (click)="onLogout()"
         >
             <span class="mr-3">🚪</span> Sign Out
         </button>
@@ -50,7 +55,7 @@
 
 <!-- Dark Background Overlay -->
 <div
-    *ngIf="isVisible"
+    *ngIf="overlayService.isOverlayVisible"
     class="fixed inset-0 bg-black bg-opacity-50 z-30"
-    (click)="closeOverlay()"
+    (click)="overlayService.closeOverlay()"
 ></div>

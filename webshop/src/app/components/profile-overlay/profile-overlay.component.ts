@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { AuthService } from '../../services/auth.service';
+import { OverlayService } from '../../services/overlay.service';
 
 @Component({
     selector: 'app-profile-overlay',
@@ -8,10 +10,19 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
     styleUrl: './profile-overlay.component.css'
 })
 export class ProfileOverlayComponent {
-    @Input() isVisible = false;
-    @Output() close = new EventEmitter<void>();
+    constructor(
+        public authService: AuthService,
+        public overlayService: OverlayService
+    ) {}
 
-    closeOverlay(): void {
-        this.close.emit();
+    onLogout() {
+        this.authService.logout().subscribe({
+            next: (response) => {
+                console.log('Logout response:', response);
+            },
+            error: (err) => {
+                console.error('Logout failed:', err);
+            }
+        });
     }
 }

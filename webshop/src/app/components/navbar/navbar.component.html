@@ -36,14 +36,11 @@
                     src="assets/profile-picture.png"
                     alt="User Avatar"
                     class="w-14 h-14 object-cover rounded-full border border-gray-300 cursor-pointer"
-                    (click)="openProfileOverlay()"
+                    (click)="overlayService.openOverlay()"
                 />
             </div>
         </div>
     </ng-template>
 </div>
 
-<app-profile-overlay
-    [isVisible]="isOverlayVisible"
-    (close)="closeProfileOverlay()"
-></app-profile-overlay>
+<app-profile-overlay></app-profile-overlay>
