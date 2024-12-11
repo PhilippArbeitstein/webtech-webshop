@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { OverlayService } from '../../services/overlay.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
     selector: 'app-profile-overlay',
@@ -12,7 +13,8 @@ import { OverlayService } from '../../services/overlay.service';
 export class ProfileOverlayComponent {
     constructor(
         public authService: AuthService,
-        public overlayService: OverlayService
+        public overlayService: OverlayService,
+        public userService: UserService
     ) {}
 
     onLogout() {

@@ -48,7 +48,6 @@ export class LoginComponent {
                 .subscribe({
                     next: (response) => {
                         this.router.navigate(['']);
-                        console.log(response.message);
                     },
                     error: (err) => {
                         console.log('Login failed:', err);

@@ -25,6 +25,7 @@ router.post('/', async (req, res) => {
         const user = result.rows[0];
 
         req.session.isAuth = true;
+        req.session.user_id = user.user_id;
         req.session.email = email;
 
         res.status(200).json({
@@ -41,7 +42,7 @@ router.get('/session', (req, res) => {
     if (req.session.isAuth) {
         return res.status(200).json({
             loggedIn: true,
-            email: req.session.email
+            user_id: req.session.user_id
         });
     }
     res.status(401).json({ loggedIn: false });
