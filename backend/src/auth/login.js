@@ -29,7 +29,7 @@ router.post('/', async (req, res) => {
 
         res.status(200).json({
             message: 'Login successful',
-            email: user.email
+            id: user.user_id
         });
     } catch (error) {
         console.error('Error accessing the database:', error);
