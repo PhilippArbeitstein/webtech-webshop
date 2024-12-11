@@ -9,6 +9,7 @@ import {
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-login',
@@ -24,7 +25,11 @@ import { AuthService } from '../../services/auth.service';
 export class LoginComponent {
     loginForm: FormGroup;
 
-    constructor(private fb: FormBuilder, private authService: AuthService) {
+    constructor(
+        private fb: FormBuilder,
+        private authService: AuthService,
+        private router: Router
+    ) {
         this.loginForm = this.fb.group({
             email: ['', [Validators.required, Validators.email]],
             password: ['', Validators.required]
@@ -42,6 +47,7 @@ export class LoginComponent {
                 })
                 .subscribe({
                     next: (response) => {
+                        this.router.navigate(['']);
                         console.log(response.message);
                     },
                     error: (err) => {

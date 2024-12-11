@@ -1,6 +1,7 @@
 <div class="flex justify-between items-center px-8 py-4 h-16">
     <a [routerLink]="['/']" class="md:text-4xl font-bold">Fynd</a>
-    <div class="flex space-x-6">
+
+    <div *ngIf="!(isLoggedIn$ | async); else loggedIn" class="flex space-x-6">
         <a
             [routerLink]="['/register']"
             class="text-lg font-medium hover:underline"
@@ -10,4 +11,21 @@
             >Einloggen</a
         >
     </div>
+
+    <ng-template #loggedIn>
+        <div class="flex space-x-6 items-center">
+            <a
+                [routerLink]="['/messages']"
+                class="text-lg font-medium hover:underline text-text_gray"
+                >Nachrichten</a
+            >
+            <div class="flex items-center">
+                <img
+                    src="assets/profile-picture.png"
+                    alt="User Avatar"
+                    class="w-14 h-14 object-cover rounded-full border border-gray-300"
+                />
+            </div>
+        </div>
+    </ng-template>
 </div>
