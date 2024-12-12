@@ -81,6 +81,7 @@ try {
 }
 });
 
+//Get specific Product
 router.get("/:product_id", async(req, res) => {
 
 let query = "SELECT product.name, product.price, product.image_url, vehicles.mileage, vehicles.first_registration_date, product.additional_properties,";
@@ -89,7 +90,6 @@ query+=" conditions.condition_name, fuel_types.fuel_type_name, vehicles.color, v
 query+=getFullJoinTable();
 query+=" WHERE product.product_id=$1";
 const productId = req.params.product_id;
-console.log(query);
 pool.query(query,[productId],
     (err, result) => {
         if (err) {
@@ -101,6 +101,69 @@ pool.query(query,[productId],
     }
 );
 });
+//Get all listings by User
+router.get("/user/:user_id", async(req, res) => {
+
+    let query = "SELECT product.name, product.price, product.image_url, vehicles.mileage, vehicles.first_registration_date FROM product";
+    query+=getFullJoinTable();
+    query+=" WHERE product.user_id=$1";
+    const userId = req.params.user_id;
+    pool.query(query,[userId],
+        (err, result) => {
+            if (err) {
+                console.log(err);
+                res.status(500).send("Error retrieving product");
+            } else {
+                res.status(200).json(result.rows);
+            }
+        }
+    );
+});
+//delete listing. 
+//TODO CHECK FOR VALIDATION
+router.delete("/:product_id", async(req, res) => {
+
+    
+    let query = "DELETE FROM product_has_category where product_id=$1;"
+    // DELETE FROM vehicles where product_id=$2; DELETE FROM product where product_id=$3";
+    
+    const productId = req.params.product_id;
+    pool.query(query,[productId],
+        (err, result) => {
+            if (err) {
+                console.log(err);
+                res.status(500).send("Error retrieving product");
+            } else {
+                //res.status(200).json(result.rows);
+            }
+        }
+    );
+    query = "DELETE FROM vehicles where product_id=$1;"
+    pool.query(query,[productId],
+        (err, result) => {
+            if (err) {
+                console.log(err);
+                res.status(500).send("Error retrieving product");
+            } else {
+                //res.status(200).json(result.rows);
+            }
+        }
+    );
+    query = "DELETE FROM product where product_id=$1";
+    pool.query(query,[productId],
+        (err, result) => {
+            if (err) {
+                console.log(err);
+                res.status(500).send("Error retrieving product");
+            } else {
+                res.status(200).json(result.rows);
+            }
+        }
+    );
+});
+
+
+
 
 module.exports = router;
 
