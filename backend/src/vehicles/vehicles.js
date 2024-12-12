@@ -42,12 +42,20 @@ if (minPrice && maxPrice) {
     params.push(minPrice, maxPrice);
 }
 if(sellerAdress){
-    conditions.push(`WHERE address.city=$${params.length + 1}`);
+    conditions.push(`address.city=$${params.length + 1}`);
     params.push(sellerAdress);
 }
 if(model){
     conditions.push(`vehicle_models.model_name ILIKE $${params.length+1}`);
     params.push(model);
+}
+if(mark){
+    conditions.push(`vehicle_marks.mark_name=$${params.length+1} AND vehicles.mark_id=vehicle_marks.mark_id`);
+    params.push(mark);
+}
+if(type){
+    conditions.push(`vehicle_types.type_name ILIKE $${params.length+1} AND vehicles.type_id=vehicle_types.type_id`);
+    params.push(type);
 }
 
 
@@ -56,7 +64,6 @@ if(model){
 if (conditions.length > 0) {
     query += " WHERE " + conditions.join(" AND ");
 }
-console.log(query);
 try {
     const result = await pool.query(query, params);
     res.status(200).json(result.rows);
