@@ -21,12 +21,12 @@ mark and all models below it)
 · Date of first registration and mileage (as intervals), type of fuel, color, and condition
 */
 router.get("/", async(req, res) => {
-    const { search, minPrice, maxPrice, sellerAdress, model, mark, type, registration,mileageinterval, fuel_type, color, condition, } = req.body;
+    const { search, minPrice, maxPrice, sellerAdress, model, mark, type, registration,mileageinterval, fuel_type, color, condition } = req.body;
 
 let query = "SELECT product.name, product.price, product.image_url, vehicles.mileage, vehicles.first_registration_date FROM product";
 query+=" join vehicles on vehicles.product_id=product.product_id join users on product.user_id=users.user_id join vehicle_marks on vehicles.mark_id=vehicle_marks.mark_id";
 query+=" join vehicle_types on vehicle_types.type_id=vehicles.type_id join vehicle_models on vehicle_models.model_id=vehicles.model_id";
-query+=" join fuel_types on vehicles.fuel_type_id=fuel_types.fuel_type_id";
+query+=" join fuel_types on vehicles.fuel_type_id=fuel_types.fuel_type_id join conditions on vehicles.condition_id=conditions.condition_id";
 let params = [];
 let conditions = [];
 
@@ -68,6 +68,10 @@ if(fuel_type){
 if(color){
     conditions.push(`vehicles.color=$${params.length+1}`);
     params.push(color);
+}
+if(condition){
+    conditions.push(`conditions.condition_name ILIKE $${params.length+1} AND conditions.condition_id=vehicles.condition_id`);
+    params.push(condition);
 }
 
 
