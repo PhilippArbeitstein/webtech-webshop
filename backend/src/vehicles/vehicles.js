@@ -57,6 +57,10 @@ if(type){
     conditions.push(`vehicle_types.type_name ILIKE $${params.length+1} AND vehicles.type_id=vehicle_types.type_id`);
     params.push(type);
 }
+if(registration){
+    conditions.push(`vehicles.first_registration_date>$${params.length+1}`);
+    params.push(registration);
+}
 
 
 
