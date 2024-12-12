@@ -1,0 +1,47 @@
+<!-- Navbar -->
+<div class="flex justify-between items-center px-8 py-4 h-16">
+    <!-- Logo -->
+    <a [routerLink]="['/']" class="md:text-4xl font-bold">Fynd</a>
+
+    <!-- Authentication Links -->
+    <div *ngIf="!(isLoggedIn$ | async); else loggedIn" class="flex space-x-6">
+        <a
+            [routerLink]="['/register']"
+            class="text-lg font-medium hover:underline"
+        >
+            Registriere Dich
+        </a>
+        <a
+            [routerLink]="['/login']"
+            class="text-lg font-medium hover:underline"
+        >
+            Einloggen
+        </a>
+    </div>
+
+    <!-- Logged-In State -->
+    <ng-template #loggedIn>
+        <div class="flex space-x-6 items-center">
+            <!-- Messages Link -->
+            <a
+                [routerLink]="['/messages']"
+                routerLinkActive="font-bold underline text-teal-950"
+                class="text-lg font-medium hover:underline text-text_gray"
+            >
+                Nachrichten
+            </a>
+
+            <!-- Profile Picture -->
+            <div class="flex items-center">
+                <img
+                    src="assets/profile-picture.png"
+                    alt="User Avatar"
+                    class="w-14 h-14 object-cover rounded-full border border-gray-300 cursor-pointer"
+                    (click)="overlayService.openOverlay()"
+                />
+            </div>
+        </div>
+    </ng-template>
+</div>
+
+<app-profile-overlay></app-profile-overlay>

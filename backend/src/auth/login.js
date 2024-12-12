@@ -1,35 +1,51 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
 
-const pool = require("../pool");
+const pool = require('../pool');
 
-router.post("/", (req, res) => {
-    const email = req.body.email;
-    const password = req.body.password;
+router.post('/', async (req, res) => {
+    const { email, password } = req.body;
 
-    const query = `SELECT * FROM users WHERE email=$1 AND password=$2`;
-    pool.query(query, [email, password])
-        .then((results) => {
-            if (results.rows.length === 0) {
-                res.status(400).json({ error: "Login failed." });
-            }
+    if (!email || !password) {
+        return res
+            .status(400)
+            .json({ error: 'Email and password are required.' });
+    }
 
-            const resultRows = results.rows;
-            const resultUser = resultRows[0];
+    try {
+        const query = `SELECT * FROM users WHERE email = $1 AND password = $2`;
+        const result = await pool.query(query, [email, password]);
 
-            req.session.isAuth = true;
-            req.session.username = email;
+        if (result.rows.length === 0) {
+            return res
+                .status(400)
+                .json({ error: 'Invalid email or password.' });
+        }
 
-            res.status(200).json({
-                message: "Login successful",
-                email: resultUser.email,
-            });
-        })
-        .catch((error) => {
-            res.status(400).json({
-                error: `Error accessing Database ${error}`,
-            });
+        const user = result.rows[0];
+
+        req.session.isAuth = true;
+        req.session.user_id = user.user_id;
+        req.session.email = email;
+
+        res.status(200).json({
+            message: 'Login successful',
+            id: user.user_id
         });
+    } catch (error) {
+        console.error('Error accessing the database:', error);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+});
+
+router.get('/session', (req, res) => {
+    if (req.session.isAuth) {
+        return res.status(200).json({
+            loggedIn: true,
+            user_id: req.session.user_id
+        });
+    }
+    res.status(401).json({ loggedIn: false });
 });
 
 module.exports = router;
