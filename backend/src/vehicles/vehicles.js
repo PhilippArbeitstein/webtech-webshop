@@ -61,6 +61,14 @@ if(registration){
     conditions.push(`vehicles.first_registration_date>$${params.length+1}`);
     params.push(registration);
 }
+if(fuel_type){
+    conditions.push(`fuel_types.fuel_type_name=$${params.length+1} AND vehicles.fuel_type_id=fuel_types.fuel_type_id`);
+    params.push(fuel_type);
+}
+if(color){
+    conditions.push(`vehicles.color=$${params.length+1}`);
+    params.push(color);
+}
 
 
 
