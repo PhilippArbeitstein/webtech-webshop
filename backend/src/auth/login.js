@@ -77,14 +77,16 @@ router.post('/register', async (req, res) => {
             [city, user_address, province]
         );
         const addressId = newAddressResult.rows[0].address_id;
-        console.log(addressId);
 
         const registerUserResult = await pool.query(
             'INSERT INTO users (email, username, password, address_id) VALUES ($1, $2, $3, $4) RETURNING *',
             [email, username, password, addressId]
         );
         const newUser = registerUserResult.rows[0];
-        console.log(newUser);
+
+        req.session.isAuth = true;
+        req.session.user_id = newUser.user_id;
+        req.session.email = newUser.email;
 
         res.status(200).json({
             message: 'Registration successful',
