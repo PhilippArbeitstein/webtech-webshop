@@ -4,29 +4,29 @@
     <div class="flex flex-col h-full">
         <app-navbar class="shrink-0"></app-navbar>
         <div
-            class="flex-grow flex flex-col justify-center items-center space-y-4"
+            class="flex-grow flex flex-col justify-center items-center space-y-6"
         >
             <h1 class="md:text-4xl font-bold text-center">
                 Fynd it here or find it nowhere!
             </h1>
-            <div class="flex flex-row space-x-4">
+            <div class="flex flex-row space-x-4 items-center">
                 <img
                     src="../../../assets/MarketPlace.svg"
                     alt="Retail Marketplace"
-                    class="w-32 h-32 md:w-40 md:h-40 sm:w-26 sm:h-26"
-                    [routerLink]="['/']"
+                    class="w-32 h-32 md:w-40 md:h-40 sm:w-26 sm:h-26 hover:cursor-pointer"
+                    [routerLink]="['/retail']"
                 />
                 <img
                     src="../../../assets/CarPlace.svg"
                     alt="Vehicle Marketplace"
-                    class="w-32 h-32 md:w-40 md:h-40 sm:w-26 sm:h-26"
-                    [routerLink]="['/']"
+                    class="w-32 h-32 md:w-40 md:h-40 sm:w-26 sm:h-26 hover:cursor-pointer"
+                    [routerLink]="['/vehicles']"
                 />
                 <img
                     src="../../../assets/HousePlace.svg"
                     alt="Real Estate Marketplace"
                     class="w-32 h-32 md:w-40 md:h-40 sm:w-26 sm:h-26 hover:cursor-pointer"
-                    [routerLink]="['/']"
+                    [routerLink]="['/real-estate']"
                 />
             </div>
         </div>
