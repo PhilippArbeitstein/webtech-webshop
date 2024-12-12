@@ -121,12 +121,9 @@ router.get("/user/:user_id", async(req, res) => {
 });
 //delete listing. 
 //TODO CHECK FOR VALIDATION
+//TODO Maybe improve cause right now im just sending 3 request lmao
 router.delete("/:product_id", async(req, res) => {
-
-    
     let query = "DELETE FROM product_has_category where product_id=$1;"
-    // DELETE FROM vehicles where product_id=$2; DELETE FROM product where product_id=$3";
-    
     const productId = req.params.product_id;
     pool.query(query,[productId],
         (err, result) => {
@@ -162,6 +159,125 @@ router.delete("/:product_id", async(req, res) => {
     );
 });
 
+//Update Product
+//TODO check for validation
+router.put("/:product_id", async(req, res) => {
+    const productId = req.params.product_id;
+    let { mark,model,type,first_registration,mileage,fuel_type,color,condition,image_url,name,description,price,status,additional_properties } = req.body;
+    let set=[];
+
+    //Update Vehicle
+    //transfer names to Ids and add them to the set
+    if (mark) {
+        const markResult = await pool.query('SELECT mark_id FROM vehicle_marks WHERE mark_name ILIKE $1', [mark]);
+  
+        if (markResult.rows.length === 0) {
+          return res.status(400).json({ error: 'Mark not found' });
+        }
+  
+        mark = markResult.rows[0].mark_id;
+        set.push(`mark_id='${mark}'`);
+        
+      }
+      if(model){
+          const modelResult = await pool.query('SELECT model_id FROM vehicle_models WHERE model_name ILIKE $1', [model]);
+  
+        if (modelResult.rows.length === 0) {
+          return res.status(400).json({ error: 'Mark not found' });
+        }
+  
+        model = modelResult.rows[0].model_id;
+        set.push(`model_id='${model}'`);
+        
+      }
+      if(type){
+          const typeResult = await pool.query('SELECT type_id FROM vehicle_types WHERE type_name ILIKE $1', [type]);
+  
+        if (typeResult.rows.length === 0) {
+          return res.status(400).json({ error: 'Mark not found' });
+        }
+  
+        type = typeResult.rows[0].type_id;
+        set.push(`type_id='${type}'`);
+      }
+      if(fuel_type){
+          const fuelResult = await pool.query('SELECT fuel_type_id FROM fuel_types WHERE model_name ILIKE $1', [fuel_type]);
+  
+        if (fuelResult.rows.length === 0) {
+          return res.status(400).json({ error: 'Mark not found' });
+        }
+  
+        fuel_type = fuelResult.rows[0].fuel_type_id;
+        set.push(`fuel_type_id='${fuel_type}'`);
+      }
+      if(condition){
+          const conditionResult = await pool.query('SELECT condition_id FROM conditions WHERE condition_name ILIKE $1', [condition]);
+  
+        if (conditionResult.rows.length === 0) {
+          return res.status(400).json({ error: 'Mark not found' });
+        }
+  
+        condition = conditionResult.rows[0].condition_id;
+        set.push(`condition_id='${condition}'`);
+      }
+    if(first_registration){
+        set.push(`first_registration='${first_registration}'`);
+    }
+    if(mileage){
+        set.push(`mileage='${mileage}'`);
+    }
+    if(color){
+        set.push(`color='${color}'`);
+    }
+    query = "Update vehicles set "+set.join(", ")+" where vehicles.product_id=$1";
+    pool.query(query,[productId],
+        (err, result) => {
+            if (err) {
+                console.log(err);
+                res.status(500).send("Error retrieving product");
+            } else {
+                res.status(200).json("Successfully updated vehicle");
+            }
+        }
+    );
+    //update product
+    set=[];
+    if(status){
+        const statusResult = await pool.query('SELECT status_id FROM statuses WHERE status_name ILIKE $1', [status]);
+
+      if (statusResult.rows.length === 0) {
+        return res.status(400).json({ error: 'Mark not found' });
+      }
+      status = statusResult.rows[0].status_id;
+      set.push(`status_id='${status}'`);
+    }
+    if(image_url){
+        set.push(`image_url='${image_url}'`);
+    }
+    if(name){
+        set.push(`name='${name}'`);
+    }
+    if(description){
+        set.push(`description='${description}'`);
+    }
+    if(price){
+        set.push(`price='${price}'`);
+    }
+    if(additional_properties){
+        set.push(`additional_properties='${additional_properties}'`);
+    }
+    query = "Update product set "+set.join(", ")+" where product.product_id=$1";
+    pool.query(query,[productId],
+        (err, result) => {
+            if (err) {
+                console.log(err);
+                res.status(500).send("Error retrieving product");
+            } else {
+                res.status(200).json("Successfully updated product");
+            }
+        }
+    );
+});
 
 
 
