@@ -119,6 +119,7 @@ router.get("/user/:user_id", async(req, res) => {
         }
     );
 });
+
 //delete listing. 
 //TODO CHECK FOR VALIDATION
 router.delete("/:product_id", async(req, res) => {
@@ -253,7 +254,6 @@ router.post("/", async(req, res) => {
         res.status(400).send("Insufficient Information");
     }
     //Adding for product
-    //getting status id
     status = await getIDFromName("status_id","statuses","status_name",status);
     user=await getIDFromName("user_id","users","username",user);
     const productValues = [user, image_url, name, description, price, status, additional_properties];
@@ -268,7 +268,6 @@ router.post("/", async(req, res) => {
     const productId = productResult.rows[0].product_id;
 
     //Adding for vehicle
-    //Getting names from IDs
     mark = await getIDFromName("mark_id","vehicle_marks","mark_name",mark);
     model = await getIDFromName("model_id","vehicle_models","model_name",model);
     type = await getIDFromName("type_id","vehicle_types","type_name",type);
@@ -298,6 +297,32 @@ router.post("/", async(req, res) => {
     );
 });
 
+router.get('/messages/message', async (req, res) => {
+    const { from_user, to_user, productId } = req.body;
+    console.log("AAAAAAAAAAa");
+    if (!from_user || !to_user || !productId) {
+      return res.status(400).json({ error: "Missing parameters" });
+    }   
+    
+    try {
+      // Query to get messages between two users for a specific product
+      const query = `
+        SELECT from_user_id, to_user_id, message, sent_at
+        FROM messages
+        WHERE from_user_id = $1 AND to_user_id = $2 AND product_id = $3
+        ORDER BY sent_at;`;
+  
+      const result = await pool.query(query, [from_user, to_user, productId]);
+  
+      if (result.rows.length === 0) {
+        return res.status(404).json({ message: "No messages found" });
+      }
+      res.status(200).json(result.rows);
+    } catch (error) {
+      console.error('Error retrieving messages:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
 
 
 module.exports = router;
