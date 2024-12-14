@@ -121,7 +121,6 @@ router.get("/user/:user_id", async(req, res) => {
 });
 //delete listing. 
 //TODO CHECK FOR VALIDATION
-//TODO Maybe improve cause right now im just sending 3 request lmao
 router.delete("/:product_id", async(req, res) => {
     let query = "DELETE FROM product_has_category where product_id=$1;"
     const productId = req.params.product_id;
@@ -169,56 +168,25 @@ router.put("/:product_id", async(req, res) => {
     //Update Vehicle
     //transfer names to Ids and add them to the set
     if (mark) {
-        const markResult = await pool.query('SELECT mark_id FROM vehicle_marks WHERE mark_name ILIKE $1', [mark]);
-  
-        if (markResult.rows.length === 0) {
-          return res.status(400).json({ error: 'Mark not found' });
-        }
-  
-        mark = markResult.rows[0].mark_id;
+        mark = await getIDFromName("mark_id","vehicle_marks","mark_name",mark);
         set.push(`mark_id='${mark}'`);
-        
       }
       if(model){
-          const modelResult = await pool.query('SELECT model_id FROM vehicle_models WHERE model_name ILIKE $1', [model]);
-  
-        if (modelResult.rows.length === 0) {
-          return res.status(400).json({ error: 'Mark not found' });
-        }
-  
-        model = modelResult.rows[0].model_id;
+        model = await getIDFromName("model_id","vehicle_models","model_name",model);
         set.push(`model_id='${model}'`);
         
       }
       if(type){
-          const typeResult = await pool.query('SELECT type_id FROM vehicle_types WHERE type_name ILIKE $1', [type]);
-  
-        if (typeResult.rows.length === 0) {
-          return res.status(400).json({ error: 'Mark not found' });
-        }
-  
-        type = typeResult.rows[0].type_id;
+         type = await getIDFromName("type_id","vehicle_types","type_name",type);
         set.push(`type_id='${type}'`);
       }
       if(fuel_type){
-          const fuelResult = await pool.query('SELECT fuel_type_id FROM fuel_types WHERE model_name ILIKE $1', [fuel_type]);
-  
-        if (fuelResult.rows.length === 0) {
-          return res.status(400).json({ error: 'Mark not found' });
-        }
-  
-        fuel_type = fuelResult.rows[0].fuel_type_id;
+        fuel_type = await getIDFromName("fuel_type_id","fuel_types","fuel_type_name",fuel_type);
         set.push(`fuel_type_id='${fuel_type}'`);
       }
-      if(condition){
-          const conditionResult = await pool.query('SELECT condition_id FROM conditions WHERE condition_name ILIKE $1', [condition]);
-  
-        if (conditionResult.rows.length === 0) {
-          return res.status(400).json({ error: 'Mark not found' });
-        }
-  
-        condition = conditionResult.rows[0].condition_id;
-        set.push(`condition_id='${condition}'`);
+    if(condition){
+       condition=await getIDFromName("condition_id","conditions","condition_name",condition);
+       set.push(`condition_id='${condition}'`);
       }
     if(first_registration){
         set.push(`first_registration='${first_registration}'`);
@@ -230,25 +198,21 @@ router.put("/:product_id", async(req, res) => {
         set.push(`color='${color}'`);
     }
     query = "Update vehicles set "+set.join(", ")+" where vehicles.product_id=$1";
+    
     pool.query(query,[productId],
         (err, result) => {
             if (err) {
                 console.log(err);
                 res.status(500).send("Error retrieving product");
             } else {
-                res.status(200).json("Successfully updated vehicle");
+                //res.status(200).json("Successfully updated vehicle");
             }
         }
     );
     //update product
     set=[];
     if(status){
-        const statusResult = await pool.query('SELECT status_id FROM statuses WHERE status_name ILIKE $1', [status]);
-
-      if (statusResult.rows.length === 0) {
-        return res.status(400).json({ error: 'Mark not found' });
-      }
-      status = statusResult.rows[0].status_id;
+      status = await getIDFromName("status_id","statuses","status_name",status);
       set.push(`status_id='${status}'`);
     }
     if(image_url){
@@ -267,6 +231,7 @@ router.put("/:product_id", async(req, res) => {
         set.push(`additional_properties='${additional_properties}'`);
     }
     query = "Update product set "+set.join(", ")+" where product.product_id=$1";
+    
     pool.query(query,[productId],
         (err, result) => {
             if (err) {
@@ -274,6 +239,60 @@ router.put("/:product_id", async(req, res) => {
                 res.status(500).send("Error retrieving product");
             } else {
                 res.status(200).json("Successfully updated product");
+            }
+        }
+    );
+});
+
+//Add new car
+router.post("/", async(req, res) => {
+    
+    let { mark,model,type,first_registration,mileage,fuel_type,color,condition,user,image_url,name,description,price,status,additional_properties } = req.body;
+    if(!mark,!model,!type,!first_registration,!mileage,!fuel_type,!color,!condition,!user,!image_url,!name,!description,!price,!status,!additional_properties){
+      
+        res.status(400).send("Insufficient Information");
+    }
+    //Adding for product
+    //getting status id
+    status = await getIDFromName("status_id","statuses","status_name",status);
+    user=await getIDFromName("user_id","users","username",user);
+    const productValues = [user, image_url, name, description, price, status, additional_properties];
+    
+    const productInsertQuery = `
+      INSERT INTO product (user_id, image_url, name, description, price, status_id, additional_properties)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING product_id;
+    `;
+    
+    const productResult = await pool.query(productInsertQuery, productValues);
+    const productId = productResult.rows[0].product_id;
+
+    //Adding for vehicle
+    //Getting names from IDs
+    mark = await getIDFromName("mark_id","vehicle_marks","mark_name",mark);
+    model = await getIDFromName("model_id","vehicle_models","model_name",model);
+    type = await getIDFromName("type_id","vehicle_types","type_name",type);
+    fuel_type = await getIDFromName("fuel_type_id","fuel_types","fuel_type_name",fuel_type);
+    condition=await getIDFromName("condition_id","conditions","condition_name",condition);
+
+
+    const vehicleValues = [
+        productId, mark, model, type, first_registration, mileage, fuel_type, color, condition
+    ];
+
+    const vehicleInsertQuery = `
+      INSERT INTO vehicles (product_id, mark_id, model_id, type_id, first_registration_date, mileage, fuel_type_id, color, condition_id)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
+    `;
+
+
+    pool.query(vehicleInsertQuery,vehicleValues,
+        (err, result) => {
+            if (err) {
+                console.log(err);
+                res.status(500).send("Error inserting product");
+            } else {
+                res.status(200).json("Successfully inserted product");
             }
         }
     );
@@ -289,4 +308,27 @@ function getFullJoinTable(){
     query+=" join vehicle_types on vehicle_types.type_id=vehicles.type_id join vehicle_models on vehicle_models.model_id=vehicles.model_id";
     query+=" join fuel_types on vehicles.fuel_type_id=fuel_types.fuel_type_id join conditions on vehicles.condition_id=conditions.condition_id";
     return query;
+}
+//Doesnt work yet
+//TODO FIX
+async function getIDFromName(idRowName, tableName, nameRow, name) {
+    try {
+        const query = `
+            SELECT ${idRowName}
+            FROM ${tableName}
+            WHERE ${nameRow} ILIKE $1
+            LIMIT 1;
+        `;
+
+        const result = await pool.query(query, [name]);
+
+        if (result.rows.length === 0) {
+            throw new Error(`${name} not found in ${tableName}`);
+        }
+
+        return result.rows[0][idRowName];
+    } catch (error) {
+        console.error(error.message);
+        throw new Error(`Error in getIDFromName: ${error.message}`);
+    }
 }
