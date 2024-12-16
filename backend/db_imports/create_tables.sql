@@ -129,28 +129,14 @@ CREATE TABLE real_estate (
     CONSTRAINT rent_period CHECK (rent_start < rent_end)
 );
 
--- Create table: requests
-CREATE TABLE requests (
-    product_id INT NOT NULL REFERENCES product(product_id),
-    from_user_id INT NOT NULL REFERENCES users(user_id),
-    to_user_id INT NOT NULL REFERENCES users(user_id),
-    message TEXT NOT NULL,
-    status_id INT NOT NULL REFERENCES statuses(status_id),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT request_creation CHECK (created_at <= updated_at),
-    PRIMARY KEY (product_id, from_user_id, to_user_id)
-);
-
 -- Create table: messages
 CREATE TABLE messages (
-    from_user_id INT NOT NULL,
-    to_user_id INT NOT NULL,
-    product_id INT NOT NULL,
+    message_id SERIAL PRIMARY KEY,
+    from_user_id INT NOT NULL REFERENCES users(user_id),
+    to_user_id INT NOT NULL REFERENCES users(user_id),
+    product_id INT NOT NULL REFERENCES product(product_id),
+    status_id INT NOT NULL REFERENCES statuses(status_id),
     message TEXT NOT NULL,
-    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (from_user_id, to_user_id, product_id),
-    FOREIGN KEY (from_user_id, to_user_id, product_id)
-        REFERENCES requests (from_user_id, to_user_id, product_id)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
