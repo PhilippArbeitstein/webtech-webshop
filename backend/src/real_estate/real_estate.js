@@ -37,15 +37,51 @@ router.get('/listings', async (req, res) => {
     }
 });
 
+// Helper method to validate product ownership with user_id stored in request token
+async function validateProductOwnership(transaction, product_id, user_id) {
+    // Check if user_id is provided and valid
+    if (!user_id) {
+        return {
+            success: false,
+            message: 'Permission denied: User ID is missing or invalid'
+        };
+    }
+
+    // Query to check ownership
+    const productOwnerResult = await transaction.query(
+        `
+        SELECT user_id FROM product WHERE product_id = $1
+        `,
+        [product_id]
+    );
+
+    if (productOwnerResult.rows.length === 0) {
+        return {
+            success: false,
+            message: 'Permission denied: Product not found'
+        };
+    }
+
+    const productOwnerId = productOwnerResult.rows[0].user_id;
+
+    if (productOwnerId !== user_id) {
+        return {
+            success: false,
+            message: 'Permission denied: You do not own this product'
+        };
+    }
+
+    return { success: true };
+}
+
 // Get real-estate listings from a single user
 router.get('/user-listings', async (req, res) => {
-    const { user_id } = req.body;
     try {
         const userExists = await pool.query(
             `
             SELECT user_id FROM users WHERE user_id = $1
             `,
-            [user_id]
+            [req.session.user_id]
         );
 
         if (userExists.rows.length === 0) {
@@ -54,7 +90,7 @@ router.get('/user-listings', async (req, res) => {
 
         const allListings = await pool.query(
             `
-            SELECT  re.product_id, u.email, u.username, p.image_url, p.name, p.description, p.price, 
+            SELECT re.product_id, u.email, u.username, p.image_url, p.name, p.description, p.price, 
             s.status_name, p.created_at, p.updated_at, p.additional_properties, t.type_name, 
             a.city, a.address, a.province, re.address_details, re.advance_payment, re.rent_start, re.rent_end
             FROM real_estate re INNER JOIN product p ON re.product_id = p.product_id 
@@ -65,7 +101,7 @@ router.get('/user-listings', async (req, res) => {
             WHERE u.user_id = $1
             ORDER BY p.created_at DESC;
             `,
-            [user_id]
+            [req.session.user_id]
         );
 
         if (allListings.rows.length === 0) {
@@ -171,12 +207,26 @@ router.post('/new', async (req, res) => {
 });
 
 // Delete a real estate listing
+// TODO: Validate that the product_id belongs to the user sending the request
 router.delete('/delete/:product_id', async (req, res) => {
     const transaction = await pool.connect();
     const { product_id } = req.params;
 
     try {
         await transaction.query('BEGIN');
+
+        const ownershipValidation = await validateProductOwnership(
+            transaction,
+            product_id,
+            req.session.user_id
+        );
+
+        if (!ownershipValidation.success) {
+            await transaction.query('ROLLBACK');
+            return res
+                .status(403)
+                .json({ message: ownershipValidation.message });
+        }
 
         // Delete from the `real_estate` table
         const realEstateResult = await transaction.query(
@@ -410,6 +460,38 @@ router.put('/update/:product_id', async (req, res) => {
 
     try {
         await transaction.query('BEGIN');
+
+        const ownershipValidation = await validateProductOwnership(
+            transaction,
+            product_id,
+            req.session.user_id
+        );
+
+        if (!ownershipValidation.success) {
+            await transaction.query('ROLLBACK');
+            return res
+                .status(403)
+                .json({ message: ownershipValidation.message });
+        }
+
+        const productOwnerResult = await transaction.query(
+            `
+            SELECT user_id FROM product WHERE product_id = $1
+            `,
+            [product_id]
+        );
+
+        if (productOwnerResult.rows.length === 0) {
+            throw new Error('Product not found');
+        }
+
+        const productOwnerId = productOwnerResult.rows[0].user_id;
+
+        if (productOwnerId !== req.session.user_id) {
+            res.status(403).json({
+                message: 'You do not have permission to update this product'
+            });
+        }
 
         await updateProduct(transaction, product_id, {
             status_id,
