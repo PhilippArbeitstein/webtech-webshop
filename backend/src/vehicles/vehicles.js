@@ -307,10 +307,10 @@ router.get('/messages/message', async (req, res) => {
     to_user_id=await getIDFromName("user_id","users","email",to_user);
     productId=await getIDFromName("product_id","product","name",product);
     try {
-      const query = `SELECT from_user_id, to_user_id, message, created_at FROM messages WHERE product_id = $1 
-          AND ((from_user_id = $2 AND to_user_id = $3) OR (from_user_id = $3 AND to_user_id = $2))
-        ORDER BY created_at ASC;`;
-      const result = await pool.query(query, [productId, from_user_id, to_user_id]);
+      const query = `SELECT fu.email AS from_user_email, tu.email AS to_user_email, p.name AS product_name, m.message AS message, m.created_at as sent_at
+        FROM messages m JOIN users fu ON m.from_user_id = fu.user_id JOIN users tu ON m.to_user_id = tu.user_id JOIN product p ON m.product_id = p.product_id
+        WHERE ((m.from_user_id = $1 AND m.to_user_id = $2) OR (m.from_user_id=$2 AND m.to_user_id=$1)) AND m.product_id = $3 ORDER BY m.created_at ASC`;
+      const result = await pool.query(query, [ from_user_id, to_user_id,productId]);
       if (result.rows.length === 0) {
         return res.status(404).json({ message: "No messages found" });
       }
