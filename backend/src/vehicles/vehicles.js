@@ -296,24 +296,21 @@ router.post("/", async(req, res) => {
         }
     );
 });
-
+//get all messages between users
 router.get('/messages/message', async (req, res) => {
-    const { from_user, to_user, productId } = req.body;
-    console.log("AAAAAAAAAAa");
-    if (!from_user || !to_user || !productId) {
+    const { from_user, to_user, product } = req.body;
+  
+    if (!from_user || !to_user || !product) {
       return res.status(400).json({ error: "Missing parameters" });
-    }   
-    
+    }
+    from_user_id=await getIDFromName("user_id","users","email",from_user);
+    to_user_id=await getIDFromName("user_id","users","email",to_user);
+    productId=await getIDFromName("product_id","product","name",product);
     try {
-      // Query to get messages between two users for a specific product
-      const query = `
-        SELECT from_user_id, to_user_id, message, sent_at
-        FROM messages
-        WHERE from_user_id = $1 AND to_user_id = $2 AND product_id = $3
-        ORDER BY sent_at;`;
-  
-      const result = await pool.query(query, [from_user, to_user, productId]);
-  
+      const query = `SELECT from_user_id, to_user_id, message, created_at FROM messages WHERE product_id = $1 
+          AND ((from_user_id = $2 AND to_user_id = $3) OR (from_user_id = $3 AND to_user_id = $2))
+        ORDER BY created_at ASC;`;
+      const result = await pool.query(query, [productId, from_user_id, to_user_id]);
       if (result.rows.length === 0) {
         return res.status(404).json({ message: "No messages found" });
       }
@@ -324,6 +321,31 @@ router.get('/messages/message', async (req, res) => {
     }
   });
 
+  //Add a new message into the system
+  router.post('/messages/message', async (req, res) => {
+    const { from_user, to_user, product, message } = req.body;
+  
+    if (!from_user || !to_user || !product||!message) {
+      return res.status(400).json({ error: "Missing parameters" });
+    }
+    from_user_id=await getIDFromName("user_id","users","email",from_user);
+    to_user_id=await getIDFromName("user_id","users","email",to_user);
+    productId=await getIDFromName("product_id","product","name",product);
+    try {
+      // Query to insert a new message
+    const query = `
+    INSERT INTO messages (from_user_id, to_user_id, product_id, message)
+    VALUES ($1, $2, $3,$4) RETURNING message_id;`;
+      const result = await pool.query(query, [ from_user_id, to_user_id,productId,message]);
+      if (result.rows.length === 0) {
+        return res.status(404).json({ message: "No messages found" });
+      }
+      res.status(200).json("succesfully inserted message");
+    } catch (error) {
+      console.error('Error inserting messages:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
 
 module.exports = router;
 
@@ -334,8 +356,8 @@ function getFullJoinTable(){
     query+=" join fuel_types on vehicles.fuel_type_id=fuel_types.fuel_type_id join conditions on vehicles.condition_id=conditions.condition_id";
     return query;
 }
-//Doesnt work yet
-//TODO FIX
+
+//ALWAYS USE AWAIT WHEN USING THIS FUNCTION!!!!!
 async function getIDFromName(idRowName, tableName, nameRow, name) {
     try {
         const query = `
