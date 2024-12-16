@@ -179,40 +179,39 @@ INSERT INTO vehicles (product_id, mark_id, model_id, type_id, first_registration
 (39, 5, 7, 1, '2022-02-20', 15000, 3, 'White', 1), -- Toyota RAV4
 (40, 1, 8, 1, '2023-05-01', 5000, 1, 'Gray', 1); -- Audi Q5
 
-
--- Messages hinzufügen
+-- messages hinzufügen
 -- Messages about product_id 1 (Audi A4)
-INSERT INTO messages (from_user_id, to_user_id, product_id, status_id, message, created_at) VALUES
-(2, 1, 1, 1, 'Hello! Is the Audi A4 still available?', '2024-12-16 10:30:00'),
-(1, 2, 1, 1, 'Yes, it is available. Are you interested?', '2024-12-16 10:45:00'),
-(2, 1, 1, 1, 'I am. Can we schedule a test drive this weekend?', '2024-12-16 11:00:00'),
-(1, 2, 1, 1, 'Sure, Saturday morning works for me.', '2024-12-16 11:15:00');
+INSERT INTO messages (from_user_id, to_user_id, product_id, message, created_at) VALUES
+(2, 1, 1, 'Hello! Is the Audi A4 still available?', '2024-12-16 10:30:00'),
+(1, 2, 1, 'Yes, it is available. Are you interested?', '2024-12-16 10:45:00'),
+(2, 1, 1, 'I am. Can we schedule a test drive this weekend?', '2024-12-16 11:00:00'),
+(1, 2, 1, 'Sure, Saturday morning works for me.', '2024-12-16 11:15:00');
 
 -- Messages about product_id 3 (Wohnung in Graz)
-INSERT INTO messages (from_user_id, to_user_id, product_id, status_id, message, created_at) VALUES
-(3, 2, 3, 1, 'I saw your listing for the apartment in Graz. Is it still for sale?', '2024-12-15 09:00:00'),
-(2, 3, 3, 1, 'Yes, it is. Do you want to arrange a viewing?', '2024-12-15 09:15:00'),
-(3, 2, 3, 1, 'Yes, can we do Friday afternoon?', '2024-12-15 09:30:00'),
-(2, 3, 3, 1, 'Perfect, I will send you the address details.', '2024-12-15 09:45:00');
+INSERT INTO messages (from_user_id, to_user_id, product_id, message, created_at) VALUES
+(3, 2, 3, 'I saw your listing for the apartment in Graz. Is it still for sale?', '2024-12-15 09:00:00'),
+(2, 3, 3, 'Yes, it is. Do you want to arrange a viewing?', '2024-12-15 09:15:00'),
+(3, 2, 3, 'Yes, can we do Friday afternoon?', '2024-12-15 09:30:00'),
+(2, 3, 3, 'Perfect, I will send you the address details.', '2024-12-15 09:45:00');
 
 -- Messages about product_id 8 (Apple MacBook Pro)
-INSERT INTO messages (from_user_id, to_user_id, product_id, status_id, message, created_at) VALUES
-(4, 2, 8, 1, 'Is the MacBook Pro still available for pick-up?', '2024-12-14 14:00:00'),
-(2, 4, 8, 1, 'Yes, it is. When would you like to pick it up?', '2024-12-14 14:15:00'),
-(4, 2, 8, 1, 'Tomorrow afternoon, if that works for you.', '2024-12-14 14:30:00'),
-(2, 4, 8, 1, 'Sounds good! I will confirm the location via email.', '2024-12-14 14:45:00');
+INSERT INTO messages (from_user_id, to_user_id, product_id, message, created_at) VALUES
+(4, 2, 8, 'Is the MacBook Pro still available for pick-up?', '2024-12-14 14:00:00'),
+(2, 4, 8, 'Yes, it is. When would you like to pick it up?', '2024-12-14 14:15:00'),
+(4, 2, 8, 'Tomorrow afternoon, if that works for you.', '2024-12-14 14:30:00'),
+(2, 4, 8, 'Sounds good! I will confirm the location via email.', '2024-12-14 14:45:00');
 
 -- Messages about product_id 6 (Villa in Wien)
-INSERT INTO messages (from_user_id, to_user_id, product_id, status_id, message, created_at) VALUES
-(1, 4, 6, 1, 'Is the villa still available? It looks amazing.', '2024-12-13 12:00:00'),
-(4, 1, 6, 1, 'It is. Would you like to schedule a tour?', '2024-12-13 12:15:00'),
-(1, 4, 6, 1, 'Yes, please. How about next Monday?', '2024-12-13 12:30:00'),
-(4, 1, 6, 1, 'That works. I will send you the details shortly.', '2024-12-13 12:45:00');
+INSERT INTO messages (from_user_id, to_user_id, product_id, message, created_at) VALUES
+(1, 4, 6, 'Is the villa still available? It looks amazing.', '2024-12-13 12:00:00'),
+(4, 1, 6, 'It is. Would you like to schedule a tour?', '2024-12-13 12:15:00'),
+(1, 4, 6, 'Yes, please. How about next Monday?', '2024-12-13 12:30:00'),
+(4, 1, 6, 'That works. I will send you the details shortly.', '2024-12-13 12:45:00');
 
 -- Messages about product_id 2 (Yamaha MT-07)
-INSERT INTO messages (from_user_id, to_user_id, product_id, status_id, message, created_at) VALUES
-(3, 1, 2, 1, 'Hi, I am interested in the Yamaha MT-07. Is it available?', '2024-12-12 10:00:00'),
-(1, 3, 2, 1, 'Yes, it is available. Do you want to take a look?', '2024-12-12 10:15:00'),
-(3, 1, 2, 1, 'Yes, I would like to see it in person. When are you free?', '2024-12-12 10:30:00'),
-(1, 3, 2, 1, 'I am free on Wednesday afternoon. Does that work?', '2024-12-12 10:45:00'),
-(3, 1, 2, 1, 'Perfect. See you then.', '2024-12-12 11:00:00');
+INSERT INTO messages (from_user_id, to_user_id, product_id, message, created_at) VALUES
+(3, 1, 2, 'Hi, I am interested in the Yamaha MT-07. Is it available?', '2024-12-12 10:00:00'),
+(1, 3, 2, 'Yes, it is available. Do you want to take a look?', '2024-12-12 10:15:00'),
+(3, 1, 2, 'Yes, I would like to see it in person. When are you free?', '2024-12-12 10:30:00'),
+(1, 3, 2, 'I am free on Wednesday afternoon. Does that work?', '2024-12-12 10:45:00'),
+(3, 1, 2, 'Perfect. See you then.', '2024-12-12 11:00:00');
