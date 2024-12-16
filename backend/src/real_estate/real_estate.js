@@ -130,6 +130,73 @@ router.post('/new', async (req, res) => {
     }
 });
 
+// Delete a real estate listing
+router.delete('/delete/:product_id', async (req, res) => {
+    const transaction = await pool.connect();
+    const { product_id } = req.params;
+
+    try {
+        await transaction.query('BEGIN');
+
+        // Delete from the `real_estate` table
+        const realEstateResult = await transaction.query(
+            `
+            DELETE FROM real_estate 
+            WHERE product_id = $1
+            RETURNING product_id
+            `,
+            [product_id]
+        );
+
+        if (!realEstateResult.rows[0]?.product_id) {
+            throw new Error(
+                'Failed to delete real estate entry or entry does not exist.'
+            );
+        }
+
+        // Delete from the `address` table (if address is not reused)
+        const addressResult = await transaction.query(
+            `
+            DELETE FROM address 
+            WHERE address_id IN (
+                SELECT address_id FROM real_estate WHERE product_id = $1
+            )
+            RETURNING address_id
+            `,
+            [product_id]
+        );
+
+        // Delete from the `product` table
+        const productResult = await transaction.query(
+            `
+            DELETE FROM product 
+            WHERE product_id = $1
+            RETURNING product_id
+            `,
+            [product_id]
+        );
+
+        if (!productResult.rows[0]?.product_id) {
+            throw new Error(
+                'Failed to delete product entry or entry does not exist.'
+            );
+        }
+
+        await transaction.query('COMMIT');
+
+        res.status(200).json({
+            message: 'Real estate listing deleted successfully',
+            product_id: product_id
+        });
+    } catch (error) {
+        await transaction.query('ROLLBACK');
+        console.error('Transaction Error:', error);
+        res.status(500).json({ message: `Server Error: ${error.message}` });
+    } finally {
+        transaction.release();
+    }
+});
+
 // TODO: GET status by status name
 //router.get();
 
