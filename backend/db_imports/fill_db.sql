@@ -69,9 +69,13 @@ INSERT INTO vehicle_models (mark_id, model_name) VALUES
 (4, 'CBR500R');
 
 -- Populate table: vehicle_types
-INSERT INTO vehicle_types (type_name) VALUES
-('Car'),
-('Motorcycle');
+INSERT INTO vehicle_types (type_name, Top_level_category) VALUES
+('Car', 'Car'),
+('Motorcycle', 'Motorcycle'),
+('Limousine', 'Car'),
+('SUV', 'Car'),
+('Sports Car', 'Car'),
+('Cool motorcycle', 'Motorcycle');
 
 -- Populate table: fuel_types
 INSERT INTO fuel_types (fuel_type_name) VALUES
