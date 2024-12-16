@@ -122,12 +122,12 @@ router.post('/new', async (req, res) => {
         name,
         description,
         price,
-        status_id,
+        status_name,
         additional_properties,
         city,
         address,
         province,
-        type_id,
+        type_name,
         address_details,
         advance_payment,
         rent_start,
@@ -135,6 +135,16 @@ router.post('/new', async (req, res) => {
     } = req.body;
     try {
         await transaction.query('BEGIN');
+
+        let status_id = null;
+        if (status_name !== undefined) {
+            status_id = await getStatusIdByName(transaction, status_name);
+        }
+
+        let type_id = null;
+        if (type_name !== undefined) {
+            type_id = await getTypeIdByName(transaction, type_name);
+        }
 
         const productResult = await transaction.query(
             `
@@ -286,6 +296,39 @@ router.delete('/delete/:product_id', async (req, res) => {
     }
 });
 
+// Helper method to get the status_id based on the status_name
+async function getStatusIdByName(transaction, status_name) {
+    const result = await transaction.query(
+        `
+        SELECT status_id FROM statuses
+        WHERE status_name = $1
+        LIMIT 1
+        `,
+        [status_name]
+    );
+
+    if (result.rows.length === 0) {
+        throw new Error(`Invalid status name: ${status_name}`);
+    }
+    return result.rows[0].status_id;
+}
+
+// Helper method to get the type_id based on the type_name
+async function getTypeIdByName(transaction, type_name) {
+    const query = `
+        SELECT type_id FROM real_estate_types
+        WHERE type_name = $1
+        LIMIT 1
+    `;
+    const result = await transaction.query(query, [type_name]);
+
+    if (result.rows.length === 0) {
+        throw new Error(`Invalid type name: '${type_name}'`);
+    }
+
+    return result.rows[0].type_id;
+}
+
 // Helper function to update the products table dynamically based on what the user provides
 async function updateProduct(transaction, product_id, updates) {
     const {
@@ -300,7 +343,7 @@ async function updateProduct(transaction, product_id, updates) {
     const values = [];
     let index = 1;
 
-    if (status_id !== undefined) {
+    if (status_id !== undefined && status_id !== null) {
         fields.push(`status_id = $${index}`);
         values.push(status_id);
         index++;
@@ -394,7 +437,7 @@ async function updateRealEstate(transaction, product_id, updates) {
     const values = [];
     let index = 1;
 
-    if (type_id !== undefined) {
+    if (type_id !== undefined && type_id !== null) {
         fields.push(`type_id = $${index}`);
         values.push(type_id);
         index++;
@@ -445,12 +488,12 @@ router.put('/update/:product_id', async (req, res) => {
         name,
         description,
         price,
-        status_id,
+        status_name,
         additional_properties,
         city,
         address,
         province,
-        type_id,
+        type_name,
         address_details,
         advance_payment,
         rent_start,
@@ -473,23 +516,14 @@ router.put('/update/:product_id', async (req, res) => {
                 .json({ message: ownershipValidation.message });
         }
 
-        const productOwnerResult = await transaction.query(
-            `
-            SELECT user_id FROM product WHERE product_id = $1
-            `,
-            [product_id]
-        );
-
-        if (productOwnerResult.rows.length === 0) {
-            throw new Error('Product not found');
+        let status_id = null;
+        if (status_name !== undefined) {
+            status_id = await getStatusIdByName(transaction, status_name);
         }
 
-        const productOwnerId = productOwnerResult.rows[0].user_id;
-
-        if (productOwnerId !== req.session.user_id) {
-            res.status(403).json({
-                message: 'You do not have permission to update this product'
-            });
+        let type_id = null;
+        if (type_name !== undefined) {
+            type_id = await getTypeIdByName(transaction, type_name);
         }
 
         await updateProduct(transaction, product_id, {
@@ -540,11 +574,5 @@ router.put('/update/:product_id', async (req, res) => {
         transaction.release();
     }
 });
-
-// TODO: GET status by status name
-//router.get();
-
-// TODO: GET real estate type by type name
-//router.get();
 
 module.exports = router;
