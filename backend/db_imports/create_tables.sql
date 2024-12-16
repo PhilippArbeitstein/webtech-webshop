@@ -135,7 +135,6 @@ CREATE TABLE messages (
     from_user_id INT NOT NULL REFERENCES users(user_id),
     to_user_id INT NOT NULL REFERENCES users(user_id),
     product_id INT NOT NULL REFERENCES product(product_id),
-    status_id INT NOT NULL REFERENCES statuses(status_id),
     message TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
