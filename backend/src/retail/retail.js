@@ -48,6 +48,7 @@ router.get("/", async (req, res) => {
         conditions.push(`delivery_methods.delivery_method_name ILIKE $${params.length + 1} AND delivery_methods.delivery_method_id=retail.delivery_method_id`)
     }
     if (conditions.length > 0) {
+
         query += " WHERE " + conditions.join(" AND ");
     }
     try {
@@ -279,7 +280,7 @@ module.exports = router;
 
 function getFullJoinTable() {
     let query = " join retail on retail.product_id=product.product_id join users on product.user_id=users.user_id join delivery_methods on retail.delivery_method_id=delivery_methods.delivery_method_id";
-    query += " join conditions on retail.condition_id=conditions.condition_id address on address.address_id=users.user_id";
+    query += " join conditions on retail.condition_id=conditions.condition_id JOIN address on address.address_id=users.address_id";
     return query;
 }
 
