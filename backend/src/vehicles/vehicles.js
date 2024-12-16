@@ -3,24 +3,9 @@ const router = express.Router();
 
 const pool = require("../pool");
 const checkAuth = require("../auth/auth.js");
-/*
-a) Browse the marks and models within the specific top-level category, and see the listings
-belonging to the specific category, mark, and model (as a list view displaying title, price,
-mileage, year of first registration, and a smaller-size picture for each vehicle)
 
-
-Search for specific vehicles using the following search criteria (displaying the same list view as
-a result):
-· Vehicle name and description (a substring) check
-· Model or mark (if the mark is specified, the result should include all listings belonging to this
-mark and all models below it) check
-· Vehicle type (the set of types should depend on the top-level category) check
-· Vehicle price (by specifying a price interval) check
-· Seller address (by specifying a city) check
-· Date of first registration and mileage (as intervals), type of fuel, color, and condition check
-*/
 router.get("/", async(req, res) => {
-    const { search, minPrice, maxPrice, sellerAdress, model, mark, type, registration, fuel_type, color, condition } = req.body;
+    const { search, minPrice, maxPrice, sellerAdress, model, mark, type, top_level_category, registration, fuel_type, color, condition } = req.body;
 
 let query = "SELECT product.name, product.price, product.image_url, vehicles.mileage, vehicles.first_registration_date FROM product";
 query+=getFullJoinTable();
@@ -52,6 +37,10 @@ if(type){
     conditions.push(`vehicle_types.type_name ILIKE $${params.length+1} AND vehicles.type_id=vehicle_types.type_id`);
     params.push(type);
 }
+if(top_level_category){
+    conditions.push(`vehicle_types.top_level_category ILIKE $${params.length+1} AND vehicles.type_id=vehicle_types.type_id`);
+    params.push(top_level_category);
+}
 if(registration){
     conditions.push(`vehicles.first_registration_date>$${params.length+1}`);
     params.push(registration);
@@ -73,6 +62,7 @@ if (conditions.length > 0) {
     query += " WHERE " + conditions.join(" AND ");
 }
 try {
+    
     const result = await pool.query(query, params);
     res.status(200).json(result.rows);
 } catch (err) {
