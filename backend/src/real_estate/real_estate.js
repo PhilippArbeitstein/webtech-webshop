@@ -118,7 +118,6 @@ router.get('/user-listings', async (req, res) => {
 router.post('/new', async (req, res) => {
     const transaction = await pool.connect();
     const {
-        user_id,
         image_url,
         name,
         description,
@@ -144,7 +143,7 @@ router.post('/new', async (req, res) => {
             RETURNING product_id
             `,
             [
-                user_id,
+                req.session.user_id,
                 status_id,
                 image_url,
                 name,
