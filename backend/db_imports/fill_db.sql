@@ -128,12 +128,13 @@ INSERT INTO product (user_id, image_url, name, description, price, status_id, ad
 
 -- Kategorienzuordnung für neue Produkte
 INSERT INTO product_has_category (product_id, category_id) VALUES
-(4, 1), -- BMW X5 zu Vehicles
+(4, 1), -- Peugeot X5 zu Vehicles
 (5, 1), -- Yamaha YZF-R125 zu Vehicles
-(6, 2), -- Villa in Wien zu Real Estate
-(7, 2), -- Einfamilienhaus in Graz zu Real Estate
-(8, 3), -- MacBook Pro zu Retail
-(9, 3); -- LG OLED TV zu Retail
+(6, 1), -- BMW X5 zu Vehicles
+(7, 2), -- Villa in Wien zu Real Estate
+(8, 2), -- Einfamilienhaus in Graz zu Real Estate
+(9, 3), -- MacBook Pro zu Retail
+(10, 3); -- LG OLED TV zu Retail
 
 -- Weitere Retail-Daten
 INSERT INTO retail (product_id, delivery_method_id, condition_id) VALUES
