@@ -202,6 +202,19 @@ router.post('/new', async (req, res) => {
             throw new Error('Failed to insert real estate entry.');
         }
 
+        const productCategoryResult = await transaction.query(
+            `
+            INSERT INTO product_has_category (product_id, category_id)
+            VALUES ($1, $2)
+            RETURNING product_id
+            `,
+            [product_id, 3]
+        );
+
+        if (!productCategoryResult.rows[0]?.product_id) {
+            throw new Error('Failed to insert into product_has_category.');
+        }
+
         await transaction.query('COMMIT');
         res.status(200).json({
             message: 'Real estate listing created successfully',
@@ -235,6 +248,21 @@ router.delete('/delete/:product_id', async (req, res) => {
             return res
                 .status(403)
                 .json({ message: ownershipValidation.message });
+        }
+
+        const productCategoryResult = await transaction.query(
+            `
+            DELETE FROM product_has_category 
+            WHERE product_id = $1
+            RETURNING product_id
+            `,
+            [product_id]
+        );
+
+        if (!productCategoryResult.rows.length) {
+            throw new Error(
+                'Failed to delete product from product_has_category. Entry does not exist.'
+            );
         }
 
         // Delete from the `real_estate` table
