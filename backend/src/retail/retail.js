@@ -82,7 +82,9 @@ router.get("/:product_id", async (req, res) => {
 });
 //Get all listings by User
 router.get("/user/:user_id", async (req, res) => {
-
+    if (!req.session.user_id) {
+        res.status(400).send("Not logged in");
+    }
     let query = "SELECT product.name, product.price, product.image_url, conditions.condition_name, delivery_methods.delivery_method_name FROM product";
     query += getFullJoinTable();
     query += " WHERE product.user_id=$1";
@@ -91,7 +93,7 @@ router.get("/user/:user_id", async (req, res) => {
         (err, result) => {
             if (err) {
                 console.log(err);
-                res.status(500).send("Error retrieving product");
+                res.status(500).send("Error retrieving products");
             } else {
                 res.status(200).json(result.rows);
             }
@@ -100,153 +102,153 @@ router.get("/user/:user_id", async (req, res) => {
 });
 
 //delete listing. 
-//TODO CHECK FOR VALIDATION
 router.delete("/:product_id", async (req, res) => {
-    let query = "DELETE FROM product_has_category where product_id=$1;"
     const productId = req.params.product_id;
-    pool.query(query, [productId],
-        (err, result) => {
-            if (err) {
-                console.log(err);
-                res.status(500).send("Error deleting product categories");
-            } else {
-                //res.status(200).json(result.rows);
-            }
+    try {
+
+        const ownershipValidation = await validateProductOwnership(
+            productId,
+            req.session.user_id
+        );
+
+        if (!ownershipValidation.success) {
+            return res
+                .status(403)
+                .json({ message: ownershipValidation.message });
         }
-    );
-    query = "DELETE FROM retail where product_id=$1;"
-    pool.query(query, [productId],
-        (err, result) => {
-            if (err) {
-                console.log(err);
-                res.status(500).send("Error deleting retail product");
-            } else {
-                //res.status(200).json(result.rows);
-            }
-        }
-    );
-    query = "DELETE FROM product where product_id=$1";
-    pool.query(query, [productId],
-        (err, result) => {
-            if (err) {
-                console.log(err);
-                res.status(500).send("Error deleting product");
-            } else {
-                res.status(200).json(result.rows);
-            }
-        }
-    );
+        const transaction = await pool.connect();
+        await transaction.query("BEGIN");
+
+        await transaction.query("DELETE FROM product_has_category WHERE product_id=$1;", [productId]);
+        await transaction.query("DELETE FROM retail WHERE product_id=$1;", [productId]);
+        await transaction.query("DELETE FROM product WHERE product_id=$1;", [productId]);
+
+        await transaction.query("COMMIT");
+        res.status(200).json({ message: "Product deleted successfully" });
+    } catch (err) {
+        await transaction.query("ROLLBACK");
+        console.error(err);
+        res.status(500).send("Error deleting product");
+    } finally {
+        transaction.release();
+    }
 });
 
+
 //Update Product
-//TODO check for validation
 router.put("/:product_id", async (req, res) => {
     const productId = req.params.product_id;
     let { image_url, name, description, price, status, additional_properties, delivery_method, condition } = req.body;
-    let set = [];
 
-    //Update Retail
-    //transfer names to Ids and add them to the set
-    if (condition) {
-        condition = await getIDFromName("condition_id", "conditions", "condition_name", condition);
-        set.push(`condition_id='${condition}'`);
-    }
-    if (delivery_method) {
-        delivery_method = await getIDFromName("delivery_method_id", "delivery_methods", "delivery_method_name", delivery_method);
-        set.push(`delivery_method_id='${delivery_method}'`);
-    }
-    query = "Update retail set " + set.join(", ") + " where retail.product_id=$1";
+    try {
+        const ownershipValidation = await validateProductOwnership(
+            productId,
+            req.session.user_id
+        );
 
-    pool.query(query, [productId],
-        (err, result) => {
-            if (err) {
-                console.log(err);
-                res.status(500).send("Error retrieving product");
-            } else {
-                //res.status(200).json("Successfully updated vehicle");
-            }
+        if (!ownershipValidation.success) {
+            return res
+                .status(403)
+                .json({ message: ownershipValidation.message });
         }
-    );
-    //update product
-    set = [];
-    if (status) {
-        status = await getIDFromName("status_id", "statuses", "status_name", status);
-        set.push(`status_id='${status}'`);
-    }
-    if (image_url) {
-        set.push(`image_url='${image_url}'`);
-    }
-    if (name) {
-        set.push(`name='${name}'`);
-    }
-    if (description) {
-        set.push(`description='${description}'`);
-    }
-    if (price) {
-        set.push(`price='${price}'`);
-    }
-    if (additional_properties) {
-        set.push(`additional_properties='${additional_properties}'`);
-    }
-    query = "Update product set " + set.join(", ") + " where product.product_id=$1";
 
-    pool.query(query, [productId],
-        (err, result) => {
-            if (err) {
-                console.log(err);
-                res.status(500).send("Error retrieving product");
-            } else {
-                res.status(200).json("Successfully updated product");
-            }
+        const transaction = await pool.connect();
+        await transaction.query("BEGIN");
+
+        let setRetail = [];
+        if (condition) {
+            condition = await getIDFromName("condition_id", "conditions", "condition_name", condition);
+            setRetail.push(`condition_id='${condition}'`);
         }
-    );
+        if (delivery_method) {
+            delivery_method = await getIDFromName("delivery_method_id", "delivery_methods", "delivery_method_name", delivery_method);
+            setRetail.push(`delivery_method_id='${delivery_method}'`);
+        }
+
+        if (setRetail.length > 0) {
+            const retailQuery = "UPDATE retail SET " + setRetail.join(", ") + " WHERE product_id=$1";
+            await transaction.query(retailQuery, [productId]);
+        }
+
+        let setProduct = [];
+        if (status) {
+            status = await getIDFromName("status_id", "statuses", "status_name", status);
+            setProduct.push(`status_id='${status}'`);
+        }
+        if (image_url) setProduct.push(`image_url='${image_url}'`);
+        if (name) setProduct.push(`name='${name}'`);
+        if (description) setProduct.push(`description='${description}'`);
+        if (price) setProduct.push(`price='${price}'`);
+        if (additional_properties) setProduct.push(`additional_properties='${additional_properties}'`);
+        setProduct.push(`updated_at=NOW()`);
+        if (setProduct.length > 0) {
+            const productQuery = "UPDATE product SET " + setProduct.join(", ") + " WHERE product_id=$1";
+            await transaction.query(productQuery, [productId]);
+        }
+
+        await transaction.query("COMMIT");
+        res.status(200).json({ message: "Product updated successfully" });
+    } catch (err) {
+        await transaction.query("ROLLBACK");
+        console.error(err);
+        res.status(500).send("Error updating product");
+    } finally {
+        transaction.release();
+    }
 });
+
 
 //Add new retail product
 router.post("/", async (req, res) => {
     let { image_url, name, description, price, status, additional_properties, delivery_method, condition, user } = req.body;
-    if (!image_url, !name, !description, !price, !status, !additional_properties, !delivery_method, !condition, !user) {
-        res.status(400).send("Insufficient Information");
+    if (!req.session.user_id) {
+        res.status(400).send("Not logged in");
     }
-    //Adding for product
-    status = await getIDFromName("status_id", "statuses", "status_name", status);
-    user = await getIDFromName("user_id", "users", "username", user);
-    const productValues = [user, image_url, name, description, price, status, additional_properties];
+    if (!image_url || !name || !description || !price || !status || !additional_properties || !delivery_method || !condition || !user) {
+        return res.status(400).send("Insufficient Information");
+    }
 
-    const productInsertQuery = `
-      INSERT INTO product (user_id, image_url, name, description, price, status_id, additional_properties)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
-      RETURNING product_id;
-    `;
+    try {
+        const transaction = await pool.connect();
+        await transaction.query("BEGIN");
 
-    const productResult = await pool.query(productInsertQuery, productValues);
-    const productId = productResult.rows[0].product_id;
+        status = await getIDFromName("status_id", "statuses", "status_name", status);
+        user = await getIDFromName("user_id", "users", "username", user);
 
-    //Adding for retail
-    condition = await getIDFromName("condition_id", "conditions", "condition_name", condition);
-    delivery_method = await getIDFromName("delivery_method_id", "delivery_methods", "delivery_method_name", delivery_method);
-
-    const retailValues = [
-        productId, condition, delivery_method
-    ];
-
-    const vehicleInsertQuery = `
-      INSERT INTO retail (product_id, delivery_method_id, condition_id)
-      VALUES ($1, $2, $3);
-    `;
-
-
-    pool.query(vehicleInsertQuery, vehicleValues,
-        (err, result) => {
-            if (err) {
-                console.log(err);
-                res.status(500).send("Error inserting product");
-            } else {
-                res.status(200).json("Successfully inserted product");
-            }
+        const productInsertQuery = `
+            INSERT INTO product (user_id, image_url, name, description, price, status_id, additional_properties)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING product_id;
+        `;
+        const productResult = await transaction.query(productInsertQuery, [user, image_url, name, description, price, status, additional_properties]);
+        if (!productResult.rows[0]?.product_id) {
+            throw new Error('Failed to insert product.');
         }
-    );
+        const productId = productResult.rows[0].product_id;
+
+        condition = await getIDFromName("condition_id", "conditions", "condition_name", condition);
+        delivery_method = await getIDFromName("delivery_method_id", "delivery_methods", "delivery_method_name", delivery_method);
+
+        const retailInsertQuery = `
+            INSERT INTO retail (product_id, delivery_method_id, condition_id)
+            VALUES ($1, $2, $3) RETURNING product_id;
+        `;
+        const retailResult = await transaction.query(retailInsertQuery, [productId, delivery_method, condition]);
+
+        if (!retailResult.rows[0]?.product_id) {
+            throw new Error('Failed to insert product into retail.');
+        }
+        await transaction.query("COMMIT");
+        res.status(201).json({ message: "Product added successfully", productId });
+    } catch (err) {
+        await transaction.query("ROLLBACK");
+        console.error(err);
+        res.status(500).send("Error inserting product");
+    } finally {
+        transaction.release();
+    }
 });
+
 
 router.get('/messages/message', async (req, res) => {
     const { from_user, to_user, productId } = req.body;
@@ -304,4 +306,36 @@ async function getIDFromName(idRowName, tableName, nameRow, name) {
         console.error(error.message);
         throw new Error(`Error in getIDFromName: ${error.message}`);
     }
+}
+
+// Helper method to validate product ownership with user_id stored in request token
+async function validateProductOwnership(transaction, product_id, user_id) {
+    // Check if user_id is provided and valid
+    if (!user_id) {
+        return {
+            success: false,
+            message: 'Permission denied: User ID is missing or invalid'
+        };
+    }
+    await pool.query(query, [from_user, to_user, productId]);
+    // Query to check ownership
+    const productOwnerQuery = `SELECT user_id FROM product WHERE product_id = $1`;
+    const productOwnerResult = await pool.query(productOwnerQuery, [product_id]);
+    if (productOwnerResult.rows.length === 0) {
+        return {
+            success: false,
+            message: 'Permission denied: Product not found'
+        };
+    }
+
+    const productOwnerId = productOwnerResult.rows[0].user_id;
+
+    if (productOwnerId !== user_id) {
+        return {
+            success: false,
+            message: 'Permission denied: You do not own this product'
+        };
+    }
+
+    return { success: true };
 }
