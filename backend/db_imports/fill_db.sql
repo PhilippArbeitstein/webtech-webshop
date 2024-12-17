@@ -69,9 +69,13 @@ INSERT INTO vehicle_models (mark_id, model_name) VALUES
 (4, 'CBR500R');
 
 -- Populate table: vehicle_types
-INSERT INTO vehicle_types (type_name) VALUES
-('Car'),
-('Motorcycle');
+INSERT INTO vehicle_types (type_name, Top_level_category) VALUES
+('Car', 'Car'),
+('Motorcycle', 'Motorcycle'),
+('Limousine', 'Car'),
+('SUV', 'Car'),
+('Sports Car', 'Car'),
+('Cool motorcycle', 'Motorcycle');
 
 -- Populate table: fuel_types
 INSERT INTO fuel_types (fuel_type_name) VALUES
@@ -94,15 +98,6 @@ INSERT INTO real_estate_types (type_name) VALUES
 INSERT INTO real_estate (product_id, type_id, address_id, address_details, advance_payment, rent_start, rent_end) VALUES
 (3, 1, 2, 'Near Graz Hauptplatz', 25000.00, '2024-01-01', '2025-01-01');
 
--- Populate table: requests
-INSERT INTO requests (product_id, from_user_id, to_user_id, message, status_id) VALUES
-(1, 2, 1, 'Is this Audi A4 still available?', 1),
-(3, 4, 3, 'I am interested in renting this apartment.', 1);
-
--- Populate table: messages
-INSERT INTO messages (from_user_id, to_user_id, product_id, message) VALUES
-(2, 1, 1, 'Can we arrange a viewing?'),
-(4, 3, 3, 'Is the price negotiable?');
 
 
 -- Weitere Fahrzeuge
@@ -147,3 +142,80 @@ INSERT INTO real_estate_types (type_name) VALUES
 INSERT INTO real_estate (product_id, type_id, address_id, address_details, advance_payment, rent_start, rent_end) VALUES
 (6, 3, 1, 'Exklusives Viertel im 19. Bezirk', 50000.00, '2024-06-01', '2025-06-01'), -- Villa in Wien
 (7, 2, 2, 'Ruhige Wohngegend in Graz', 20000.00, '2024-03-01', '2025-03-01'); -- Einfamilienhaus in Graz
+
+
+-- Weiteren Benutzer Hinzufügen
+INSERT INTO users (email, username, password, address_id) 
+VALUES ('max.mustermann@example.at', 'maxm', 'supersecurepassword', 3);
+
+-- Sicherstellen, dass Toyota in vehicle_marks existiert (falls nicht vorhanden)
+INSERT INTO vehicle_marks (mark_name) VALUES
+('Toyota');
+
+-- Neue Modelle zu vehicle_models hinzufügen (falls nicht vorhanden)
+INSERT INTO vehicle_models (mark_id, model_name) VALUES
+(1, 'A6'),
+(1, 'Q5'),
+(5, 'Corolla'),
+(5, 'RAV4');
+
+-- Weitere Produkte hinzufügen
+INSERT INTO product (user_id, image_url, name, description, price, status_id, additional_properties) VALUES
+(1, 'https://www.bmw.at/content/dam/bmw/common/all-models/3-series/series-overview/bmw-3er-overview-page-ms-06.jpg', 'BMW 3er', 'Elegante Limousine, bestens gepflegt', 35000.00, 1, '{"year": 2020, "kilometers": 30000}'),
+(2, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhD7pFyEJXv1iwi3T9Q9YzgiNARCZKb8L_mQ&s', 'Toyota Corolla', 'Kompaktwagen mit wenig Verbrauch', 20000.00, 1, '{"year": 2019, "kilometers": 45000}'),
+(3, 'https://www.topgear.com/sites/default/files/cars-car/image/2021/08/5219-AudiUK00019837AudiA6Avant.jpg?w=1280&h=720', 'Audi A6', 'Luxuriöser Firmenwagen', 55000.00, 1, '{"year": 2021, "kilometers": 20000}'),
+(4, 'https://images.ctfassets.net/uaddx06iwzdz/3gqiFBuETgFwyOGsjgAbap/59e252ef761c9b0a8ee42d784d08c546/Toyota-RAV4-Hybrid-Hero.jpg', 'Toyota RAV4', 'Moderner SUV mit Hybridantrieb', 40000.00, 1, '{"year": 2022, "kilometers": 15000}'),
+(5, 'https://ai.dimaster.io/assets/cache/1920/960/media/Artikel/240912-Audi-Q5-neu/Audi-Q5-6.jpg', 'Audi Q5', 'Sportlicher SUV mit Allradantrieb', 60000.00, 1, '{"year": 2023, "kilometers": 5000}');
+
+-- Produkte den Kategorien zuordnen
+INSERT INTO product_has_category (product_id, category_id) VALUES
+(36, 1), -- BMW 3er
+(37, 1), -- Toyota Corolla
+(38, 1), -- Audi A6
+(39, 1), -- Toyota RAV4
+(40, 1); -- Audi Q5
+
+-- Weitere Fahrzeugdaten hinzufügen
+INSERT INTO vehicles (product_id, mark_id, model_id, type_id, first_registration_date, mileage, fuel_type_id, color, condition_id) VALUES
+(36, 2, 2, 1, '2020-07-15', 30000, 1, 'Black', 2), -- BMW 3er
+(37, 5, 5, 1, '2019-05-01', 45000, 1, 'Silver', 2), -- Toyota Corolla
+(38, 1, 6, 1, '2021-09-10', 20000, 1, 'Blue', 1), -- Audi A6
+(39, 5, 7, 1, '2022-02-20', 15000, 3, 'White', 1), -- Toyota RAV4
+(40, 1, 8, 1, '2023-05-01', 5000, 1, 'Gray', 1); -- Audi Q5
+
+-- messages hinzufügen
+-- Messages about product_id 1 (Audi A4)
+INSERT INTO messages (from_user_id, to_user_id, product_id, message, created_at) VALUES
+(2, 1, 1, 'Hello! Is the Audi A4 still available?', '2024-12-16 10:30:00'),
+(1, 2, 1, 'Yes, it is available. Are you interested?', '2024-12-16 10:45:00'),
+(2, 1, 1, 'I am. Can we schedule a test drive this weekend?', '2024-12-16 11:00:00'),
+(1, 2, 1, 'Sure, Saturday morning works for me.', '2024-12-16 11:15:00');
+
+-- Messages about product_id 3 (Wohnung in Graz)
+INSERT INTO messages (from_user_id, to_user_id, product_id, message, created_at) VALUES
+(3, 2, 3, 'I saw your listing for the apartment in Graz. Is it still for sale?', '2024-12-15 09:00:00'),
+(2, 3, 3, 'Yes, it is. Do you want to arrange a viewing?', '2024-12-15 09:15:00'),
+(3, 2, 3, 'Yes, can we do Friday afternoon?', '2024-12-15 09:30:00'),
+(2, 3, 3, 'Perfect, I will send you the address details.', '2024-12-15 09:45:00');
+
+-- Messages about product_id 8 (Apple MacBook Pro)
+INSERT INTO messages (from_user_id, to_user_id, product_id, message, created_at) VALUES
+(4, 2, 8, 'Is the MacBook Pro still available for pick-up?', '2024-12-14 14:00:00'),
+(2, 4, 8, 'Yes, it is. When would you like to pick it up?', '2024-12-14 14:15:00'),
+(4, 2, 8, 'Tomorrow afternoon, if that works for you.', '2024-12-14 14:30:00'),
+(2, 4, 8, 'Sounds good! I will confirm the location via email.', '2024-12-14 14:45:00');
+
+-- Messages about product_id 6 (Villa in Wien)
+INSERT INTO messages (from_user_id, to_user_id, product_id, message, created_at) VALUES
+(1, 4, 6, 'Is the villa still available? It looks amazing.', '2024-12-13 12:00:00'),
+(4, 1, 6, 'It is. Would you like to schedule a tour?', '2024-12-13 12:15:00'),
+(1, 4, 6, 'Yes, please. How about next Monday?', '2024-12-13 12:30:00'),
+(4, 1, 6, 'That works. I will send you the details shortly.', '2024-12-13 12:45:00');
+
+-- Messages about product_id 2 (Yamaha MT-07)
+INSERT INTO messages (from_user_id, to_user_id, product_id, message, created_at) VALUES
+(3, 1, 2, 'Hi, I am interested in the Yamaha MT-07. Is it available?', '2024-12-12 10:00:00'),
+(1, 3, 2, 'Yes, it is available. Do you want to take a look?', '2024-12-12 10:15:00'),
+(3, 1, 2, 'Yes, I would like to see it in person. When are you free?', '2024-12-12 10:30:00'),
+(1, 3, 2, 'I am free on Wednesday afternoon. Does that work?', '2024-12-12 10:45:00'),
+(3, 1, 2, 'Perfect. See you then.', '2024-12-12 11:00:00');
