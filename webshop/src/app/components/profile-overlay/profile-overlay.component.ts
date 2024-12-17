@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { OverlayService } from '../../services/overlay.service';
 import { UserService } from '../../services/user.service';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
     selector: 'app-profile-overlay',
@@ -15,12 +15,14 @@ export class ProfileOverlayComponent {
     constructor(
         public authService: AuthService,
         public overlayService: OverlayService,
-        public userService: UserService
+        public userService: UserService,
+        private router: Router
     ) {}
 
     onLogout() {
         this.authService.logout().subscribe({
             next: (response) => {
+                this.router.navigate(['']);
                 console.log('Logout response:', response);
             },
             error: (err) => {

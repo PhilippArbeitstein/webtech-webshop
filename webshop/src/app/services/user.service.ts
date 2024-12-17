@@ -21,7 +21,7 @@ export class UserService {
         email: '',
         username: '',
         password: '',
-        address_id: 0,
+        address_id: -1,
         created_at: new Date(),
         updated_at: new Date()
     };
