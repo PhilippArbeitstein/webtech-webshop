@@ -80,6 +80,7 @@ router.get("/:product_id", async (req, res) => {
         }
     );
 });
+
 //Get all listings by User
 router.get("/user/:user_id", async (req, res) => {
     if (!req.session.user_id) {
@@ -104,6 +105,8 @@ router.get("/user/:user_id", async (req, res) => {
 //delete listing. 
 router.delete("/:product_id", async (req, res) => {
     const productId = req.params.product_id;
+
+    let transaction;
     try {
 
         const ownershipValidation = await validateProductOwnership(
@@ -116,21 +119,55 @@ router.delete("/:product_id", async (req, res) => {
                 .status(403)
                 .json({ message: ownershipValidation.message });
         }
-        const transaction = await pool.connect();
+        transaction = await pool.connect();
         await transaction.query("BEGIN");
 
-        await transaction.query("DELETE FROM product_has_category WHERE product_id=$1;", [productId]);
-        await transaction.query("DELETE FROM retail WHERE product_id=$1;", [productId]);
-        await transaction.query("DELETE FROM product WHERE product_id=$1;", [productId]);
+        const productCategoryResult = await transaction.query(
+            `
+            DELETE FROM product_has_category 
+            WHERE product_id = $1
+            RETURNING product_id
+            `,
+            [productId]
+        );
+
+        if (!productCategoryResult.rows.length) {
+            throw new Error(
+                'Failed to delete product from product_has_category. Entry does not exist.'
+            );
+        }
+
+        const retailResult = await transaction.query("DELETE FROM retail WHERE product_id=$1 RETURNING product_id;", [productId]);
+
+        if (!retailResult.rows[0]?.product_id) {
+            throw new Error(
+                'Failed to delete retail entry or entry does not exist.'
+            );
+        }
+
+        const productResult = await transaction.query(
+            `
+            DELETE FROM product 
+            WHERE product_id = $1
+            RETURNING product_id
+            `,
+            [productId]
+        );
+
+        if (!productResult.rows[0]?.product_id) {
+            throw new Error(
+                'Failed to delete product entry or entry does not exist.'
+            );
+        }
 
         await transaction.query("COMMIT");
         res.status(200).json({ message: "Product deleted successfully" });
     } catch (err) {
-        await transaction.query("ROLLBACK");
+        if (transaction) await transaction.query("ROLLBACK");
         console.error(err);
         res.status(500).send("Error deleting product");
     } finally {
-        transaction.release();
+        if (transaction) transaction.release();
     }
 });
 
@@ -139,7 +176,7 @@ router.delete("/:product_id", async (req, res) => {
 router.put("/:product_id", async (req, res) => {
     const productId = req.params.product_id;
     let { image_url, name, description, price, status, additional_properties, delivery_method, condition } = req.body;
-
+    let transaction;
     try {
         const ownershipValidation = await validateProductOwnership(
             productId,
@@ -152,54 +189,104 @@ router.put("/:product_id", async (req, res) => {
                 .json({ message: ownershipValidation.message });
         }
 
-        const transaction = await pool.connect();
+        transaction = await pool.connect();
         await transaction.query("BEGIN");
 
         let setRetail = [];
+        let paramsRetail = [];
+        let paramIndex = 1;
+
         if (condition) {
-            condition = await getIDFromName("condition_id", "conditions", "condition_name", condition);
-            setRetail.push(`condition_id='${condition}'`);
+            condition = await getIDFromName(
+                "condition_id",
+                "conditions",
+                "condition_name",
+                condition
+            );
+            setRetail.push(`condition_id = $${paramIndex++}`);
+            paramsRetail.push(condition);
         }
+
         if (delivery_method) {
-            delivery_method = await getIDFromName("delivery_method_id", "delivery_methods", "delivery_method_name", delivery_method);
-            setRetail.push(`delivery_method_id='${delivery_method}'`);
+            delivery_method = await getIDFromName(
+                "delivery_method_id",
+                "delivery_methods",
+                "delivery_method_name",
+                delivery_method
+            );
+            setRetail.push(`delivery_method_id = $${paramIndex++}`);
+            paramsRetail.push(delivery_method);
         }
 
         if (setRetail.length > 0) {
-            const retailQuery = "UPDATE retail SET " + setRetail.join(", ") + " WHERE product_id=$1";
-            await transaction.query(retailQuery, [productId]);
+            paramsRetail.push(productId);
+            const retailQuery = `UPDATE retail SET ${setRetail.join(", ")} WHERE product_id = $${paramIndex}`;
+            await transaction.query(retailQuery, paramsRetail);
         }
 
         let setProduct = [];
+        let paramsProduct = [];
+        paramIndex = 1;
+
         if (status) {
-            status = await getIDFromName("status_id", "statuses", "status_name", status);
-            setProduct.push(`status_id='${status}'`);
+            status = await getIDFromName(
+                "status_id",
+                "statuses",
+                "status_name",
+                status
+            );
+            setProduct.push(`status_id = $${paramIndex++}`);
+            paramsProduct.push(status);
         }
-        if (image_url) setProduct.push(`image_url='${image_url}'`);
-        if (name) setProduct.push(`name='${name}'`);
-        if (description) setProduct.push(`description='${description}'`);
-        if (price) setProduct.push(`price='${price}'`);
-        if (additional_properties) setProduct.push(`additional_properties='${additional_properties}'`);
-        setProduct.push(`updated_at=NOW()`);
-        if (setProduct.length > 0) {
-            const productQuery = "UPDATE product SET " + setProduct.join(", ") + " WHERE product_id=$1";
-            await transaction.query(productQuery, [productId]);
+        if (image_url) {
+            setProduct.push(`image_url = $${paramIndex++}`);
+            paramsProduct.push(image_url);
+        }
+        if (name) {
+            setProduct.push(`name = $${paramIndex++}`);
+            paramsProduct.push(name);
+        }
+        if (description) {
+            setProduct.push(`description = $${paramIndex++}`);
+            paramsProduct.push(description);
+        }
+        if (price) {
+            setProduct.push(`price = $${paramIndex++}`);
+            paramsProduct.push(price);
+        }
+        if (additional_properties) {
+            setProduct.push(`additional_properties = $${paramIndex++}`);
+            paramsProduct.push(additional_properties);
         }
 
+
+
+        if (setProduct.length > 0) {
+            setProduct.push(`updated_at = NOW()`);
+            paramsProduct.push(productId);
+            const productQuery = `UPDATE product SET ${setProduct.join(", ")} WHERE product_id = $${paramIndex}`;
+            await transaction.query(productQuery, paramsProduct);
+        }
+
+
         await transaction.query("COMMIT");
-        res.status(200).json({ message: "Product updated successfully" });
+        res.status(200).json({
+            message: 'retail product updated successfully',
+            product_id: productId
+        });
     } catch (err) {
-        await transaction.query("ROLLBACK");
+        if (transaction) await transaction.query("ROLLBACK");
         console.error(err);
         res.status(500).send("Error updating product");
     } finally {
-        transaction.release();
+        if (transaction) transaction.release();
     }
 });
 
 
+
 //Add new retail product
-router.post("/", async (req, res) => {
+router.post("/new", async (req, res) => {
     let { image_url, name, description, price, status, additional_properties, delivery_method, condition, user } = req.body;
     if (!req.session.user_id) {
         res.status(400).send("Not logged in");
@@ -207,9 +294,9 @@ router.post("/", async (req, res) => {
     if (!image_url || !name || !description || !price || !status || !additional_properties || !delivery_method || !condition || !user) {
         return res.status(400).send("Insufficient Information");
     }
-
+    let transaction;
     try {
-        const transaction = await pool.connect();
+        transaction = await pool.connect();
         await transaction.query("BEGIN");
 
         status = await getIDFromName("status_id", "statuses", "status_name", status);
@@ -238,14 +325,27 @@ router.post("/", async (req, res) => {
         if (!retailResult.rows[0]?.product_id) {
             throw new Error('Failed to insert product into retail.');
         }
+
+        const productCategoryResult = await transaction.query(
+            `
+            INSERT INTO product_has_category (product_id, category_id)
+            VALUES ($1, $2)
+            RETURNING product_id
+            `,
+            [product_id, 3]
+        );
+
+        if (!productCategoryResult.rows[0]?.product_id) {
+            throw new Error('Failed to insert into product_has_category.');
+        }
         await transaction.query("COMMIT");
         res.status(201).json({ message: "Product added successfully", productId });
     } catch (err) {
-        await transaction.query("ROLLBACK");
+        if (transaction) await transaction.query("ROLLBACK");
         console.error(err);
-        res.status(500).send("Error inserting product");
+        res.status(500).send("Error creating product");
     } finally {
-        transaction.release();
+        if (transaction) transaction.release();
     }
 });
 
