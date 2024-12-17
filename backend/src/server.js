@@ -46,7 +46,7 @@ const loginRoutes = require('./auth/login.js');
 app.use('/login', loginRoutes);
 
 const realEstateRoutes = require('./real_estate/real_estate.js');
-app.use('/real_estate', realEstateRoutes);
+app.use('/real-estate', realEstateRoutes);
 
 const retailRoutes = require('./retail/retail.js');
 app.use('/retail', retailRoutes);
