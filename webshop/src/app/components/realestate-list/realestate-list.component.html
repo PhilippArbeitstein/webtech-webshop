@@ -5,10 +5,13 @@
     "
     class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-8 px-4 py-8"
 >
-    <app-list-item
+    <a
         *ngFor="let listing of listings"
-        [listing]="listing"
-    ></app-list-item>
+        [routerLink]="['/real-estate-details', listing.product_id]"
+        class="block no-underline hover:shadow-lg transition duration-200"
+    >
+        <app-list-item [listing]="listing"></app-list-item>
+    </a>
 </div>
 
 <ng-template #noResults>
