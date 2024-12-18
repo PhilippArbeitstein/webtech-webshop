@@ -26,7 +26,8 @@ INSERT INTO users (email, username, password, address_id) VALUES
 ('hans.muster@example.at', 'hansm', 'securepassword', 1),
 ('anna.scherzer@example.at', 'annas', 'anothersecurepassword', 2),
 ('lukas.lechner@example.at', 'lukasl', 'yetanotherpassword', 3),
-('sophia.fuchs@example.at', 'sophiaf', 'safepassword', 4);
+('sophia.fuchs@example.at', 'sophiaf', 'safepassword', 4),
+('max.mustermann@example.at', 'maxm', 'supersecurepassword', 3);
 
 -- Populate table: statuses
 INSERT INTO statuses (status_name) VALUES
@@ -56,27 +57,66 @@ INSERT INTO delivery_methods (delivery_method_name) VALUES
 INSERT INTO product (user_id, image_url, name, description, price, status_id, additional_properties) VALUES
 (1, 'https://www.autoscout24.de/cms-content-assets/3B9Y6H0d0IKW0ME1vvMYED-6c735012b9f221707af8eb7bf297c004-Audi-A4-2008-1280-0b-1100.jpg', 'Audi A4', 'Audi A4, Benziner, top Zustand', 15000.00, 1, '{"year": 2018, "kilometers": 50000}'),
 (2, 'https://cdn2.yamaha-motor.eu/prod/product-assets/2024/MT07AB-35/2024-Yamaha-MT07AB-35-EU-Yamaha_Black-Studio-001-03.jpg', 'Yamaha MT-07', 'Leichtes und schnelles Motorrad', 7000.00, 1, '{"year": 2020, "kilometers": 10000}'),
-(3, 'https://www.hgh.haus/assets/images/wohnung/top-3/mietwohnung-salzburg-glaserstrasse-top-3-gross.jpg', 'Wohnung in Graz', '3-Zimmer-Wohnung in zentraler Lage', 250000.00, 1, '{"size": "80m²"}');
+(3, 'https://www.hgh.haus/assets/images/wohnung/top-3/mietwohnung-salzburg-glaserstrasse-top-3-gross.jpg', 'Wohnung in Graz', '3-Zimmer-Wohnung in zentraler Lage', 250000.00, 1, '{"size": "80m²"}'),
+(2, 'https://www.motorprofis.at/images/stories/1755/motmag~650223b5dbe8f.jpg', 'Peugeot 3008', 'SUV in hervorragendem Zustand, Diesel', 20000.00, 1, '{"year": 2019, "kilometers": 40000}'),
+(3, 'https://www.motorrad-bilder.at/slideshows/291/016980/2019_YAM_YZF-R125_EU_DPBMC_STA_002-61813.jpg', 'Yamaha YZF-R125', 'Sportmotorrad für Anfänger, sehr gepflegt', 4500.00, 1, '{"year": 2022, "kilometers": 5000}'),
+(4, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3bXeVE1CMdhLnZTYD_6tBOMh4T-Pk5iRpgQ&s', 'BMW X5', 'Luxuriöser SUV, ideal für Familien', 45000.00, 1, '{"year": 2021, "kilometers": 25000}'),
+(4, 'https://schubertstone.com/wp-content/uploads/2020/09/Hollywood-Villa-in-Wien-mit-Naturstein-von-SCHUBERT-STONE-07-1-1024x684.jpg', 'Villa in Wien', 'Exklusive Villa im 19. Bezirk, 300m² Wohnfläche', 1250000.00, 1, '{"size": "300m²"}'),
+(1, 'https://asset.dibeo.at/220/72a735f8539b4139aba67ee6b9caa2f0/big-jpeg/hausansicht-von-sueden.jpeg', 'Einfamilienhaus in Graz', 'Schönes Haus mit Garten in ruhiger Lage', 350000.00, 1, '{"size": "150m²"}'),
+(2, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTHDK1_wkn3Sj52eX2ZweUp1N9qCqvoKG3ZQ&s', 'Apple MacBook Pro', 'Neuer MacBook Pro 16 Zoll, 512GB SSD', 2500.00, 1, '{"model": "2023"}'),
+(3, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4UJ2r9GCc7lvSWszOGXhJWga8SKuOmJpq6Q&s', 'LG OLED TV', '55-Zoll OLED-Fernseher, 4K HDR', 1200.00, 1, '{"model": "2023"}'),
+(1, 'https://www.bmw.at/content/dam/bmw/common/all-models/3-series/series-overview/bmw-3er-overview-page-ms-06.jpg', 'BMW 3er', 'Elegante Limousine, bestens gepflegt', 35000.00, 1, '{"year": 2020, "kilometers": 30000}'),
+(2, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhD7pFyEJXv1iwi3T9Q9YzgiNARCZKb8L_mQ&s', 'Toyota Corolla', 'Kompaktwagen mit wenig Verbrauch', 20000.00, 1, '{"year": 2019, "kilometers": 45000}'),
+(3, 'https://www.topgear.com/sites/default/files/cars-car/image/2021/08/5219-AudiUK00019837AudiA6Avant.jpg?w=1280&h=720', 'Audi A6', 'Luxuriöser Firmenwagen', 55000.00, 1, '{"year": 2021, "kilometers": 20000}'),
+(4, 'https://images.ctfassets.net/uaddx06iwzdz/3gqiFBuETgFwyOGsjgAbap/59e252ef761c9b0a8ee42d784d08c546/Toyota-RAV4-Hybrid-Hero.jpg', 'Toyota RAV4', 'Moderner SUV mit Hybridantrieb', 40000.00, 1, '{"year": 2022, "kilometers": 15000}'),
+(5, 'https://ai.dimaster.io/assets/cache/1920/960/media/Artikel/240912-Audi-Q5-neu/Audi-Q5-6.jpg', 'Audi Q5', 'Sportlicher SUV mit Allradantrieb', 60000.00, 1, '{"year": 2023, "kilometers": 5000}'),
+(1, 'https://static.office-discount.at/img/16/17/Zoom_m2437166.jpg?width=800&height=800&fit=contain&bg=ffffff', 'iPhone 15', 'Das neueste Smartphone von Apple mit innovativen Features.', 999.99, 1, '{"brand": "Apple", "model": "iPhone 15", "color": "Silver"}'),
+(2, 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/mba13-midnight-select-202402?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1708367688034', 'MacBook Air', 'Leichtes, leistungsstarkes Notebook mit M2 Chip.', 1199.99, 1, '{"brand": "Apple", "RAM": "8GB", "SSD": "256GB"}'),
+(3, 'https://images.samsung.com/at/galaxy-watch6/feature/galaxy-watch6-kv-pc.jpg', 'Galaxy Watch 6', 'Stylische Smartwatch mit erweiterten Fitness-Funktionen.', 349.99, 1, '{"brand": "Samsung", "color": "Black", "batteryLife": "48 hours"}'),
+(4, 'https://sony.scene7.com/is/image/sonyglobalsolutions/Primary_image_black?$categorypdpnav$&fmt=png-alpha', 'Sony WF-1000XM5', 'Kabellose Ohrhörer mit branchenführender Geräuschunterdrückung.', 299.99, 1, '{"brand": "Sony", "color": "White", "noiseCancelling": "Yes"}'),
+(5, 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/refurb-ipad-pro-13inch-6th-gen-wifi-spacegray-202409?wid=1144&hei=1144&fmt=jpeg&qlt=90&.v=1721694129629', 'iPad Pro', 'Tablet mit M2-Chip für Kreative und Professionals.', 1099.99, 1, '{"brand": "Apple", "RAM": "8GB", "SSD": "128GB"}');
 
 -- Populate table: product_has_category
 INSERT INTO product_has_category (product_id, category_id) VALUES
 (1, 1),
 (2, 1),
-(3, 2);
+(3, 2),
+(4, 1), -- Peugeot X5 zu Vehicles
+(5, 1), -- Yamaha YZF-R125 zu Vehicles
+(6, 1), -- BMW X5 zu Vehicles
+(7, 2), -- Villa in Wien zu Real Estate
+(8, 2), -- Einfamilienhaus in Graz zu Real Estate
+(9, 3), -- MacBook Pro zu Retail
+(10, 3); -- LG OLED TV zu Retail
+(11, 1), -- BMW 3er
+(12, 1), -- Toyota Corolla
+(13, 1), -- Audi A6
+(14, 1), -- Toyota RAV4
+(15, 1), -- Audi Q5
+(16, 3),
+(17, 3),
+(18, 3),
+(19, 3),
+(20, 3);
 
 -- Populate table: vehicle_marks
 INSERT INTO vehicle_marks (mark_name) VALUES
 ('Audi'),
 ('BMW'),
 ('Yamaha'),
-('Honda');
+('Honda'),
+('Toyota');
 
 -- Populate table: vehicle_models
 INSERT INTO vehicle_models (mark_id, model_name) VALUES
 (1, 'A4'),
 (2, '3 Series'),
 (3, 'MT-07'),
-(4, 'CBR500R');
+(4, 'CBR500R'),
+(1, 'A6'),
+(1, 'Q5'),
+(5, 'Corolla'),
+(5, 'RAV4');
 
 -- Populate table: vehicle_types
 INSERT INTO vehicle_types (type_name, Top_level_category) VALUES
@@ -93,125 +133,42 @@ INSERT INTO fuel_types (fuel_type_name) VALUES
 ('Diesel'),
 ('Electric');
 
--- Populate table: vehicles
-INSERT INTO vehicles (product_id, mark_id, model_id, type_id, first_registration_date, mileage, fuel_type_id, color, condition_id) VALUES
-(1, 1, 1, 1, '2018-06-01', 50000, 1, 'Black', 2),
-(2, 3, 3, 2, '2020-08-15', 10000, 1, 'Blue', 2);
-
--- Populate table: real_estate_types
-INSERT INTO real_estate_types (type_name) VALUES
-('Apartment'),
-('House'),
-('Commercial');
-
--- Populate table: real_estate
-INSERT INTO real_estate (product_id, type_id, address_id, address_details, advance_payment, rent_start, rent_end) VALUES
-(3, 1, 2, 'Near Graz Hauptplatz', 25000.00, '2024-01-01', '2025-01-01');
-
-
-
--- Weitere Fahrzeuge
-INSERT INTO product (user_id, image_url, name, description, price, status_id, additional_properties) VALUES
-(2, 'https://www.motorprofis.at/images/stories/1755/motmag~650223b5dbe8f.jpg', 'Peugeot 3008', 'SUV in hervorragendem Zustand, Diesel', 20000.00, 1, '{"year": 2019, "kilometers": 40000}'),
-(3, 'https://www.motorrad-bilder.at/slideshows/291/016980/2019_YAM_YZF-R125_EU_DPBMC_STA_002-61813.jpg', 'Yamaha YZF-R125', 'Sportmotorrad für Anfänger, sehr gepflegt', 4500.00, 1, '{"year": 2022, "kilometers": 5000}'),
-(4, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3bXeVE1CMdhLnZTYD_6tBOMh4T-Pk5iRpgQ&s', 'BMW X5', 'Luxuriöser SUV, ideal für Familien', 45000.00, 1, '{"year": 2021, "kilometers": 25000}');
-
--- Weitere Immobilien
-INSERT INTO product (user_id, image_url, name, description, price, status_id, additional_properties) VALUES
-(4, 'https://schubertstone.com/wp-content/uploads/2020/09/Hollywood-Villa-in-Wien-mit-Naturstein-von-SCHUBERT-STONE-07-1-1024x684.jpg', 'Villa in Wien', 'Exklusive Villa im 19. Bezirk, 300m² Wohnfläche', 1250000.00, 1, '{"size": "300m²"}'),
-(1, 'https://asset.dibeo.at/220/72a735f8539b4139aba67ee6b9caa2f0/big-jpeg/hausansicht-von-sueden.jpeg', 'Einfamilienhaus in Graz', 'Schönes Haus mit Garten in ruhiger Lage', 350000.00, 1, '{"size": "150m²"}');
-
--- Weitere Retail-Produkte
-INSERT INTO product (user_id, image_url, name, description, price, status_id, additional_properties) VALUES
-(2, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTHDK1_wkn3Sj52eX2ZweUp1N9qCqvoKG3ZQ&s', 'Apple MacBook Pro', 'Neuer MacBook Pro 16 Zoll, 512GB SSD', 2500.00, 1, '{"model": "2023"}'),
-(3, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4UJ2r9GCc7lvSWszOGXhJWga8SKuOmJpq6Q&s', 'LG OLED TV', '55-Zoll OLED-Fernseher, 4K HDR', 1200.00, 1, '{"model": "2023"}');
-
--- Kategorienzuordnung für neue Produkte
-INSERT INTO product_has_category (product_id, category_id) VALUES
-(4, 1), -- Peugeot X5 zu Vehicles
-(5, 1), -- Yamaha YZF-R125 zu Vehicles
-(6, 1), -- BMW X5 zu Vehicles
-(7, 2), -- Villa in Wien zu Real Estate
-(8, 2), -- Einfamilienhaus in Graz zu Real Estate
-(9, 3), -- MacBook Pro zu Retail
-(10, 3); -- LG OLED TV zu Retail
-
--- Weitere Retail-Daten
-INSERT INTO retail (product_id, delivery_method_id, condition_id) VALUES
-(9, 3, 1), -- MacBook Pro, Lieferung und Selbstabholung, Neu
-(10, 2, 1); -- LG OLED TV, Lieferung, Neu
-
 -- Weitere Fahrzeugdaten
 INSERT INTO vehicles (product_id, mark_id, model_id, type_id, first_registration_date, mileage, fuel_type_id, color, condition_id) VALUES
 (4, 2, 2, 1, '2021-05-10', 25000, 2, 'White', 2), -- BMW X5
-(5, 3, 4, 2, '2022-03-20', 5000, 1, 'Red', 1); -- Yamaha YZF-R125
-
--- Weitere Immobilien-Daten
-INSERT INTO real_estate_types (type_name) VALUES
-('Villa'), ('Family House');
-
-INSERT INTO real_estate (product_id, type_id, address_id, address_details, advance_payment, rent_start, rent_end) VALUES
-(6, 3, 1, 'Exklusives Viertel im 19. Bezirk', 50000.00, '2024-06-01', '2025-06-01'), -- Villa in Wien
-(7, 2, 2, 'Ruhige Wohngegend in Graz', 20000.00, '2024-03-01', '2025-03-01'); -- Einfamilienhaus in Graz
-
-
--- Weiteren Benutzer Hinzufügen
-INSERT INTO users (email, username, password, address_id) 
-VALUES ('max.mustermann@example.at', 'maxm', 'supersecurepassword', 3);
-
--- Sicherstellen, dass Toyota in vehicle_marks existiert (falls nicht vorhanden)
-INSERT INTO vehicle_marks (mark_name) VALUES
-('Toyota');
-
--- Neue Modelle zu vehicle_models hinzufügen (falls nicht vorhanden)
-INSERT INTO vehicle_models (mark_id, model_name) VALUES
-(1, 'A6'),
-(1, 'Q5'),
-(5, 'Corolla'),
-(5, 'RAV4');
-
--- Weitere Produkte hinzufügen
-INSERT INTO product (user_id, image_url, name, description, price, status_id, additional_properties) VALUES
-(1, 'https://www.bmw.at/content/dam/bmw/common/all-models/3-series/series-overview/bmw-3er-overview-page-ms-06.jpg', 'BMW 3er', 'Elegante Limousine, bestens gepflegt', 35000.00, 1, '{"year": 2020, "kilometers": 30000}'),
-(2, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhD7pFyEJXv1iwi3T9Q9YzgiNARCZKb8L_mQ&s', 'Toyota Corolla', 'Kompaktwagen mit wenig Verbrauch', 20000.00, 1, '{"year": 2019, "kilometers": 45000}'),
-(3, 'https://www.topgear.com/sites/default/files/cars-car/image/2021/08/5219-AudiUK00019837AudiA6Avant.jpg?w=1280&h=720', 'Audi A6', 'Luxuriöser Firmenwagen', 55000.00, 1, '{"year": 2021, "kilometers": 20000}'),
-(4, 'https://images.ctfassets.net/uaddx06iwzdz/3gqiFBuETgFwyOGsjgAbap/59e252ef761c9b0a8ee42d784d08c546/Toyota-RAV4-Hybrid-Hero.jpg', 'Toyota RAV4', 'Moderner SUV mit Hybridantrieb', 40000.00, 1, '{"year": 2022, "kilometers": 15000}'),
-(5, 'https://ai.dimaster.io/assets/cache/1920/960/media/Artikel/240912-Audi-Q5-neu/Audi-Q5-6.jpg', 'Audi Q5', 'Sportlicher SUV mit Allradantrieb', 60000.00, 1, '{"year": 2023, "kilometers": 5000}');
-
--- Produkte den Kategorien zuordnen
-INSERT INTO product_has_category (product_id, category_id) VALUES
-(11, 1), -- BMW 3er
-(12, 1), -- Toyota Corolla
-(13, 1), -- Audi A6
-(14, 1), -- Toyota RAV4
-(15, 1); -- Audi Q5
-
--- Weitere Fahrzeugdaten hinzufügen
-INSERT INTO vehicles (product_id, mark_id, model_id, type_id, first_registration_date, mileage, fuel_type_id, color, condition_id) VALUES
+(5, 3, 4, 2, '2022-03-20', 5000, 1, 'Red', 1), -- Yamaha YZF-R125
+(1, 1, 1, 1, '2018-06-01', 50000, 1, 'Black', 2),
+(2, 3, 3, 2, '2020-08-15', 10000, 1, 'Blue', 2),
 (11, 2, 2, 1, '2020-07-15', 30000, 1, 'Black', 2), -- BMW 3er
 (12, 5, 5, 1, '2019-05-01', 45000, 1, 'Silver', 2), -- Toyota Corolla
 (13, 1, 6, 1, '2021-09-10', 20000, 1, 'Blue', 1), -- Audi A6
 (14, 5, 7, 1, '2022-02-20', 15000, 3, 'White', 1), -- Toyota RAV4
 (15, 1, 8, 1, '2023-05-01', 5000, 1, 'Gray', 1); -- Audi Q5
 
--- Weitere Retailprodukte hinzufügen
-INSERT INTO product (user_id, image_url, name, description, price, status_id, additional_properties) VALUES
-(1, 'https://static.office-discount.at/img/16/17/Zoom_m2437166.jpg?width=800&height=800&fit=contain&bg=ffffff', 'iPhone 15', 'Das neueste Smartphone von Apple mit innovativen Features.', 999.99, 1, '{"brand": "Apple", "model": "iPhone 15", "color": "Silver"}'),
-(2, 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/mba13-midnight-select-202402?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1708367688034', 'MacBook Air', 'Leichtes, leistungsstarkes Notebook mit M2 Chip.', 1199.99, 1, '{"brand": "Apple", "RAM": "8GB", "SSD": "256GB"}'),
-(3, 'https://images.samsung.com/at/galaxy-watch6/feature/galaxy-watch6-kv-pc.jpg', 'Galaxy Watch 6', 'Stylische Smartwatch mit erweiterten Fitness-Funktionen.', 349.99, 1, '{"brand": "Samsung", "color": "Black", "batteryLife": "48 hours"}'),
-(4, 'https://sony.scene7.com/is/image/sonyglobalsolutions/Primary_image_black?$categorypdpnav$&fmt=png-alpha', 'Sony WF-1000XM5', 'Kabellose Ohrhörer mit branchenführender Geräuschunterdrückung.', 299.99, 1, '{"brand": "Sony", "color": "White", "noiseCancelling": "Yes"}'),
-(5, 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/refurb-ipad-pro-13inch-6th-gen-wifi-spacegray-202409?wid=1144&hei=1144&fmt=jpeg&qlt=90&.v=1721694129629', 'iPad Pro', 'Tablet mit M2-Chip für Kreative und Professionals.', 1099.99, 1, '{"brand": "Apple", "RAM": "8GB", "SSD": "128GB"}');
+-- Populate table: real_estate_types
+INSERT INTO real_estate_types (type_name) VALUES
+('Apartment'),
+('House'),
+('Commercial'),
+('Villa'), 
+('Family House');
+
+-- Populate table: real_estate
+INSERT INTO real_estate (product_id, type_id, address_id, address_details, advance_payment, rent_start, rent_end) VALUES
+(3, 1, 2, 'Near Graz Hauptplatz', 25000.00, '2024-01-01', '2025-01-01'),
+(6, 3, 1, 'Exklusives Viertel im 19. Bezirk', 50000.00, '2024-06-01', '2025-06-01'), -- Villa in Wien
+(7, 2, 2, 'Ruhige Wohngegend in Graz', 20000.00, '2024-03-01', '2025-03-01'); -- Einfamilienhaus in Graz
 
 -- Weitere Retail-Daten
 INSERT INTO retail (product_id, delivery_method_id, condition_id) VALUES
+(9, 3, 1), -- MacBook Pro, Lieferung und Selbstabholung, Neu
+(10, 2, 1), -- LG OLED TV, Lieferung, Neu
 (16, 2, 2), -- Iphone 15, Lieferung, Used
 (17, 1, 2), -- MacBook Air, Selbstabholung, Used
 (18, 3, 3), -- Galaxy Watch 6, Beides, Broken
 (19, 3, 1), -- Sony WF-1000XMS, Beides, New
 (20, 1, 1); -- IPad Pro, Selbstabholung, New
 
-
--- messages hinzufügen
 -- Messages about product_id 1 (Audi A4)
 INSERT INTO messages (from_user_id, to_user_id, product_id, message, created_at) VALUES
 (2, 1, 1, 'Hello! Is the Audi A4 still available?', '2024-12-16 10:30:00'),
