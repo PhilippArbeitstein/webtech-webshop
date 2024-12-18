@@ -67,4 +67,11 @@ export class RealestateService {
             `http://localhost:3000/real-estate/listings/${productId}`
         );
     }
+
+    getUserSpecificListings(): Observable<RealEstateListing[]> {
+        return this.httpClient.get<RealEstateListing[]>(
+            'http://localhost:3000/real-estate/user-listings',
+            { withCredentials: true }
+        );
+    }
 }
