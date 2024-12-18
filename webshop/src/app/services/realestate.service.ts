@@ -13,7 +13,7 @@ export interface RealEstateListing {
     status_name: string;
     created_at: Date;
     updated_at: Date;
-    additional_properties?: {
+    additional_properties: {
         size?: string;
         garage?: boolean;
         garden?: boolean;
@@ -62,5 +62,10 @@ export class RealestateService {
                     console.error('Error fetching listings:', error);
                 }
             });
+    }
+
+    getListingById(productId: number): RealEstateListing | undefined {
+        const listings = this.listingsSubject.getValue(); // Get current listings
+        return listings.find((listing) => listing.product_id === productId);
     }
 }
