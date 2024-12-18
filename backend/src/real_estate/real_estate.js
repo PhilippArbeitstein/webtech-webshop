@@ -116,7 +116,6 @@ router.get('/user-listings', async (req, res) => {
 
 // Create new real-estate listing
 router.post('/new', async (req, res) => {
-    const transaction = await pool.connect();
     const {
         image_url,
         name,
@@ -133,7 +132,10 @@ router.post('/new', async (req, res) => {
         rent_start,
         rent_end
     } = req.body;
+    let transaction;
     try {
+        transaction = await pool.connect();
+
         await transaction.query('BEGIN');
 
         let status_id = null;
@@ -208,7 +210,7 @@ router.post('/new', async (req, res) => {
             VALUES ($1, $2)
             RETURNING product_id
             `,
-            [product_id, 3]
+            [product_id, 2]
         );
 
         if (!productCategoryResult.rows[0]?.product_id) {
@@ -230,11 +232,12 @@ router.post('/new', async (req, res) => {
 
 // Delete a real estate listing
 // TODO: Validate that the product_id belongs to the user sending the request
-router.delete('/delete/:product_id', async (req, res) => {
-    const transaction = await pool.connect();
+router.delete('/:product_id', async (req, res) => {
     const { product_id } = req.params;
-
+    let transaction;
     try {
+        transaction = await pool.connect();
+
         await transaction.query('BEGIN');
 
         const ownershipValidation = await validateProductOwnership(
