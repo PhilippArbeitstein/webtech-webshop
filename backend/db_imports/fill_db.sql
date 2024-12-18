@@ -87,7 +87,7 @@ INSERT INTO product_has_category (product_id, category_id) VALUES
 (7, 2), -- Villa in Wien zu Real Estate
 (8, 2), -- Einfamilienhaus in Graz zu Real Estate
 (9, 3), -- MacBook Pro zu Retail
-(10, 3); -- LG OLED TV zu Retail
+(10, 3), -- LG OLED TV zu Retail
 (11, 1), -- BMW 3er
 (12, 1), -- Toyota Corolla
 (13, 1), -- Audi A6
