@@ -1,5 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { RealestateService } from '../../services/realestate.service';
+import {
+    RealEstateListing,
+    RealestateService
+} from '../../services/realestate.service';
 import { CommonModule } from '@angular/common';
 import { ListItemComponent } from '../list-item/list-item.component';
 import { RouterLink } from '@angular/router';
@@ -12,8 +15,9 @@ import { RouterLink } from '@angular/router';
 })
 export class RealestateListComponent {
     constructor(public realestateService: RealestateService) {}
+    @Input() listings: RealEstateListing[] = [];
 
     ngOnInit() {
-        this.realestateService.getListings();
+        //this.realestateService.getListings();
     }
 }

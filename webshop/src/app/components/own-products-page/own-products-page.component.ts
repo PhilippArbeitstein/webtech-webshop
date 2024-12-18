@@ -7,10 +7,9 @@ import {
     RealestateService
 } from '../../services/realestate.service';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
-import { ListItemComponent } from '../list-item/list-item.component';
-import { Observable, switchMap } from 'rxjs';
+import { Observable, of, switchMap } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
+import { RealestateListComponent } from '../realestate-list/realestate-list.component';
 
 @Component({
     selector: 'app-own-products-page',
@@ -18,14 +17,13 @@ import { AuthService } from '../../services/auth.service';
         NavbarComponent,
         FooterComponent,
         CommonModule,
-        RouterLink,
-        ListItemComponent
+        RealestateListComponent
     ],
     templateUrl: './own-products-page.component.html',
     styleUrl: './own-products-page.component.css'
 })
 export class OwnProductsPageComponent {
-    userListings$!: Observable<RealEstateListing[]>;
+    userListings$: Observable<RealEstateListing[]> = of([]);
     constructor(
         private searchbarService: SearchbarService,
         private realestateService: RealestateService,
@@ -38,7 +36,7 @@ export class OwnProductsPageComponent {
                 if (user) {
                     return this.realestateService.getUserSpecificListings();
                 } else {
-                    return []; // Return empty if user not logged in
+                    return of([]);
                 }
             })
         );
