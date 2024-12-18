@@ -1,4 +1,19 @@
 -- Von ChatGPT generierte Sample Daten
+
+-- Delete all data and reset identity sequences
+TRUNCATE TABLE Product RESTART IDENTITY CASCADE;
+TRUNCATE TABLE Users RESTART IDENTITY CASCADE;
+TRUNCATE TABLE Address RESTART IDENTITY CASCADE;
+TRUNCATE TABLE statuses RESTART IDENTITY CASCADE;
+TRUNCATE TABLE categories RESTART IDENTITY CASCADE;
+TRUNCATE TABLE conditions RESTART IDENTITY CASCADE;
+TRUNCATE TABLE delivery_methods RESTART IDENTITY CASCADE;
+TRUNCATE TABLE vehicle_marks RESTART IDENTITY CASCADE;
+TRUNCATE TABLE vehicle_models RESTART IDENTITY CASCADE;
+TRUNCATE TABLE vehicle_types RESTART IDENTITY CASCADE;
+TRUNCATE TABLE fuel_types RESTART IDENTITY CASCADE;
+TRUNCATE TABLE real_estate_types RESTART IDENTITY CASCADE;
+
 -- Populate table: address
 INSERT INTO address (city, address, province) VALUES
 ('Wien', 'Mariahilfer Straße 50', 'Wien'),
@@ -48,11 +63,6 @@ INSERT INTO product_has_category (product_id, category_id) VALUES
 (1, 1),
 (2, 1),
 (3, 2);
-
--- Populate table: retail
-INSERT INTO retail (product_id, delivery_method_id, condition_id) VALUES
-(1, 1, 2),
-(2, 2, 2);
 
 -- Populate table: vehicle_marks
 INSERT INTO vehicle_marks (mark_name) VALUES
@@ -118,17 +128,18 @@ INSERT INTO product (user_id, image_url, name, description, price, status_id, ad
 
 -- Kategorienzuordnung für neue Produkte
 INSERT INTO product_has_category (product_id, category_id) VALUES
-(4, 1), -- BMW X5 zu Vehicles
+(4, 1), -- Peugeot X5 zu Vehicles
 (5, 1), -- Yamaha YZF-R125 zu Vehicles
-(6, 2), -- Villa in Wien zu Real Estate
-(7, 2), -- Einfamilienhaus in Graz zu Real Estate
-(8, 3), -- MacBook Pro zu Retail
-(9, 3); -- LG OLED TV zu Retail
+(6, 1), -- BMW X5 zu Vehicles
+(7, 2), -- Villa in Wien zu Real Estate
+(8, 2), -- Einfamilienhaus in Graz zu Real Estate
+(9, 3), -- MacBook Pro zu Retail
+(10, 3); -- LG OLED TV zu Retail
 
 -- Weitere Retail-Daten
 INSERT INTO retail (product_id, delivery_method_id, condition_id) VALUES
-(8, 3, 1), -- MacBook Pro, Lieferung und Selbstabholung, Neu
-(9, 2, 1); -- LG OLED TV, Lieferung und Selbstabholung, Neu
+(9, 3, 1), -- MacBook Pro, Lieferung und Selbstabholung, Neu
+(10, 2, 1); -- LG OLED TV, Lieferung, Neu
 
 -- Weitere Fahrzeugdaten
 INSERT INTO vehicles (product_id, mark_id, model_id, type_id, first_registration_date, mileage, fuel_type_id, color, condition_id) VALUES
@@ -169,19 +180,36 @@ INSERT INTO product (user_id, image_url, name, description, price, status_id, ad
 
 -- Produkte den Kategorien zuordnen
 INSERT INTO product_has_category (product_id, category_id) VALUES
-(36, 1), -- BMW 3er
-(37, 1), -- Toyota Corolla
-(38, 1), -- Audi A6
-(39, 1), -- Toyota RAV4
-(40, 1); -- Audi Q5
+(11, 1), -- BMW 3er
+(12, 1), -- Toyota Corolla
+(13, 1), -- Audi A6
+(14, 1), -- Toyota RAV4
+(15, 1); -- Audi Q5
 
 -- Weitere Fahrzeugdaten hinzufügen
 INSERT INTO vehicles (product_id, mark_id, model_id, type_id, first_registration_date, mileage, fuel_type_id, color, condition_id) VALUES
-(36, 2, 2, 1, '2020-07-15', 30000, 1, 'Black', 2), -- BMW 3er
-(37, 5, 5, 1, '2019-05-01', 45000, 1, 'Silver', 2), -- Toyota Corolla
-(38, 1, 6, 1, '2021-09-10', 20000, 1, 'Blue', 1), -- Audi A6
-(39, 5, 7, 1, '2022-02-20', 15000, 3, 'White', 1), -- Toyota RAV4
-(40, 1, 8, 1, '2023-05-01', 5000, 1, 'Gray', 1); -- Audi Q5
+(11, 2, 2, 1, '2020-07-15', 30000, 1, 'Black', 2), -- BMW 3er
+(12, 5, 5, 1, '2019-05-01', 45000, 1, 'Silver', 2), -- Toyota Corolla
+(13, 1, 6, 1, '2021-09-10', 20000, 1, 'Blue', 1), -- Audi A6
+(14, 5, 7, 1, '2022-02-20', 15000, 3, 'White', 1), -- Toyota RAV4
+(15, 1, 8, 1, '2023-05-01', 5000, 1, 'Gray', 1); -- Audi Q5
+
+-- Weitere Retailprodukte hinzufügen
+INSERT INTO product (user_id, image_url, name, description, price, status_id, additional_properties) VALUES
+(1, 'https://static.office-discount.at/img/16/17/Zoom_m2437166.jpg?width=800&height=800&fit=contain&bg=ffffff', 'iPhone 15', 'Das neueste Smartphone von Apple mit innovativen Features.', 999.99, 1, '{"brand": "Apple", "model": "iPhone 15", "color": "Silver"}'),
+(2, 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/mba13-midnight-select-202402?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1708367688034', 'MacBook Air', 'Leichtes, leistungsstarkes Notebook mit M2 Chip.', 1199.99, 1, '{"brand": "Apple", "RAM": "8GB", "SSD": "256GB"}'),
+(3, 'https://images.samsung.com/at/galaxy-watch6/feature/galaxy-watch6-kv-pc.jpg', 'Galaxy Watch 6', 'Stylische Smartwatch mit erweiterten Fitness-Funktionen.', 349.99, 1, '{"brand": "Samsung", "color": "Black", "batteryLife": "48 hours"}'),
+(4, 'https://sony.scene7.com/is/image/sonyglobalsolutions/Primary_image_black?$categorypdpnav$&fmt=png-alpha', 'Sony WF-1000XM5', 'Kabellose Ohrhörer mit branchenführender Geräuschunterdrückung.', 299.99, 1, '{"brand": "Sony", "color": "White", "noiseCancelling": "Yes"}'),
+(5, 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/refurb-ipad-pro-13inch-6th-gen-wifi-spacegray-202409?wid=1144&hei=1144&fmt=jpeg&qlt=90&.v=1721694129629', 'iPad Pro', 'Tablet mit M2-Chip für Kreative und Professionals.', 1099.99, 1, '{"brand": "Apple", "RAM": "8GB", "SSD": "128GB"}');
+
+-- Weitere Retail-Daten
+INSERT INTO retail (product_id, delivery_method_id, condition_id) VALUES
+(16, 2, 2), -- Iphone 15, Lieferung, Used
+(17, 1, 2), -- MacBook Air, Selbstabholung, Used
+(18, 3, 3), -- Galaxy Watch 6, Beides, Broken
+(19, 3, 1), -- Sony WF-1000XMS, Beides, New
+(20, 1, 1); -- IPad Pro, Selbstabholung, New
+
 
 -- messages hinzufügen
 -- Messages about product_id 1 (Audi A4)
