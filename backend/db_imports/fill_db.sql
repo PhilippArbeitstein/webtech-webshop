@@ -78,72 +78,70 @@ INSERT INTO product (user_id, image_url, name, description, price, status_id, ad
 
 -- Populate table: product_has_category
 INSERT INTO product_has_category (product_id, category_id) VALUES
-(1, 1),
-(2, 1),
-(3, 2),
-(4, 1), -- Peugeot X5 zu Vehicles
-(5, 1), -- Yamaha YZF-R125 zu Vehicles
-(6, 1), -- BMW X5 zu Vehicles
-(7, 2), -- Villa in Wien zu Real Estate
-(8, 2), -- Einfamilienhaus in Graz zu Real Estate
-(9, 3), -- MacBook Pro zu Retail
-(10, 3), -- LG OLED TV zu Retail
-(11, 1), -- BMW 3er
-(12, 1), -- Toyota Corolla
-(13, 1), -- Audi A6
-(14, 1), -- Toyota RAV4
-(15, 1), -- Audi Q5
-(16, 3),
-(17, 3),
-(18, 3),
-(19, 3),
-(20, 3);
+(1, 1), -- Audi A4 to Vehicles
+(2, 1), -- Yamaha MT-07 to Vehicles
+(3, 2), -- Wohnung in Graz to Real Estate
+(4, 1), -- Peugeot 3008 to Vehicles
+(5, 1), -- Yamaha YZF-R125 to Vehicles
+(6, 1), -- BMW X5 to Vehicles
+(7, 2), -- Villa in Wien to Real Estate
+(8, 2), -- Einfamilienhaus in Graz to Real Estate
+(9, 3), -- Apple MacBook Pro to Retail
+(10, 3), -- LG OLED TV to Retail
+(11, 1), -- BMW 3er to Vehicles
+(12, 1), -- Toyota Corolla to Vehicles
+(13, 1), -- Audi A6 to Vehicles
+(14, 1), -- Toyota RAV4 to Vehicles
+(15, 1), -- Audi Q5 to Vehicles
+(16, 3), -- iPhone 15 to Retail
+(17, 3), -- MacBook Air to Retail
+(18, 3), -- Galaxy Watch 6 to Retail
+(19, 3), -- Sony WF-1000XM5 to Retail
+(20, 3); -- iPad Pro to Retail
 
 -- Populate table: vehicle_marks
 INSERT INTO vehicle_marks (mark_name) VALUES
-('Audi'),
-('BMW'),
-('Yamaha'),
-('Honda'),
-('Toyota');
+('Audi'), -- ID 1: Audi
+('BMW'), -- ID 2: BMW
+('Yamaha'), -- ID 3: Yamaha
+('Honda'), -- ID 4: Honda
+('Toyota'); -- ID 5: Toyota
 
 -- Populate table: vehicle_models
 INSERT INTO vehicle_models (mark_id, model_name) VALUES
-(1, 'A4'),
-(2, '3 Series'),
-(3, 'MT-07'),
-(4, 'CBR500R'),
-(1, 'A6'),
-(1, 'Q5'),
-(5, 'Corolla'),
-(5, 'RAV4');
+(1, 'A4'), -- mark_id 1 refers to Audi
+(2, '3 Series'), -- mark_id 2 refers to BMW
+(3, 'MT-07'), -- mark_id 3 refers to Yamaha
+(4, 'CBR500R'), -- mark_id 4 refers to Honda
+(1, 'A6'), -- mark_id 1 refers to Audi
+(1, 'Q5'), -- mark_id 1 refers to Audi
+(5, 'Corolla'), -- mark_id 5 refers to Toyota
+(5, 'RAV4'); -- mark_id 5 refers to Toyota
 
 -- Populate table: vehicle_types
 INSERT INTO vehicle_types (type_name, top_level_category) VALUES
-('Car', 'Car'),
-('Motorcycle', 'Motorcycle'),
-('Limousine', 'Car'),
-('SUV', 'Car'),
-('Sports Car', 'Car'),
-('Cool motorcycle', 'Motorcycle');
+('Limousine', 'Car'), -- type_id 1 refers to sedans under the category 'Car'
+('SUV', 'Car'), -- type_id 2 refers to SUVs under the category 'Car'
+('Sports Car', 'Car'), -- type_id 3 refers to sports cars under the category 'Car'
+('Motorcycle', 'Motorcycle'); -- type_id 4 refers to motorcycles under the category 'Motorcycle'
 
 -- Populate table: fuel_types
 INSERT INTO fuel_types (fuel_type_name) VALUES
-('Petrol'),
-('Diesel'),
-('Electric');
+('Petrol'), -- fuel_type_id 1: Petrol
+('Diesel'), -- fuel_type_id 2: Diesel
+('Electric'); -- fuel_type_id 3: Electric
 
 -- Weitere Fahrzeugdaten
 INSERT INTO vehicles (product_id, mark_id, model_id, type_id, first_registration_date, mileage, fuel_type_id, color, condition_id) VALUES
-(4, 2, 2, 1, '2021-05-10', 25000, 2, 'White', 2), -- BMW X5
-(5, 3, 4, 2, '2022-03-20', 5000, 1, 'Red', 1), -- Yamaha YZF-R125
-(1, 1, 1, 1, '2018-06-01', 50000, 1, 'Black', 2),
-(2, 3, 3, 2, '2020-08-15', 10000, 1, 'Blue', 2),
-(11, 2, 2, 1, '2020-07-15', 30000, 1, 'Black', 2), -- BMW 3er
-(12, 5, 5, 1, '2019-05-01', 45000, 1, 'Silver', 2), -- Toyota Corolla
-(13, 1, 6, 1, '2021-09-10', 20000, 1, 'Blue', 1), -- Audi A6
-(14, 5, 7, 1, '2022-02-20', 15000, 3, 'White', 1), -- Toyota RAV4
-(15, 1, 8, 1, '2023-05-01', 5000, 1, 'Gray', 1); -- Audi Q5
+(4, 2, 2, 2, '2021-05-10', 25000, 2, 'White', 2), -- BMW X5: type_id updated to 2 (SUV)
+(5, 3, 4, 4, '2022-03-20', 5000, 1, 'Red', 1), -- Yamaha YZF-R125: type_id updated to 4 (Motorcycle)
+(1, 1, 1, 1, '2018-06-01', 50000, 1, 'Black', 2), -- Audi A4: type_id remains 1 (Limousine)
+(2, 3, 3, 4, '2020-08-15', 10000, 1, 'Blue', 2), -- Yamaha MT-07: type_id updated to 4 (Motorcycle)
+(11, 2, 2, 1, '2020-07-15', 30000, 1, 'Black', 2), -- BMW 3 Series: type_id remains 1 (Limousine)
+(12, 5, 5, 1, '2019-05-01', 45000, 1, 'Silver', 2), -- Toyota Corolla: type_id remains 1 (Limousine)
+(13, 1, 6, 1, '2021-09-10', 20000, 1, 'Blue', 1), -- Audi A6: type_id remains 1 (Limousine)
+(14, 5, 7, 2, '2022-02-20', 15000, 3, 'White', 1), -- Toyota RAV4: type_id updated to 2 (SUV)
+(15, 1, 8, 2, '2023-05-01', 5000, 1, 'Gray', 1); -- Audi Q5: type_id updated to 2 (SUV)
 
 -- Populate table: real_estate_types
 INSERT INTO real_estate_types (type_name) VALUES
