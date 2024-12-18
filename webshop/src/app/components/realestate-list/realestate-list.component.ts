@@ -15,6 +15,5 @@ export class RealestateListComponent {
 
     ngOnInit() {
         this.realestateService.getListings();
-        console.log(this.realestateService.listings$);
     }
 }
