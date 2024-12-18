@@ -154,8 +154,8 @@ INSERT INTO real_estate_types (type_name) VALUES
 -- Populate table: real_estate
 INSERT INTO real_estate (product_id, type_id, address_id, address_details, advance_payment, rent_start, rent_end) VALUES
 (3, 1, 2, 'Near Graz Hauptplatz', 25000.00, '2024-01-01', '2025-01-01'),
-(6, 3, 1, 'Exklusives Viertel im 19. Bezirk', 50000.00, '2024-06-01', '2025-06-01'), -- Villa in Wien
-(7, 2, 2, 'Ruhige Wohngegend in Graz', 20000.00, '2024-03-01', '2025-03-01'); -- Einfamilienhaus in Graz
+(7, 3, 1, 'Exklusives Viertel im 19. Bezirk', 50000.00, '2024-06-01', '2025-06-01'), -- Villa in Wien
+(8, 2, 2, 'Ruhige Wohngegend in Graz', 20000.00, '2024-03-01', '2025-03-01'); -- Einfamilienhaus in Graz
 
 -- Weitere Retail-Daten
 INSERT INTO retail (product_id, delivery_method_id, condition_id) VALUES
