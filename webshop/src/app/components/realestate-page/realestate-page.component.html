@@ -15,7 +15,10 @@
                     -ms-overflow-style: none; /* IE and Edge */
                 }
             </style>
-            <app-realestate-list class="mt-6"></app-realestate-list>
+            <app-realestate-list
+                class="mt-6"
+                [listings]="realEstateListings"
+            ></app-realestate-list>
         </div>
         <app-footer
             class="shrink-0 fixed bottom-0 left-0 w-full z-10"

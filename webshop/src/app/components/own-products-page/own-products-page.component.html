@@ -7,28 +7,34 @@
             class="flex-grow flex flex-col items-center space-y-6 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none]"
         >
             <div
-                *ngIf="userListings$ | async as userListings"
-                class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-8 px-4 py-8"
+                class="w-full flex items-center mt-12 space-x-4 justify-between px-28"
             >
-                <a
-                    *ngFor="let listing of userListings"
-                    [routerLink]="['/real-estate-details', listing.product_id]"
-                    class="inline-block no-underline hover:shadow-lg transition duration-200"
+                <h2 class="text-2xl font-bold text-gray-800">
+                    Your Real-Estate Listings
+                </h2>
+                <button
+                    class="bg-btn_primary hover:bg-btn_primary_darkened text-white font-semibold px-4 rounded-lg transition duration-200 h-8 flex items-center"
                 >
-                    <app-list-item [listing]="listing"></app-list-item>
-                </a>
+                    New
+                </button>
             </div>
 
-            <ng-template #noResults>
-                <p class="text-gray-600">
-                    No listings match the current filter.
-                </p>
-            </ng-template>
-
-            <ng-template #noListings>
-                <p class="text-gray-600">Loading listings...</p>
-            </ng-template>
+            <style>
+                .scrollbar-hidden::-webkit-scrollbar {
+                    display: none;
+                }
+                .scrollbar-hidden {
+                    scrollbar-width: none; /* Firefox */
+                    -ms-overflow-style: none; /* IE and Edge */
+                }
+            </style>
+            <app-realestate-list
+                *ngIf="userListings$ | async as userListings"
+                [listings]="userListings"
+            ></app-realestate-list>
         </div>
-        <app-footer class="shrink-0"></app-footer>
+        <app-footer
+            class="shrink-0 fixed bottom-0 left-0 w-full z-10"
+        ></app-footer>
     </div>
 </div>
