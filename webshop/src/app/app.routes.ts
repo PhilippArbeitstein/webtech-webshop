@@ -5,6 +5,9 @@ import { LandingPageComponent } from './components/landing-page/landing-page.com
 import { MessagePageComponent } from './components/message-page/message-page.component';
 import { ProfilePageComponent } from './components/profile-page/profile-page.component';
 import { OwnProductsPageComponent } from './components/own-products-page/own-products-page.component';
+import { RetailPageComponent } from './components/retail-page/retail-page.component';
+import { VehiclePageComponent } from './components/vehicle-page/vehicle-page.component';
+import { RealestatePageComponent } from './components/realestate-page/realestate-page.component';
 
 export const routes: Routes = [
     { path: '', component: LandingPageComponent },
@@ -12,5 +15,8 @@ export const routes: Routes = [
     { path: 'login', component: LoginComponent },
     { path: 'messages', component: MessagePageComponent },
     { path: 'profile', component: ProfilePageComponent },
-    { path: 'own-products', component: OwnProductsPageComponent }
+    { path: 'own-products', component: OwnProductsPageComponent },
+    { path: 'retail', component: RetailPageComponent },
+    { path: 'vehicles', component: VehiclePageComponent },
+    { path: 'real-estate', component: RealestatePageComponent }
 ];

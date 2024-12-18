@@ -3,6 +3,10 @@
     <!-- Logo -->
     <a [routerLink]="['/']" class="md:text-4xl font-bold">Fynd</a>
 
+    <app-searchbar
+        *ngIf="searchbarService.showSearchBar$ | async"
+    ></app-searchbar>
+
     <!-- Authentication Links -->
     <div *ngIf="!(isLoggedIn$ | async); else loggedIn" class="flex space-x-6">
         <a

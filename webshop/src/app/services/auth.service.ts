@@ -48,6 +48,36 @@ export class AuthService {
             );
     }
 
+    register(registrationCredentials: {
+        address: {
+            city: string;
+            user_address: string;
+            province: string;
+        };
+        user: {
+            email: string;
+            username: string;
+            password: string;
+        };
+    }): Observable<any> {
+        return this.httpClient
+            .post(
+                'http://localhost:3000/login/register',
+                registrationCredentials,
+                { withCredentials: true }
+            )
+            .pipe(
+                tap((response: any) => {
+                    if (response.message === 'Registration successful') {
+                        this.isAuthenticated.next(true);
+                        this.userService.loggedInUser = response.user;
+                    } else {
+                        this.isAuthenticated.next(false);
+                    }
+                })
+            );
+    }
+
     logout(): Observable<any> {
         return this.httpClient
             .get('http://localhost:3000/logout', {

@@ -8,6 +8,8 @@ import {
     ReactiveFormsModule,
     Validators
 } from '@angular/forms';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-register',
@@ -25,9 +27,14 @@ export class RegisterComponent {
     step1Form: FormGroup;
     step2Form: FormGroup;
 
-    constructor(fb: FormBuilder) {
+    constructor(
+        fb: FormBuilder,
+        private authService: AuthService,
+        private router: Router
+    ) {
         this.step1Form = fb.group({
             email: ['', [Validators.required, Validators.email]],
+            username: ['', [Validators.required]],
             password: ['', [Validators.required, Validators.minLength(8)]]
         });
 
@@ -39,17 +46,42 @@ export class RegisterComponent {
     }
 
     goToFormStep(step: number) {
+        console.log('Hello?');
         if (step === 2 && this.step1Form.invalid) {
             this.markFormGroupTouched(this.step1Form);
             return;
         }
         this.currentStep = step;
+        console.log(this.currentStep);
     }
 
     submitForm() {
+        console.log('here?');
         if (this.step2Form.invalid) {
             this.markFormGroupTouched(this.step2Form);
             return;
+        } else {
+            const registrationCredentials = {
+                address: {
+                    city: this.step2Form.get('city')?.value as string,
+                    user_address: this.step2Form.get('address')
+                        ?.value as string,
+                    province: this.step2Form.get('province')?.value as string
+                },
+                user: {
+                    email: this.step1Form.get('email')?.value as string,
+                    username: this.step1Form.get('username')?.value as string,
+                    password: this.step1Form.get('password')?.value as string
+                }
+            };
+            this.authService.register(registrationCredentials).subscribe({
+                next: (response) => {
+                    this.router.navigate(['']);
+                },
+                error: (err) => {
+                    console.log('Registration failed:', err);
+                }
+            });
         }
     }
 
