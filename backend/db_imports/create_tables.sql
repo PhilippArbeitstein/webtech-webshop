@@ -90,7 +90,7 @@ CREATE TABLE vehicle_models (
 CREATE TABLE vehicle_types (
     type_id SERIAL PRIMARY KEY,
     type_name VARCHAR(255) NOT NULL,
-    Top_level_category VARCHAR(50)
+    top_level_category VARCHAR(50)
 );
 
 -- Create table: fuel_types
