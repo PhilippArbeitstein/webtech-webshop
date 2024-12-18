@@ -1,0 +1,20 @@
+<div
+    *ngIf="
+        realestateService.filteredListings$ | async as listings;
+        else noListings
+    "
+    class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-8 px-4 py-8"
+>
+    <app-list-item
+        *ngFor="let listing of listings"
+        [listing]="listing"
+    ></app-list-item>
+</div>
+
+<ng-template #noResults>
+    <p class="text-gray-600">No listings match the current filter.</p>
+</ng-template>
+
+<ng-template #noListings>
+    <p class="text-gray-600">Loading listings...</p>
+</ng-template>
