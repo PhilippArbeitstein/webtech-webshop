@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { NewRealEstateListing } from '../components/realestate-create-overlay/realestate-create-overlay.component';
 
 export interface RealEstateListing {
     product_id: number;
@@ -72,6 +73,15 @@ export class RealestateService {
         return this.httpClient.get<RealEstateListing[]>(
             'http://localhost:3000/real-estate/user-listings',
             { withCredentials: true }
+        );
+    }
+
+    createListing(
+        newListing: NewRealEstateListing
+    ): Observable<{ message: string; product_id: string }> {
+        return this.httpClient.post<{ message: string; product_id: string }>(
+            `http://localhost:3000/real-estate/new`,
+            newListing
         );
     }
 }
