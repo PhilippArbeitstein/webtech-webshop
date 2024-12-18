@@ -1,9 +1,9 @@
 -- Von ChatGPT generierte Sample Daten
 
 -- Delete all data and reset identity sequences
-TRUNCATE TABLE Product RESTART IDENTITY CASCADE;
-TRUNCATE TABLE Users RESTART IDENTITY CASCADE;
-TRUNCATE TABLE Address RESTART IDENTITY CASCADE;
+TRUNCATE TABLE product RESTART IDENTITY CASCADE;
+TRUNCATE TABLE users RESTART IDENTITY CASCADE;
+TRUNCATE TABLE address RESTART IDENTITY CASCADE;
 TRUNCATE TABLE statuses RESTART IDENTITY CASCADE;
 TRUNCATE TABLE categories RESTART IDENTITY CASCADE;
 TRUNCATE TABLE conditions RESTART IDENTITY CASCADE;
@@ -119,7 +119,7 @@ INSERT INTO vehicle_models (mark_id, model_name) VALUES
 (5, 'RAV4');
 
 -- Populate table: vehicle_types
-INSERT INTO vehicle_types (type_name, Top_level_category) VALUES
+INSERT INTO vehicle_types (type_name, top_level_category) VALUES
 ('Car', 'Car'),
 ('Motorcycle', 'Motorcycle'),
 ('Limousine', 'Car'),
