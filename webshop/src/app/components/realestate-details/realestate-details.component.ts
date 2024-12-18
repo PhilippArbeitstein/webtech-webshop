@@ -24,7 +24,7 @@ type DisplayRealEstateListing = RealEstateListing & {
 })
 export class RealestateDetailsComponent {
     productId: number = -1;
-    listing: DisplayRealEstateListing = {} as DisplayRealEstateListing;
+    listing: DisplayRealEstateListing | null = null;
 
     constructor(
         private searchbarService: SearchbarService,
@@ -39,18 +39,19 @@ export class RealestateDetailsComponent {
     ngOnInit(): void {
         this.searchbarService.setSearchBarContext('real-estate');
 
-        // Fetch the listing by ID
-        const listing = this.realestateService.getListingById(this.productId);
-        if (listing) {
-            // Add formatted date fields while preserving original data
-            this.listing = {
-                ...listing,
-                rent_start_formatted: this.formatDate(listing.rent_start),
-                rent_end_formatted: this.formatDate(listing.rent_end)
-            };
-        } else {
-            console.error('Listing not found for ID:', this.productId);
-        }
+        // Fetch the listing directly
+        this.realestateService.getListingById(this.productId).subscribe({
+            next: (listing) => {
+                this.listing = {
+                    ...listing,
+                    rent_start_formatted: this.formatDate(listing.rent_start),
+                    rent_end_formatted: this.formatDate(listing.rent_end)
+                };
+            },
+            error: (error) => {
+                console.error('Error fetching listing:', error);
+            }
+        });
     }
 
     ngOnDestroy(): void {
@@ -61,8 +62,17 @@ export class RealestateDetailsComponent {
         return obj ? Object.keys(obj) : [];
     }
 
-    getPropertyValue(obj: any, key: string): any {
-        return obj[key];
+    getPropertyValue(obj: any, key: string): string {
+        const value = obj[key];
+        const formattedKey = key.charAt(0).toUpperCase() + key.slice(1); // Capitalize the key
+
+        if (value === true) {
+            return `With ${formattedKey}`; // Example: "With Garage"
+        } else if (value === false) {
+            return `No ${formattedKey}`; // Optional: "No Garage"
+        } else {
+            return `${formattedKey}: ${value}`; // Example: "Size: 2000 sqm"
+        }
     }
 
     private formatDate(date: string | Date): string {

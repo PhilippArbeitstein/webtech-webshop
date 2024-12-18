@@ -47,14 +47,12 @@ export class RealestateService {
     constructor(private httpClient: HttpClient) {}
 
     getListings(): void {
-        console.log("I've been called");
         this.httpClient
             .get<RealEstateListing[]>(
                 'http://localhost:3000/real-estate/listings'
             )
             .subscribe({
                 next: (data) => {
-                    console.log('Data received:', data);
                     this.listingsSubject.next(data);
                     this.filteredListingsSubject.next([...data]);
                 },
@@ -64,8 +62,9 @@ export class RealestateService {
             });
     }
 
-    getListingById(productId: number): RealEstateListing | undefined {
-        const listings = this.listingsSubject.getValue(); // Get current listings
-        return listings.find((listing) => listing.product_id === productId);
+    getListingById(productId: number): Observable<RealEstateListing> {
+        return this.httpClient.get<RealEstateListing>(
+            `http://localhost:3000/real-estate/listings/${productId}`
+        );
     }
 }

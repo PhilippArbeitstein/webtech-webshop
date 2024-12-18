@@ -59,7 +59,7 @@ router.get('/listings/:product_id', async (req, res) => {
             return res.status(404).json({ message: 'No listings found' });
         }
 
-        res.status(200).json(allListings.rows);
+        res.status(200).json(allListings.rows[0]);
     } catch (error) {
         res.status(500).send(`Server Error: ${error}`);
     }
