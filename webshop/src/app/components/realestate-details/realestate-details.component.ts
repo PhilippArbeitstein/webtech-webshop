@@ -6,8 +6,9 @@ import {
     RealEstateListing,
     RealestateService
 } from '../../services/realestate.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
+import { RoutingService } from '../../services/routing.service';
 
 // Extend RealEstateListing locally to include display properties
 type DisplayRealEstateListing = RealEstateListing & {
@@ -30,7 +31,9 @@ export class RealestateDetailsComponent {
         private searchbarService: SearchbarService,
         public realestateService: RealestateService,
         private route: ActivatedRoute,
-        private datePipe: DatePipe
+        private router: Router,
+        private datePipe: DatePipe,
+        private routingService: RoutingService
     ) {
         const productIdParam = this.route.snapshot.paramMap.get('product_id');
         this.productId = productIdParam ? Number(productIdParam) : -1;
@@ -77,5 +80,14 @@ export class RealestateDetailsComponent {
 
     private formatDate(date: string | Date): string {
         return this.datePipe.transform(date, 'd. MMM y') || '';
+    }
+
+    goBack(): void {
+        const previousRoute = this.routingService.getPreviousRoute();
+        if (previousRoute == 'own-product') {
+            this.router.navigate(['/own-products']);
+        } else {
+            this.router.navigate(['/real-estate']);
+        }
     }
 }

@@ -12,6 +12,12 @@
                 <div
                     class="flex flex-col lg:flex-row bg-white rounded-xl overflow-hidden relative w-full max-w-5xl h-auto lg:h-[60vh]"
                 >
+                    <button
+                        (click)="goBack()"
+                        class="absolute top-7 right-7 text-text_gray hover:text-black text-3xl"
+                    >
+                        &times;
+                    </button>
                     <!-- Image Section -->
                     <div class="w-full lg:w-1/2 h-64 lg:h-auto">
                         <img

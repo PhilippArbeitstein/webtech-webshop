@@ -119,9 +119,7 @@ export class AuthService {
                 })
             )
             .subscribe({
-                next: (user) => {
-                    console.log('Current user:', this.userService.loggedInUser);
-                },
+                next: (user) => {},
                 error: (error) => {
                     console.error(
                         'Session check failed or no active session:',
