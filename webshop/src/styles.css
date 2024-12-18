@@ -3,3 +3,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@media (max-width: 900px) {
+    .force-single-column {
+        grid-template-columns: 1fr !important;
+    }
+}
