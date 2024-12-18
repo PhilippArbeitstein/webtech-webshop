@@ -1,0 +1,214 @@
+<div
+    class="bg-white shadow-lg max-w-4xl w-full mx-4 relative rounded-2xl overflow-hidden"
+    style="max-height: 90vh"
+    (click)="$event.stopPropagation()"
+>
+    <!-- Header -->
+    <div
+        class="flex justify-between items-center p-4 sticky top-0 bg-white z-10"
+    >
+        <h2 class="text-2xl font-bold text-gray-800">
+            Create Real Estate Listing
+        </h2>
+        <button class="text-gray-500 hover:text-gray-800" (click)="onClose()">
+            ✖
+        </button>
+    </div>
+
+    <!-- Scrollable Form Content -->
+    <div class="overflow-y-auto" style="max-height: 80vh; padding: 0 1rem">
+        <form
+            [formGroup]="realestateForm"
+            (ngSubmit)="onCreate()"
+            class="space-y-4 p-4"
+        >
+            <!-- Image URL -->
+            <div>
+                <label class="block text-gray-700 font-medium">Image URL</label>
+                <input
+                    type="text"
+                    class="w-full border rounded-lg px-4 py-2"
+                    formControlName="image_url"
+                    placeholder="Enter image URL"
+                />
+            </div>
+
+            <!-- Name -->
+            <div>
+                <label class="block text-gray-700 font-medium">Name</label>
+                <input
+                    type="text"
+                    class="w-full border rounded-lg px-4 py-2"
+                    formControlName="name"
+                    placeholder="Enter property name"
+                />
+            </div>
+
+            <!-- Description -->
+            <div>
+                <label class="block text-gray-700 font-medium"
+                    >Description</label
+                >
+                <textarea
+                    class="w-full border rounded-lg px-4 py-2"
+                    formControlName="description"
+                    placeholder="Enter property description"
+                ></textarea>
+            </div>
+
+            <!-- Price -->
+            <div>
+                <label class="block text-gray-700 font-medium">Price</label>
+                <input
+                    type="number"
+                    class="w-full border rounded-lg px-4 py-2"
+                    formControlName="price"
+                    placeholder="Enter price"
+                />
+            </div>
+
+            <!-- Status -->
+            <div>
+                <label class="block text-gray-700 font-medium">Status</label>
+                <select
+                    class="w-full border rounded-lg px-4 py-2"
+                    formControlName="status_name"
+                >
+                    <option value="">Select status</option>
+                    <option value="Available">Available</option>
+                    <option value="Sold">Sold</option>
+                    <option value="Rented">Rented</option>
+                </select>
+            </div>
+
+            <!-- Additional Properties -->
+            <fieldset class="border p-4 mb-4 rounded-lg">
+                <legend class="text-gray-700 font-bold">
+                    Additional Properties
+                </legend>
+                <div
+                    *ngFor="
+                        let prop of additionalProperties.controls;
+                        let i = index
+                    "
+                >
+                    <div class="flex items-center space-x-2 mb-2">
+                        <input
+                            type="text"
+                            class="w-1/2 border rounded-lg px-4 py-2"
+                            placeholder="Pool"
+                            [formControlName]="i + '_key'"
+                        />
+                        <input
+                            type="text"
+                            class="w-1/2 border rounded-lg px-4 py-2"
+                            placeholder="Yes"
+                            [formControlName]="i + '_value'"
+                        />
+                        <button
+                            type="button"
+                            class="text-red-500 hover:text-red-700"
+                            (click)="removeProperty(i)"
+                        >
+                            Remove
+                        </button>
+                    </div>
+                </div>
+                <button
+                    type="button"
+                    class="bg-btn_primary hover:bg-btn_primary_darkened text-white px-4 py-2 rounded-lg"
+                    (click)="addProperty()"
+                >
+                    Add Property
+                </button>
+            </fieldset>
+
+            <!-- City -->
+            <div>
+                <label class="block text-gray-700 font-medium">City</label>
+                <input
+                    type="text"
+                    class="w-full border rounded-lg px-4 py-2"
+                    formControlName="city"
+                    placeholder="Enter city"
+                />
+            </div>
+
+            <!-- Address -->
+            <div>
+                <label class="block text-gray-700 font-medium">Address</label>
+                <input
+                    type="text"
+                    class="w-full border rounded-lg px-4 py-2"
+                    formControlName="address"
+                    placeholder="Enter address"
+                />
+            </div>
+
+            <!-- Province -->
+            <div>
+                <label class="block text-gray-700 font-medium">Province</label>
+                <input
+                    type="text"
+                    class="w-full border rounded-lg px-4 py-2"
+                    formControlName="province"
+                    placeholder="Enter province"
+                />
+            </div>
+
+            <!-- Property Type -->
+            <div>
+                <label class="block text-gray-700 font-medium"
+                    >Property Type</label
+                >
+                <input
+                    type="text"
+                    class="w-full border rounded-lg px-4 py-2"
+                    formControlName="type_name"
+                    placeholder="Enter property type"
+                />
+            </div>
+
+            <!-- Rent Period -->
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-gray-700 font-medium"
+                        >Rent Start</label
+                    >
+                    <input
+                        type="date"
+                        class="w-full border rounded-lg px-4 py-2"
+                        formControlName="rent_start"
+                    />
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium"
+                        >Rent End</label
+                    >
+                    <input
+                        type="date"
+                        class="w-full border rounded-lg px-4 py-2"
+                        formControlName="rent_end"
+                    />
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex justify-end space-x-4 mt-6">
+                <button
+                    type="button"
+                    class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg"
+                    (click)="onClose()"
+                >
+                    Cancel
+                </button>
+                <button
+                    type="submit"
+                    class="bg-btn_primary hover:bg-btn_primary_darkened text-white px-4 py-2 rounded-lg"
+                >
+                    Create
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -14,6 +14,7 @@
                 </h2>
                 <button
                     class="bg-btn_primary hover:bg-btn_primary_darkened text-white font-semibold px-4 rounded-lg transition duration-200 h-8 flex items-center"
+                    (click)="openOverlay()"
                 >
                     New
                 </button>
@@ -37,4 +38,15 @@
             class="shrink-0 fixed bottom-0 left-0 w-full z-10"
         ></app-footer>
     </div>
+</div>
+
+<div
+    *ngIf="isOverlayOpen"
+    class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50 overflow-y-auto"
+    (click)="closeOverlay()"
+>
+    <app-realestate-create-overlay
+        class="fixed inset-0 bg-gray-500 bg-opacity-20 flex justify-center items-center z-50"
+        (close)="closeOverlay()"
+    ></app-realestate-create-overlay>
 </div>
