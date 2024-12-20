@@ -262,12 +262,18 @@
                 <label class="block text-gray-700 font-medium"
                     >Property Type</label
                 >
-                <input
-                    type="text"
+                <select
                     class="w-full border rounded-lg px-4 py-2"
                     formControlName="type_name"
-                    placeholder="Enter property type"
-                />
+                >
+                    <option value="">Select property type</option>
+                    <option
+                        *ngFor="let type of realEstateTypes"
+                        [value]="type.type_name"
+                    >
+                        {{ type.type_name }}
+                    </option>
+                </select>
                 <span
                     *ngIf="
                         realestateForm.controls['type_name'].invalid &&

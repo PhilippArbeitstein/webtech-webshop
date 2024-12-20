@@ -84,4 +84,10 @@ export class RealestateService {
             newListing
         );
     }
+
+    getRealestateTypes(): Observable<{ type_id: number; type_name: string }[]> {
+        return this.httpClient.get<{ type_id: number; type_name: string }[]>(
+            `http://localhost:3000/real-estate/types`
+        );
+    }
 }

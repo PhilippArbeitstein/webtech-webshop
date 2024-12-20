@@ -38,6 +38,7 @@ export class RealestateCreateOverlayComponent {
     @Output() created = new EventEmitter<void>();
 
     realestateForm: FormGroup;
+    realEstateTypes: { type_id: number; type_name: string }[] = [];
 
     constructor(
         private fb: FormBuilder,
@@ -61,6 +62,21 @@ export class RealestateCreateOverlayComponent {
             advance_payment: [null, [Validators.min(0)]],
             rent_start: ['', Validators.required],
             rent_end: ['', Validators.required]
+        });
+    }
+
+    ngOnInit(): void {
+        this.loadRealEstateTypes();
+    }
+
+    loadRealEstateTypes(): void {
+        this.realestateService.getRealestateTypes().subscribe({
+            next: (data) => {
+                this.realEstateTypes = data;
+            },
+            error: (error) => {
+                console.error('Error loading real estate types:', error);
+            }
         });
     }
 
