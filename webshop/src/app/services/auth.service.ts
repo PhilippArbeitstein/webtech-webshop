@@ -104,7 +104,6 @@ export class AuthService {
             })
             .pipe(
                 tap((response: any) => {
-                    console.log('Session response:', response);
                     this.isAuthenticated.next(response.loggedIn);
                 }),
                 switchMap((response: any) => {
@@ -119,9 +118,7 @@ export class AuthService {
                 })
             )
             .subscribe({
-                next: (user) => {
-                    console.log('Current user:', this.userService.loggedInUser);
-                },
+                next: (user) => {},
                 error: (error) => {
                     console.error(
                         'Session check failed or no active session:',

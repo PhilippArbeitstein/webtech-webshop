@@ -23,7 +23,6 @@ export class ProfileOverlayComponent {
         this.authService.logout().subscribe({
             next: (response) => {
                 this.router.navigate(['']);
-                console.log('Logout response:', response);
             },
             error: (err) => {
                 console.error('Logout failed:', err);

@@ -3,7 +3,50 @@
 >
     <div class="flex flex-col h-full">
         <app-navbar class="shrink-0"></app-navbar>
+        <div
+            class="flex-grow flex flex-col items-center space-y-6 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none]"
+        >
+            <div
+                class="w-full flex items-center mt-12 space-x-4 justify-between px-28"
+            >
+                <h2 class="text-2xl font-bold text-gray-800">
+                    Deine Immobilien
+                </h2>
+                <button
+                    class="bg-btn_primary hover:bg-btn_primary_darkened text-white font-semibold px-4 rounded-lg transition duration-200 h-8 flex items-center"
+                    (click)="openOverlay()"
+                >
+                    New
+                </button>
+            </div>
 
-        <app-footer class="shrink-0"></app-footer>
+            <style>
+                .scrollbar-hidden::-webkit-scrollbar {
+                    display: none;
+                }
+                .scrollbar-hidden {
+                    scrollbar-width: none; /* Firefox */
+                    -ms-overflow-style: none; /* IE and Edge */
+                }
+            </style>
+            <app-realestate-list
+                *ngIf="userListings$ | async as userListings"
+                [listings]="userListings"
+            ></app-realestate-list>
+        </div>
+        <app-footer
+            class="shrink-0 fixed bottom-0 left-0 w-full z-10"
+        ></app-footer>
     </div>
+</div>
+
+<div
+    *ngIf="isOverlayOpen"
+    class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50 overflow-y-auto"
+    (click)="closeOverlay()"
+>
+    <app-realestate-create-overlay
+        class="fixed inset-0 bg-gray-500 bg-opacity-20 flex justify-center items-center z-50"
+        (close)="closeOverlay()"
+    ></app-realestate-create-overlay>
 </div>
