@@ -7,7 +7,7 @@ import {
     RealestateService
 } from '../../services/realestate.service';
 import { CommonModule } from '@angular/common';
-import { Observable, of, switchMap } from 'rxjs';
+import { Observable, of, switchMap, tap } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { RealestateListComponent } from '../realestate-list/realestate-list.component';
 import { RealestateCreateOverlayComponent } from '../realestate-create-overlay/realestate-create-overlay.component';
@@ -26,7 +26,7 @@ import { RealestateCreateOverlayComponent } from '../realestate-create-overlay/r
 })
 export class OwnProductsPageComponent {
     userListings$: Observable<RealEstateListing[]> = of([]);
-    isOverlayOpen = false; // Overlay visibility state
+    isOverlayOpen = false;
 
     constructor(
         private searchbarService: SearchbarService,
@@ -34,12 +34,17 @@ export class OwnProductsPageComponent {
         private authService: AuthService
     ) {}
 
-    ngOnInit() {
-        this.searchbarService.setSearchBarContext('real-estate');
+    private loadUserListings(): void {
         this.userListings$ = this.authService.isLoggedIn$.pipe(
             switchMap((user) => {
                 if (user) {
-                    return this.realestateService.getUserSpecificListings();
+                    return this.realestateService
+                        .getUserSpecificListings()
+                        .pipe(
+                            tap((listings) =>
+                                console.log('Listings fetched:', listings)
+                            )
+                        );
                 } else {
                     return of([]);
                 }
@@ -47,20 +52,17 @@ export class OwnProductsPageComponent {
         );
     }
 
-    openOverlay(): void {
-        this.isOverlayOpen = true;
+    ngOnInit() {
+        this.searchbarService.setSearchBarContext('real-estate');
+        this.loadUserListings();
     }
 
     closeOverlay(): void {
         this.isOverlayOpen = false;
-        this.userListings$ = this.authService.isLoggedIn$.pipe(
-            switchMap((user) => {
-                if (user) {
-                    return this.realestateService.getUserSpecificListings();
-                } else {
-                    return of([]);
-                }
-            })
-        );
+        this.loadUserListings();
+    }
+
+    openOverlay(): void {
+        this.isOverlayOpen = true;
     }
 }
