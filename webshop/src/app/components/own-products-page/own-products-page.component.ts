@@ -57,6 +57,10 @@ export class OwnProductsPageComponent {
         this.loadUserListings();
     }
 
+    ngOnDestroy() {
+        this.searchbarService.setSearchQuery('');
+    }
+
     closeOverlay(): void {
         this.isOverlayOpen = false;
         this.loadUserListings();
