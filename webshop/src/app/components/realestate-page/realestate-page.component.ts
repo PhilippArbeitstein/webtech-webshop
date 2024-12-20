@@ -33,5 +33,6 @@ export class RealestatePageComponent {
 
     ngOnDestroy(): void {
         this.searchbarService.setSearchBarContext(null);
+        this.searchbarService.setSearchQuery('');
     }
 }
