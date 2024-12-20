@@ -3,7 +3,6 @@
     style="max-height: 90vh"
     (click)="$event.stopPropagation()"
 >
-    <!-- Header -->
     <div
         class="flex justify-between items-center p-4 sticky top-0 bg-white z-10"
     >
@@ -15,14 +14,12 @@
         </button>
     </div>
 
-    <!-- Scrollable Form Content -->
     <div class="overflow-y-auto" style="max-height: 80vh; padding: 0 1rem">
         <form
             [formGroup]="realestateForm"
             (ngSubmit)="onCreate()"
             class="space-y-4 p-4"
         >
-            <!-- Image URL -->
             <div>
                 <label class="block text-gray-700 font-medium">Image URL</label>
                 <input
@@ -31,9 +28,16 @@
                     formControlName="image_url"
                     placeholder="Enter image URL"
                 />
+                <span
+                    *ngIf="
+                        realestateForm.controls['image_url'].invalid &&
+                        realestateForm.controls['image_url'].touched
+                    "
+                    class="text-red-500 text-sm"
+                >
+                    Please enter a valid image URL.
+                </span>
             </div>
-
-            <!-- Name -->
             <div>
                 <label class="block text-gray-700 font-medium">Name</label>
                 <input
@@ -42,12 +46,30 @@
                     formControlName="name"
                     placeholder="Enter property name"
                 />
+                <span
+                    *ngIf="
+                        realestateForm.controls['name'].invalid &&
+                        realestateForm.controls['name'].touched
+                    "
+                    class="text-red-500 text-sm"
+                >
+                    Property name is required.
+                </span>
             </div>
-
-            <!-- Description -->
             <div>
                 <label class="block text-gray-700 font-medium"
-                    >Description</label
+                    >Address Details (?)</label
+                >
+                <input
+                    type="text"
+                    class="w-full border rounded-lg px-4 py-2"
+                    formControlName="address_details"
+                    placeholder="Enter details of the building"
+                />
+            </div>
+            <div>
+                <label class="block text-gray-700 font-medium"
+                    >Description (?)</label
                 >
                 <textarea
                     class="w-full border rounded-lg px-4 py-2"
@@ -55,8 +77,6 @@
                     placeholder="Enter property description"
                 ></textarea>
             </div>
-
-            <!-- Price -->
             <div>
                 <label class="block text-gray-700 font-medium">Price</label>
                 <input
@@ -65,53 +85,86 @@
                     formControlName="price"
                     placeholder="Enter price"
                 />
-            </div>
-
-            <!-- Status -->
-            <div>
-                <label class="block text-gray-700 font-medium">Status</label>
-                <select
-                    class="w-full border rounded-lg px-4 py-2"
-                    formControlName="status_name"
+                <span
+                    *ngIf="
+                        realestateForm.controls['price'].invalid &&
+                        realestateForm.controls['price'].touched
+                    "
+                    class="text-red-500 text-sm"
                 >
-                    <option value="">Select status</option>
-                    <option value="Available">Available</option>
-                    <option value="Sold">Sold</option>
-                    <option value="Rented">Rented</option>
-                </select>
+                    <ng-container
+                        *ngIf="
+                            realestateForm.controls['price'].hasError(
+                                'required'
+                            )
+                        "
+                    >
+                        Price is required.
+                    </ng-container>
+                    <ng-container
+                        *ngIf="realestateForm.controls['price'].hasError('min')"
+                    >
+                        Price must be greater than 0.
+                    </ng-container>
+                </span>
             </div>
-
-            <!-- Additional Properties -->
             <fieldset class="border p-4 mb-4 rounded-lg">
                 <legend class="text-gray-700 font-bold">
                     Additional Properties
                 </legend>
-                <div
-                    *ngFor="
-                        let prop of additionalProperties.controls;
-                        let i = index
-                    "
-                >
-                    <div class="flex items-center space-x-2 mb-2">
-                        <input
-                            type="text"
-                            class="w-1/2 border rounded-lg px-4 py-2"
-                            placeholder="Pool"
-                            [formControlName]="i + '_key'"
-                        />
-                        <input
-                            type="text"
-                            class="w-1/2 border rounded-lg px-4 py-2"
-                            placeholder="Yes"
-                            [formControlName]="i + '_value'"
-                        />
-                        <button
-                            type="button"
-                            class="text-red-500 hover:text-red-700"
-                            (click)="removeProperty(i)"
-                        >
-                            Remove
-                        </button>
+                <!-- Bind the FormArray -->
+                <div formArrayName="additional_properties">
+                    <!-- Loop through each FormGroup in the FormArray -->
+                    <div
+                        *ngFor="
+                            let prop of additionalProperties.controls;
+                            let i = index
+                        "
+                        [formGroupName]="i"
+                    >
+                        <div class="flex items-center space-x-2 mb-2">
+                            <div class="w-1/2">
+                                <input
+                                    type="text"
+                                    class="w-full border rounded-lg px-4 py-2"
+                                    placeholder="Key (e.g., Pool)"
+                                    formControlName="key"
+                                />
+                                <span
+                                    *ngIf="
+                                        prop.get('key')?.invalid &&
+                                        prop.get('key')?.touched
+                                    "
+                                    class="text-red-500 text-sm"
+                                >
+                                    Key is required.
+                                </span>
+                            </div>
+                            <div class="w-1/2">
+                                <input
+                                    type="text"
+                                    class="w-full border rounded-lg px-4 py-2"
+                                    placeholder="Value (e.g., Yes)"
+                                    formControlName="value"
+                                />
+                                <span
+                                    *ngIf="
+                                        prop.get('value')?.invalid &&
+                                        prop.get('value')?.touched
+                                    "
+                                    class="text-red-500 text-sm"
+                                >
+                                    Value is required.
+                                </span>
+                            </div>
+                            <button
+                                type="button"
+                                class="text-red-500 hover:text-red-700"
+                                (click)="removeProperty(i)"
+                            >
+                                Remove
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <button
@@ -123,7 +176,34 @@
                 </button>
             </fieldset>
 
-            <!-- City -->
+            <div>
+                <label class="block text-gray-700 font-medium"
+                    >Advance Payment (?)</label
+                >
+                <input
+                    type="number"
+                    class="w-full border rounded-lg px-4 py-2"
+                    formControlName="advance_payment"
+                    placeholder="Enter advance payment"
+                />
+                <span
+                    *ngIf="
+                        realestateForm.controls['advance_payment'].invalid &&
+                        realestateForm.controls['advance_payment'].touched
+                    "
+                    class="text-red-500 text-sm"
+                >
+                    <ng-container
+                        *ngIf="
+                            realestateForm.controls['advance_payment'].hasError(
+                                'min'
+                            )
+                        "
+                    >
+                        Advance Payment must be greater than 0.
+                    </ng-container>
+                </span>
+            </div>
             <div>
                 <label class="block text-gray-700 font-medium">City</label>
                 <input
@@ -132,9 +212,16 @@
                     formControlName="city"
                     placeholder="Enter city"
                 />
+                <span
+                    *ngIf="
+                        realestateForm.controls['city'].invalid &&
+                        realestateForm.controls['city'].touched
+                    "
+                    class="text-red-500 text-sm"
+                >
+                    City is required.
+                </span>
             </div>
-
-            <!-- Address -->
             <div>
                 <label class="block text-gray-700 font-medium">Address</label>
                 <input
@@ -143,9 +230,16 @@
                     formControlName="address"
                     placeholder="Enter address"
                 />
+                <span
+                    *ngIf="
+                        realestateForm.controls['address'].invalid &&
+                        realestateForm.controls['address'].touched
+                    "
+                    class="text-red-500 text-sm"
+                >
+                    Address is required.
+                </span>
             </div>
-
-            <!-- Province -->
             <div>
                 <label class="block text-gray-700 font-medium">Province</label>
                 <input
@@ -154,9 +248,16 @@
                     formControlName="province"
                     placeholder="Enter province"
                 />
+                <span
+                    *ngIf="
+                        realestateForm.controls['province'].invalid &&
+                        realestateForm.controls['province'].touched
+                    "
+                    class="text-red-500 text-sm"
+                >
+                    Province is required.
+                </span>
             </div>
-
-            <!-- Property Type -->
             <div>
                 <label class="block text-gray-700 font-medium"
                     >Property Type</label
@@ -167,9 +268,16 @@
                     formControlName="type_name"
                     placeholder="Enter property type"
                 />
+                <span
+                    *ngIf="
+                        realestateForm.controls['type_name'].invalid &&
+                        realestateForm.controls['type_name'].touched
+                    "
+                    class="text-red-500 text-sm"
+                >
+                    Property type is required.
+                </span>
             </div>
-
-            <!-- Rent Period -->
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-gray-700 font-medium"
@@ -180,6 +288,15 @@
                         class="w-full border rounded-lg px-4 py-2"
                         formControlName="rent_start"
                     />
+                    <span
+                        *ngIf="
+                            realestateForm.controls['rent_start'].invalid &&
+                            realestateForm.controls['rent_start'].touched
+                        "
+                        class="text-red-500 text-sm"
+                    >
+                        Rent start date is required.
+                    </span>
                 </div>
                 <div>
                     <label class="block text-gray-700 font-medium"
@@ -190,10 +307,17 @@
                         class="w-full border rounded-lg px-4 py-2"
                         formControlName="rent_end"
                     />
+                    <span
+                        *ngIf="
+                            realestateForm.controls['rent_end'].invalid &&
+                            realestateForm.controls['rent_end'].touched
+                        "
+                        class="text-red-500 text-sm"
+                    >
+                        Rent end date is required.
+                    </span>
                 </div>
             </div>
-
-            <!-- Buttons -->
             <div class="flex justify-end space-x-4 mt-6">
                 <button
                     type="button"

@@ -14,7 +14,6 @@ export interface NewRealEstateListing {
     name: string;
     description: string;
     price: number;
-    status_name: string;
     additional_properties: {
         [key: string]: string | number | boolean;
     };
@@ -46,18 +45,20 @@ export class RealestateCreateOverlayComponent {
     ) {
         // Initialize the form using FormBuilder
         this.realestateForm = this.fb.group({
-            image_url: ['', Validators.required],
+            image_url: [
+                '',
+                [Validators.required, Validators.pattern('(http|https)://.+')]
+            ],
             name: ['', Validators.required],
-            description: ['', Validators.required],
+            description: [''],
             price: [null, [Validators.required, Validators.min(0)]],
-            status_name: ['', Validators.required],
             additional_properties: this.fb.array([]),
             city: ['', Validators.required],
             address: ['', Validators.required],
             province: ['', Validators.required],
             type_name: ['', Validators.required],
-            address_details: ['', Validators.required],
-            advance_payment: [null, [Validators.required, Validators.min(0)]],
+            address_details: [''],
+            advance_payment: [null, [Validators.min(0)]],
             rent_start: ['', Validators.required],
             rent_end: ['', Validators.required]
         });
@@ -68,12 +69,11 @@ export class RealestateCreateOverlayComponent {
     }
 
     addProperty(): void {
-        this.additionalProperties.push(
-            this.fb.group({
-                key: [''],
-                value: ['']
-            })
-        );
+        const propertyGroup = this.fb.group({
+            key: ['', Validators.required],
+            value: ['', Validators.required]
+        });
+        this.additionalProperties.push(propertyGroup);
     }
 
     removeProperty(index: number): void {
@@ -81,31 +81,34 @@ export class RealestateCreateOverlayComponent {
     }
 
     onCreate(): void {
-        console.log(this.realestateForm.value);
+        console.log(this.realestateForm);
         if (this.realestateForm.invalid) {
             this.markFormGroupTouched(this.realestateForm);
             return;
         }
 
+        const additionalPropsArray = this.realestateForm.get(
+            'additional_properties'
+        )?.value;
+        const additionalPropsObj: { [key: string]: string } = {};
+        additionalPropsArray.forEach((item: any) => {
+            if (item.key && item.value) {
+                additionalPropsObj[item.key] = item.value;
+            }
+        });
+
         const newListing: NewRealEstateListing = {
             ...this.realestateForm.value,
-            additional_properties: {
-                ...this.realestateForm.get('additional_properties')?.value
-            },
+            status_name: 'Available',
+            additional_properties: additionalPropsObj,
             rent_start: new Date(this.realestateForm.get('rent_start')?.value),
             rent_end: new Date(this.realestateForm.get('rent_end')?.value)
         };
 
-        this.realestateService.createListing(newListing).subscribe({
-            next: () => {
-                alert('Real estate listing created successfully!');
-                this.created.emit();
-                this.onClose();
-            },
-            error: (err) => {
-                console.error('Error creating listing:', err);
-            }
-        });
+        console.log('New Listing:', newListing);
+
+        // Close the form or proceed with the API submission
+        this.onClose();
     }
 
     onClose(): void {
