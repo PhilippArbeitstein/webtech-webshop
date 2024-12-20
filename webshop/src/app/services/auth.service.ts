@@ -104,7 +104,6 @@ export class AuthService {
             })
             .pipe(
                 tap((response: any) => {
-                    console.log('Session response:', response);
                     this.isAuthenticated.next(response.loggedIn);
                 }),
                 switchMap((response: any) => {

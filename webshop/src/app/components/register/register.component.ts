@@ -51,7 +51,6 @@ export class RegisterComponent {
             return;
         }
         this.currentStep = step;
-        console.log(this.currentStep);
     }
 
     submitForm() {
