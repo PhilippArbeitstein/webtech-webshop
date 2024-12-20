@@ -7,10 +7,12 @@ import { BehaviorSubject, Observable } from 'rxjs';
 export class SearchbarService {
     private showSearchBar = new BehaviorSubject<boolean>(false);
     private searchBarContext = new BehaviorSubject<string | null>(null);
+    private searchQuery = new BehaviorSubject<string>('');
 
     showSearchBar$: Observable<boolean> = this.showSearchBar.asObservable();
     searchBarContext$: Observable<string | null> =
         this.searchBarContext.asObservable();
+    searchQuery$: Observable<string> = this.searchQuery.asObservable();
 
     constructor() {}
 
@@ -27,5 +29,9 @@ export class SearchbarService {
 
     private setShowSearchBar(show: boolean): void {
         this.showSearchBar.next(show);
+    }
+
+    setSearchQuery(query: string): void {
+        this.searchQuery.next(query);
     }
 }

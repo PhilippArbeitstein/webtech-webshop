@@ -1,9 +1,9 @@
 <div
-    *ngIf="listings && listings.length > 0; else noListings"
+    *ngIf="filteredListings && filteredListings.length > 0; else noListings"
     class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-8 px-4 pb-8"
 >
     <a
-        *ngFor="let listing of listings"
+        *ngFor="let listing of filteredListings"
         [routerLink]="['/real-estate-details', listing.product_id]"
         class="block rounded-2xl no-underline hover:shadow-lg transition duration-200"
     >
