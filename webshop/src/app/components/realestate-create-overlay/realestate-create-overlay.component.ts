@@ -121,10 +121,19 @@ export class RealestateCreateOverlayComponent {
             rent_end: new Date(this.realestateForm.get('rent_end')?.value)
         };
 
-        console.log('New Listing:', newListing);
-
-        // Close the form or proceed with the API submission
-        this.onClose();
+        this.realestateService.createListing(newListing).subscribe({
+            next: (response) => {
+                alert('Immobile wurde erfolgreich erstellt!');
+                this.created.emit();
+                this.onClose();
+            },
+            error: (error) => {
+                console.error('Error creating listing:', error);
+                alert(
+                    'Immobile konnte nicht erstellt werden. Versuche es erneut.'
+                );
+            }
+        });
     }
 
     onClose(): void {
