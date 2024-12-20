@@ -634,4 +634,30 @@ router.put('/update/:product_id', async (req, res) => {
     }
 });
 
+router.get('/', (req, res) => {
+    res.status(200).json({
+        message: 'Real Estate Routes Work'
+    });
+});
+
+// Get all real-estate listings
+router.get('/types', async (req, res) => {
+    try {
+        const real_estate_types = await pool.query(
+            `
+            SELECT  * FROM real_estate_types;
+        `
+        );
+
+        if (real_estate_types.rows.length === 0) {
+            return res
+                .status(404)
+                .json({ message: 'No realestate types found' });
+        }
+
+        res.status(200).json(real_estate_types.rows);
+    } catch (error) {
+        res.status(500).send(`Server Error: ${error}`);
+    }
+});
 module.exports = router;
