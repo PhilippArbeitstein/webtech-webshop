@@ -176,8 +176,6 @@ router.post('/new', async (req, res) => {
             type_id = await getTypeIdByName(transaction, type_name);
         }
 
-        console.log(req.session.user_id);
-
         const productResult = await transaction.query(
             `
             INSERT INTO product (user_id, status_id, image_url, name, description, price,

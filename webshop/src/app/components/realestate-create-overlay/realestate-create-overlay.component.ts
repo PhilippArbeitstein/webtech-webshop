@@ -97,7 +97,6 @@ export class RealestateCreateOverlayComponent {
     }
 
     onCreate(): void {
-        console.log(this.realestateForm);
         if (this.realestateForm.invalid) {
             this.markFormGroupTouched(this.realestateForm);
             return;
