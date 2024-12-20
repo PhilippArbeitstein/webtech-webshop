@@ -81,7 +81,8 @@ export class RealestateService {
     ): Observable<{ message: string; product_id: string }> {
         return this.httpClient.post<{ message: string; product_id: string }>(
             `http://localhost:3000/real-estate/new`,
-            newListing
+            newListing,
+            { withCredentials: true }
         );
     }
 

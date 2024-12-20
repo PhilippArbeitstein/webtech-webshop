@@ -53,5 +53,14 @@ export class OwnProductsPageComponent {
 
     closeOverlay(): void {
         this.isOverlayOpen = false;
+        this.userListings$ = this.authService.isLoggedIn$.pipe(
+            switchMap((user) => {
+                if (user) {
+                    return this.realestateService.getUserSpecificListings();
+                } else {
+                    return of([]);
+                }
+            })
+        );
     }
 }
