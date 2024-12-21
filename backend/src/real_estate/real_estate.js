@@ -669,4 +669,58 @@ router.get('/types', async (req, res) => {
         res.status(500).send(`Server Error: ${error}`);
     }
 });
+
+router.get('/messages', async (req, res) => {
+    try {
+        const user_id = req.session.user_id;
+        if (!user_id) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
+        const messagesQuery = `
+            SELECT 
+                product_id,
+                from_user_id,
+                to_user_id,
+                message,
+                created_at
+            FROM messages
+            WHERE from_user_id = $1 OR to_user_id = $1
+            ORDER BY product_id, created_at;
+        `;
+
+        const result = await pool.query(messagesQuery, [user_id]);
+
+        const groupedMessages = result.rows.reduce((chats, row) => {
+            const {
+                product_id,
+                from_user_id,
+                to_user_id,
+                message,
+                created_at
+            } = row;
+
+            // Initialize the product's conversation if not present
+            if (!chats[product_id]) {
+                chats[product_id] = [];
+            }
+
+            // Add the message to the product's conversation
+            chats[product_id].push({
+                from_user_id,
+                to_user_id,
+                message,
+                created_at
+            });
+
+            return chats;
+        }, {});
+
+        res.status(200).json(groupedMessages);
+    } catch (error) {
+        console.error('Error fetching messages:', error);
+        res.status(500).send(`Server Error: ${error.message}`);
+    }
+});
+
 module.exports = router;
