@@ -281,6 +281,15 @@ router.delete('/:product_id', async (req, res) => {
                 .json({ message: ownershipValidation.message });
         }
 
+        const messagesResult = await transaction.query(
+            `
+            DELETE FROM messages
+            WHERE product_id = $1
+            RETURNING message_id
+            `,
+            [product_id]
+        );
+
         const productCategoryResult = await transaction.query(
             `
             DELETE FROM product_has_category 

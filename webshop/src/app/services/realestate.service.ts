@@ -91,4 +91,13 @@ export class RealestateService {
             `http://localhost:3000/real-estate/types`
         );
     }
+
+    deleteListing(
+        product_id: number
+    ): Observable<{ message: string; product_id: string }> {
+        return this.httpClient.delete<{ message: string; product_id: string }>(
+            `http://localhost:3000/real-estate/${product_id}`,
+            { withCredentials: true }
+        );
+    }
 }

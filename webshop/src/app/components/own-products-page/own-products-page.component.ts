@@ -34,17 +34,11 @@ export class OwnProductsPageComponent {
         private authService: AuthService
     ) {}
 
-    private loadUserListings(): void {
+    loadUserListings(): void {
         this.userListings$ = this.authService.isLoggedIn$.pipe(
             switchMap((user) => {
                 if (user) {
-                    return this.realestateService
-                        .getUserSpecificListings()
-                        .pipe(
-                            tap((listings) =>
-                                console.log('Listings fetched:', listings)
-                            )
-                        );
+                    return this.realestateService.getUserSpecificListings();
                 } else {
                     return of([]);
                 }

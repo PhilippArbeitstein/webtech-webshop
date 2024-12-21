@@ -24,6 +24,8 @@ import { SearchbarService } from '../../services/searchbar.service';
 })
 export class RealestateListComponent implements OnChanges, OnDestroy {
     @Input() listings: RealEstateListing[] = [];
+    @Input() onDeleteCallback!: () => void;
+
     filteredListings: RealEstateListing[] = [];
     private searchSubscription: Subscription | null = null;
 
