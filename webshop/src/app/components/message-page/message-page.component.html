@@ -132,10 +132,15 @@
                     <input
                         type="text"
                         placeholder="Type a message..."
+                        [(ngModel)]="newMessage"
+                        name="message"
                         class="flex-grow border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        (keydown.enter)="sendMessage()"
                     />
                     <button
+                        type="button"
                         class="bg-btn_primary text-white px-4 py-2 rounded-lg hover:bg-btn_primary_darkened"
+                        (click)="sendMessage()"
                     >
                         Send
                     </button>

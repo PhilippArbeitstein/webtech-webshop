@@ -79,7 +79,6 @@ export class ListItemComponent {
                 .deleteListing(this.currentProductIdToDelete)
                 .subscribe({
                     next: (response) => {
-                        console.log('Delete successful:', response.message);
                         this.showConfirmationPopup = false;
                         this.currentProductIdToDelete = null;
 

@@ -4,6 +4,10 @@ const router = express.Router();
 const pool = require('../pool');
 const checkAuth = require('../auth/auth.js');
 
+const EventEmitter = require('events');
+const eventEmitter = new EventEmitter();
+const cors = require('cors');
+
 router.get('/', (req, res) => {
     res.status(200).json({
         message: 'Real Estate Routes Work'
@@ -840,6 +844,74 @@ router.get('/messages', async (req, res) => {
         console.error('Unexpected error in /messages endpoint:', error);
         res.status(500).json({
             message: 'An unexpected error occurred. Please try again later.'
+        });
+    }
+});
+
+router.post('/message', checkAuth, async (req, res) => {
+    try {
+        const { product_id, to_user_id, message } = req.body;
+        const from_user_id = req.session.user_id;
+
+        if (!product_id || !to_user_id || !message) {
+            return res.status(400).json({
+                error: 'Missing required fields: product_id, to_user_id, and message.'
+            });
+        }
+
+        const insertMessageQuery = `
+            INSERT INTO messages (from_user_id, to_user_id, product_id, message, created_at)
+            VALUES ($1, $2, $3, $4, NOW())
+            RETURNING *;
+        `;
+        const insertMessageResult = await pool.query(insertMessageQuery, [
+            from_user_id,
+            to_user_id,
+            product_id,
+            message
+        ]);
+
+        const createdMessage = insertMessageResult.rows[0];
+
+        // Emit the new message for real-time updates
+        eventEmitter.emit('newMessage', createdMessage);
+
+        res.status(200).json(createdMessage);
+    } catch (error) {
+        console.error('Error sending message:', error);
+        res.status(500).json({
+            error: 'An error occurred while sending the message.'
+        });
+    }
+});
+
+router.get('/events', async (req, res) => {
+    try {
+        const userId = req.session.user_id;
+
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+
+        const sendEvent = (message) => {
+            // Only broadcast messages relevant to the logged-in user
+            if (
+                message.from_user_id === userId ||
+                message.to_user_id === userId
+            ) {
+                res.write(`data: ${JSON.stringify(message)}\n\n`);
+            }
+        };
+
+        eventEmitter.on('newMessage', sendEvent);
+
+        req.on('close', () => {
+            eventEmitter.off('newMessage', sendEvent);
+            res.end();
+        });
+    } catch (error) {
+        res.status(500).json({
+            error: 'An error occurred while sending the message.'
         });
     }
 });
