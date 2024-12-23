@@ -19,9 +19,8 @@ router.get("/", async (req, res) => {
         color,
         condition,
     } = req.body;
-
     let query =
-        "SELECT product.name, product.price, product.image_url, vehicles.mileage, vehicles.first_registration_date FROM product";
+        "SELECT product.product_id, product.name, users.email, users.username, product.image_url, product.description, product.price, statuses.status_name, product.additional_properties, vehicle_marks.mark_name, vehicle_models.model_name, vehicle_types.type_name, vehicles.first_registration_date, vehicles.mileage, fuel_types.fuel_type_name, vehicles.color, conditions.condition_name FROM product";
     query += getFullJoinTable();
     let params = [];
     let conditions = [];
@@ -579,11 +578,11 @@ module.exports = router;
 
 function getFullJoinTable() {
     let query =
-        " join vehicles on vehicles.product_id=product.product_id join users on product.user_id=users.user_id join vehicle_marks on vehicles.mark_id=vehicle_marks.mark_id";
+        " INNER JOIN vehicles on vehicles.product_id=product.product_id INNER JOIN users on product.user_id=users.user_id INNER JOIN vehicle_marks on vehicles.mark_id=vehicle_marks.mark_id";
     query +=
-        " join vehicle_types on vehicle_types.type_id=vehicles.type_id join vehicle_models on vehicle_models.model_id=vehicles.model_id";
+        " INNER JOIN vehicle_types on vehicle_types.type_id=vehicles.type_id INNER JOIN vehicle_models on vehicle_models.model_id=vehicles.model_id";
     query +=
-        " join fuel_types on vehicles.fuel_type_id=fuel_types.fuel_type_id join conditions on vehicles.condition_id=conditions.condition_id";
+        " INNER JOIN fuel_types on vehicles.fuel_type_id=fuel_types.fuel_type_id INNER JOIN conditions on vehicles.condition_id=conditions.condition_id INNER JOIN statuses on product.status_id=statuses.status_id";
     return query;
 }
 
