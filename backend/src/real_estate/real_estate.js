@@ -19,7 +19,7 @@ router.get('/listings', async (req, res) => {
     try {
         const allListings = await pool.query(
             `
-            SELECT  re.product_id, u.email, u.username, p.image_url, p.name, p.description, p.price, 
+            SELECT  re.product_id, u.user_id, u.email, u.username, p.image_url, p.name, p.description, p.price, 
             s.status_name, p.created_at, p.updated_at, p.additional_properties, t.type_name, 
             a.city, a.address, a.province, re.address_details, re.advance_payment, re.rent_start, re.rent_end
             FROM real_estate re INNER JOIN product p ON re.product_id = p.product_id 
@@ -46,7 +46,7 @@ router.get('/listings/:product_id', async (req, res) => {
     try {
         const allListings = await pool.query(
             `
-            SELECT  re.product_id, u.email, u.username, p.image_url, p.name, p.description, p.price, 
+            SELECT  re.product_id, u.user_id, u.email, u.username, p.image_url, p.name, p.description, p.price, 
             s.status_name, p.created_at, p.updated_at, p.additional_properties, t.type_name, 
             a.city, a.address, a.province, re.address_details, re.advance_payment, re.rent_start, re.rent_end
             FROM real_estate re INNER JOIN product p ON re.product_id = p.product_id 
@@ -853,7 +853,7 @@ router.post('/message', checkAuth, async (req, res) => {
         const { product_id, to_user_id, message } = req.body;
         const from_user_id = req.session.user_id;
 
-        if (!product_id || !to_user_id || !message) {
+        if (!product_id || !to_user_id) {
             return res.status(400).json({
                 error: 'Missing required fields: product_id, to_user_id, and message.'
             });

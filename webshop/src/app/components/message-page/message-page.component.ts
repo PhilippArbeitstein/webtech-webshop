@@ -13,7 +13,7 @@ import {
     MessagingService
 } from '../../services/messaging.service';
 import { UserService } from '../../services/user.service';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { RoutingService } from '../../services/routing.service';
 import { FormsModule } from '@angular/forms';
 
@@ -46,13 +46,30 @@ export class MessagePageComponent {
         private messagingService: MessagingService,
         public userService: UserService,
         private routingService: RoutingService,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private route: ActivatedRoute,
+        private router: Router
     ) {}
 
     ngOnInit() {
         this.routingService.setPreviousRoute('messages');
-        this.fetchChats();
+
+        this.route.queryParams.subscribe((params) => {
+            const productId = params['product_id'];
+            const toUserId = params['to_user_id'];
+            this.fetchChats(() => {
+                if (productId && toUserId) {
+                    this.startOrSelectChat(productId, toUserId);
+                    this.clearUrlParams();
+                }
+            });
+        });
+
         this.listenForLiveUpdates();
+    }
+
+    private clearUrlParams(): void {
+        this.router.navigate(['/messages']);
     }
 
     @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
@@ -72,16 +89,22 @@ export class MessagePageComponent {
         }
     }
 
-    fetchChats(): void {
+    fetchChats(callback?: () => void): void {
         this.messagingService.getUserChats().subscribe({
-            next: (chats) => {
-                this.chats = chats;
+            next: (allChats) => {
+                this.chats = allChats;
                 this.loading = false;
 
-                // Automatically select the first chat
-                const firstChatKey = Object.keys(chats)[0];
-                if (firstChatKey) {
-                    this.selectChat(firstChatKey);
+                if (callback) {
+                    callback();
+                }
+
+                // Select the first chat by default if none is selected
+                if (!this.selectedChat) {
+                    const firstChatKey = Object.keys(allChats)[0];
+                    if (firstChatKey) {
+                        this.selectChat(firstChatKey);
+                    }
                 }
             },
             error: (error) => {
@@ -93,7 +116,12 @@ export class MessagePageComponent {
     }
 
     selectChat(chatKey: string): void {
-        this.selectedChat = this.chats[chatKey] || null;
+        if (!this.chats[chatKey]) {
+            console.warn(`Chat with key ${chatKey} does not exist.`);
+            return;
+        }
+
+        this.selectedChat = this.chats[chatKey];
 
         if (!this.selectedChat) {
             this.chatParticipant = null;
@@ -128,6 +156,19 @@ export class MessagePageComponent {
                   }
                 : null;
         }
+
+        // Ensure the UI updates and scrolls to the selected chat
+        this.cdr.detectChanges();
+
+        setTimeout(() => {
+            const chatElement = document.querySelector(
+                `[data-chat-key="${chatKey}"]`
+            );
+            chatElement?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest'
+            });
+        }, 0);
     }
 
     sendMessage(): void {
@@ -151,9 +192,9 @@ export class MessagePageComponent {
             created_at: new Date().toISOString()
         };
 
-        this.selectedChat.messages.push(tempMessage); // Add the message locally
-        this.newMessage = ''; // Clear the input
-        this.scrollToBottom(); // Ensure chat scrolls down
+        this.selectedChat.messages.push(tempMessage);
+        this.newMessage = '';
+        this.scrollToBottom();
 
         this.messagingService
             .newMessage(product_id, to_user_id, messageContent)
@@ -162,6 +203,61 @@ export class MessagePageComponent {
                     console.error('Error sending message:', error);
                 }
             });
+    }
+
+    startOrSelectChat(productId: number, toUserId: number): void {
+        const chatKey = `${productId}_${Math.min(
+            this.userService.loggedInUser.user_id,
+            toUserId
+        )}_${Math.max(this.userService.loggedInUser.user_id, toUserId)}`;
+
+        if (this.chats[chatKey]) {
+            const existingChat = this.chats[chatKey];
+            if (existingChat.messages && existingChat.messages.length > 0) {
+                this.selectChat(chatKey);
+            } else {
+                this.messagingService
+                    .newMessage(
+                        productId,
+                        toUserId,
+                        'Hallo, ich bin an Ihrem Produkt interessiert'
+                    )
+                    .subscribe({
+                        next: () => {
+                            this.fetchChats(() => {
+                                this.selectChat(chatKey);
+                            });
+                        },
+                        error: (error) => {
+                            console.error(
+                                'Error sending initial message:',
+                                error
+                            );
+                            this.errorMessage =
+                                'Failed to send the initial message. Please try again.';
+                        }
+                    });
+            }
+        } else {
+            this.messagingService
+                .newMessage(
+                    productId,
+                    toUserId,
+                    'Hallo, ich bin an Ihrem Produkt interessiert'
+                )
+                .subscribe({
+                    next: () => {
+                        this.fetchChats(() => {
+                            this.selectChat(chatKey);
+                        });
+                    },
+                    error: (error) => {
+                        console.error('Error starting new chat:', error);
+                        this.errorMessage =
+                            'Failed to start a new chat. Please try again.';
+                    }
+                });
+        }
     }
 
     private listenForLiveUpdates(): void {
@@ -179,6 +275,8 @@ export class MessagePageComponent {
                 message.to_user_id
             )}_${Math.max(message.from_user_id, message.to_user_id)}`;
 
+            console.log('Existing chats:', this.chats); // Debug existing chats
+
             if (this.chats[chatKey]) {
                 const chat = this.chats[chatKey];
 
@@ -191,15 +289,49 @@ export class MessagePageComponent {
 
                 if (!messageExists) {
                     chat.messages.push(message);
-
-                    // Trigger change detection
                     this.cdr.detectChanges();
-
-                    // Auto-scroll if the selected chat is updated
-                    if (this.selectedChat && this.selectedChat === chat) {
-                        this.scrollToBottom();
-                    }
                 }
+            } else {
+                // Dynamically fetch or create chat details for the new chat
+                this.messagingService.getUserChats().subscribe({
+                    next: (allChats) => {
+                        if (allChats[chatKey]) {
+                            this.chats[chatKey] = allChats[chatKey];
+                        } else {
+                            // Minimal placeholder structure for new chat
+                            this.chats[chatKey] = {
+                                product: {
+                                    product_id: message.product_id,
+                                    owner_email: '',
+                                    owner_username: '',
+                                    image_url: '',
+                                    product_name: '',
+                                    description: '',
+                                    price: '',
+                                    status_name: '',
+                                    created_at: '',
+                                    updated_at: '',
+                                    additional_properties: {},
+                                    type_name: '',
+                                    city: '',
+                                    address: '',
+                                    province: '',
+                                    address_details: '',
+                                    advance_payment: '',
+                                    rent_start: '',
+                                    rent_end: ''
+                                },
+                                messages: [message],
+                                participants: []
+                            };
+                        }
+
+                        this.cdr.detectChanges();
+                    },
+                    error: (error) => {
+                        console.error('Error fetching updated chats:', error);
+                    }
+                });
             }
         };
 

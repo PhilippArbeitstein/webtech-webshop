@@ -11,6 +11,7 @@
                 *ngFor="let chat of chats | keyvalue"
                 class="p-4 flex items-center cursor-pointer hover:bg-gray-200 space-x-4"
                 (click)="selectChat(chat.key)"
+                [attr.data-chat-key]="chat.key"
             >
                 <img
                     [src]="chat.value.product.image_url"

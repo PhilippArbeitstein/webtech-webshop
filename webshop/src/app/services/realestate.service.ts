@@ -5,6 +5,7 @@ import { NewRealEstateListing } from '../components/realestate-create-overlay/re
 
 export interface RealEstateListing {
     product_id: number;
+    user_id: number;
     email: string;
     username: string;
     image_url: string;
