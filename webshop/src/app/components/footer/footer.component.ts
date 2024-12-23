@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { SearchbarService } from '../../services/searchbar.service';
 import { CommonModule } from '@angular/common';
 
@@ -9,5 +9,6 @@ import { CommonModule } from '@angular/common';
     styleUrl: './footer.component.css'
 })
 export class FooterComponent {
+    @Input() show: boolean = true;
     constructor(public searchbarService: SearchbarService) {}
 }
