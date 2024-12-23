@@ -75,4 +75,23 @@ export class MessagingService {
                 })
             );
     }
+
+    newMessage(
+        product_id: number,
+        to_user_id: number,
+        message: string
+    ): Observable<Message> {
+        const payload = { product_id, to_user_id, message };
+        return this.httpClient.post<Message>(
+            'http://localhost:3000/real-estate/message',
+            payload,
+            { withCredentials: true }
+        );
+    }
+
+    getLiveUpdates(): EventSource {
+        return new EventSource('http://localhost:3000/real-estate/events', {
+            withCredentials: true
+        });
+    }
 }
