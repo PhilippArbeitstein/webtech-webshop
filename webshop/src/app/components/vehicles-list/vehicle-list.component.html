@@ -1,0 +1,23 @@
+<div
+    *ngIf="filteredListings && filteredListings.length > 0; else noListings"
+    class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-8 px-4 pb-8"
+>
+    <a
+        *ngFor="let listing of filteredListings"
+      
+        class="block rounded-2xl no-underline hover:shadow-lg transition duration-200"
+    >
+        <app-list-item
+            [listing]="listing"
+            [onDeleteCallback]="onDeleteCallback"
+        ></app-list-item>
+    </a>
+</div>
+
+<ng-template #noResults>
+    <p class="text-gray-600">No listings match the current filter.</p>
+</ng-template>
+
+<ng-template #noListings>
+    <p class="text-gray-600">Loading listings...</p>
+</ng-template>
