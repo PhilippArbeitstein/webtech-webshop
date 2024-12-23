@@ -673,53 +673,174 @@ router.get('/types', async (req, res) => {
 router.get('/messages', async (req, res) => {
     try {
         const user_id = req.session.user_id;
+
         if (!user_id) {
-            return res.status(401).json({ message: 'Unauthorized' });
+            console.warn('Unauthorized access attempt');
+            return res
+                .status(401)
+                .json({ message: 'Unauthorized: User not logged in' });
         }
 
         const messagesQuery = `
             SELECT 
-                product_id,
-                from_user_id,
-                to_user_id,
-                message,
-                created_at
-            FROM messages
-            WHERE from_user_id = $1 OR to_user_id = $1
-            ORDER BY product_id, created_at;
+                m.product_id,
+                m.from_user_id,
+                m.to_user_id,
+                m.message,
+                m.created_at
+            FROM messages m
+            JOIN real_estate re ON m.product_id = re.product_id
+            WHERE m.from_user_id = $1 OR m.to_user_id = $1
+            ORDER BY m.product_id, m.created_at;
         `;
 
-        const result = await pool.query(messagesQuery, [user_id]);
+        let messagesResult;
+        try {
+            messagesResult = await pool.query(messagesQuery, [user_id]);
+        } catch (error) {
+            console.error('Error querying messages:', error);
+            return res
+                .status(500)
+                .json({ message: 'Error retrieving messages' });
+        }
 
-        const groupedMessages = result.rows.reduce((chats, row) => {
-            const {
-                product_id,
-                from_user_id,
-                to_user_id,
-                message,
-                created_at
-            } = row;
+        const messages = messagesResult.rows;
+        const productIds = [...new Set(messages.map((msg) => msg.product_id))];
+        const userIds = [
+            ...new Set(
+                messages.flatMap((msg) => [msg.from_user_id, msg.to_user_id])
+            )
+        ];
 
-            // Initialize the product's conversation if not present
-            if (!chats[product_id]) {
-                chats[product_id] = [];
+        if (productIds.length === 0) {
+            return res.status(200).json({ message: 'No messages found' });
+        }
+
+        const productDetailsQuery = `
+            SELECT 
+                re.product_id, 
+                u.email AS owner_email, 
+                u.username AS owner_username, 
+                p.image_url, 
+                p.name AS product_name, 
+                p.description, 
+                p.price, 
+                s.status_name, 
+                p.created_at, 
+                p.updated_at, 
+                p.additional_properties, 
+                t.type_name, 
+                a.city, 
+                a.address, 
+                a.province, 
+                re.address_details, 
+                re.advance_payment, 
+                re.rent_start, 
+                re.rent_end
+            FROM real_estate re 
+            INNER JOIN product p ON re.product_id = p.product_id 
+            INNER JOIN address a ON re.address_id = a.address_id
+            INNER JOIN real_estate_types t ON re.type_id = t.type_id
+            INNER JOIN users u ON p.user_id = u.user_id
+            INNER JOIN statuses s ON p.status_id = s.status_id
+            WHERE p.product_id = ANY($1::int[]);
+        `;
+
+        let productDetailsResult;
+        try {
+            productDetailsResult = await pool.query(productDetailsQuery, [
+                productIds
+            ]);
+        } catch (error) {
+            console.error('Error querying product details:', error);
+            return res
+                .status(500)
+                .json({ message: 'Error retrieving product details' });
+        }
+
+        const userDetailsQuery = `
+            SELECT 
+                user_id,
+                username,
+                email
+            FROM users
+            WHERE user_id = ANY($1::int[]);
+        `;
+
+        let userDetailsResult;
+        try {
+            userDetailsResult = await pool.query(userDetailsQuery, [userIds]);
+        } catch (error) {
+            console.error('Error querying user details:', error);
+            return res
+                .status(500)
+                .json({ message: 'Error retrieving user details' });
+        }
+
+        const productDetails = productDetailsResult.rows;
+        const userDetails = userDetailsResult.rows;
+
+        const groupedMessages = messages.reduce((chats, message) => {
+            try {
+                const product = productDetails.find(
+                    (product) => product.product_id === message.product_id
+                );
+
+                if (!product) {
+                    console.warn(
+                        `No product details found for product_id: ${message.product_id}`
+                    );
+                    return chats;
+                }
+
+                const chatKey = `${message.product_id}_${Math.min(
+                    message.from_user_id,
+                    message.to_user_id
+                )}_${Math.max(message.from_user_id, message.to_user_id)}`;
+
+                if (!chats[chatKey]) {
+                    const fromUser = userDetails.find(
+                        (user) => user.user_id === message.from_user_id
+                    );
+                    const toUser = userDetails.find(
+                        (user) => user.user_id === message.to_user_id
+                    );
+
+                    chats[chatKey] = {
+                        product,
+                        participants: [
+                            {
+                                user_id: message.from_user_id,
+                                username: fromUser?.username || 'Unknown',
+                                email: fromUser?.email || 'Unknown'
+                            },
+                            {
+                                user_id: message.to_user_id,
+                                username: toUser?.username || 'Unknown',
+                                email: toUser?.email || 'Unknown'
+                            }
+                        ],
+                        messages: []
+                    };
+                }
+
+                chats[chatKey].messages.push(message);
+            } catch (error) {
+                console.error(
+                    'Error merging messages with product details:',
+                    error
+                );
             }
-
-            // Add the message to the product's conversation
-            chats[product_id].push({
-                from_user_id,
-                to_user_id,
-                message,
-                created_at
-            });
 
             return chats;
         }, {});
 
         res.status(200).json(groupedMessages);
     } catch (error) {
-        console.error('Error fetching messages:', error);
-        res.status(500).send(`Server Error: ${error.message}`);
+        console.error('Unexpected error in /messages endpoint:', error);
+        res.status(500).json({
+            message: 'An unexpected error occurred. Please try again later.'
+        });
     }
 });
 

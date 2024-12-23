@@ -87,6 +87,8 @@ export class RealestateDetailsComponent {
         const previousRoute = this.routingService.getPreviousRoute();
         if (previousRoute == 'own-product') {
             this.router.navigate(['/own-products']);
+        } else if (previousRoute == 'messages') {
+            this.router.navigate(['/messages']);
         } else {
             this.router.navigate(['/real-estate']);
         }
