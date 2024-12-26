@@ -1,10 +1,13 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { RealestateService } from '../../services/realestate.service';
 import {
+    AbstractControl,
     FormArray,
     FormBuilder,
     FormGroup,
     ReactiveFormsModule,
+    ValidationErrors,
+    ValidatorFn,
     Validators
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -44,30 +47,46 @@ export class RealestateCreateOverlayComponent {
         private fb: FormBuilder,
         private realestateService: RealestateService
     ) {
-        // Initialize the form using FormBuilder
-        this.realestateForm = this.fb.group({
-            image_url: [
-                '',
-                [Validators.required, Validators.pattern('(http|https)://.+')]
-            ],
-            name: ['', Validators.required],
-            description: [''],
-            price: [null, [Validators.required, Validators.min(0)]],
-            additional_properties: this.fb.array([]),
-            city: ['', Validators.required],
-            address: ['', Validators.required],
-            province: ['', Validators.required],
-            type_name: ['', Validators.required],
-            address_details: [''],
-            advance_payment: [null, [Validators.min(0)]],
-            rent_start: ['', Validators.required],
-            rent_end: ['', Validators.required]
-        });
+        this.realestateForm = this.fb.group(
+            {
+                image_url: [
+                    '',
+                    [
+                        Validators.required,
+                        Validators.pattern('(http|https)://.+')
+                    ]
+                ],
+                name: ['', Validators.required],
+                description: [''],
+                price: [null, [Validators.required, Validators.min(0)]],
+                additional_properties: this.fb.array([]),
+                city: ['', Validators.required],
+                address: ['', Validators.required],
+                province: ['', Validators.required],
+                type_name: ['', Validators.required],
+                address_details: [''],
+                advance_payment: [null, [Validators.min(0)]],
+                rent_start: ['', Validators.required],
+                rent_end: ['', Validators.required]
+            },
+            { validators: this.dateRangeValidator } // Add the custom validator here
+        );
     }
 
     ngOnInit(): void {
         this.loadRealEstateTypes();
     }
+
+    dateRangeValidator: ValidatorFn = (
+        control: AbstractControl
+    ): ValidationErrors | null => {
+        const start = control.get('rent_start')?.value;
+        const end = control.get('rent_end')?.value;
+
+        return start && end && new Date(start) >= new Date(end)
+            ? { dateRangeInvalid: true }
+            : null;
+    };
 
     loadRealEstateTypes(): void {
         this.realestateService.getRealestateTypes().subscribe({
@@ -122,14 +141,14 @@ export class RealestateCreateOverlayComponent {
 
         this.realestateService.createListing(newListing).subscribe({
             next: (response) => {
-                alert('Immobile wurde erfolgreich erstellt!');
+                alert('Immobilie wurde erfolgreich erstellt!');
                 this.created.emit();
                 this.onClose();
             },
             error: (error) => {
                 console.error('Error creating listing:', error);
                 alert(
-                    'Immobile konnte nicht erstellt werden. Versuche es erneut.'
+                    'Immobilie konnte nicht erstellt werden. Versuche es erneut.'
                 );
             }
         });

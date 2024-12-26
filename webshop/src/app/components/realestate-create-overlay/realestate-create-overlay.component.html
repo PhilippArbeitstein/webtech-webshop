@@ -303,6 +303,12 @@
                     >
                         Rent start date is required.
                     </span>
+                    <div
+                        *ngIf="realestateForm.errors?.['dateRangeInvalid']"
+                        class="text-red-500 text-sm"
+                    >
+                        Rent start date must be earlier than the end date.
+                    </div>
                 </div>
                 <div>
                     <label class="block text-gray-700 font-medium"
