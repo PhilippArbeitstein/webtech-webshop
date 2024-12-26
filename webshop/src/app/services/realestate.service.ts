@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { NewRealEstateListing } from '../components/realestate-create-overlay/realestate-create-overlay.component';
 
 export interface RealEstateListing {
     product_id: number;
@@ -13,7 +14,7 @@ export interface RealEstateListing {
     status_name: string;
     created_at: Date;
     updated_at: Date;
-    additional_properties?: {
+    additional_properties: {
         size?: string;
         garage?: boolean;
         garden?: boolean;
@@ -47,14 +48,12 @@ export class RealestateService {
     constructor(private httpClient: HttpClient) {}
 
     getListings(): void {
-        console.log("I've been called");
         this.httpClient
             .get<RealEstateListing[]>(
                 'http://localhost:3000/real-estate/listings'
             )
             .subscribe({
                 next: (data) => {
-                    console.log('Data received:', data);
                     this.listingsSubject.next(data);
                     this.filteredListingsSubject.next([...data]);
                 },
@@ -62,5 +61,43 @@ export class RealestateService {
                     console.error('Error fetching listings:', error);
                 }
             });
+    }
+
+    getListingById(productId: number): Observable<RealEstateListing> {
+        return this.httpClient.get<RealEstateListing>(
+            `http://localhost:3000/real-estate/listings/${productId}`
+        );
+    }
+
+    getUserSpecificListings(): Observable<RealEstateListing[]> {
+        return this.httpClient.get<RealEstateListing[]>(
+            'http://localhost:3000/real-estate/user-listings',
+            { withCredentials: true }
+        );
+    }
+
+    createListing(
+        newListing: NewRealEstateListing
+    ): Observable<{ message: string; product_id: string }> {
+        return this.httpClient.post<{ message: string; product_id: string }>(
+            `http://localhost:3000/real-estate/new`,
+            newListing,
+            { withCredentials: true }
+        );
+    }
+
+    getRealestateTypes(): Observable<{ type_id: number; type_name: string }[]> {
+        return this.httpClient.get<{ type_id: number; type_name: string }[]>(
+            `http://localhost:3000/real-estate/types`
+        );
+    }
+
+    deleteListing(
+        product_id: number
+    ): Observable<{ message: string; product_id: string }> {
+        return this.httpClient.delete<{ message: string; product_id: string }>(
+            `http://localhost:3000/real-estate/${product_id}`,
+            { withCredentials: true }
+        );
     }
 }

@@ -8,6 +8,7 @@ import { OwnProductsPageComponent } from './components/own-products-page/own-pro
 import { RetailPageComponent } from './components/retail-page/retail-page.component';
 import { VehiclePageComponent } from './components/vehicle-page/vehicle-page.component';
 import { RealestatePageComponent } from './components/realestate-page/realestate-page.component';
+import { RealestateDetailsComponent } from './components/realestate-details/realestate-details.component';
 
 export const routes: Routes = [
     { path: '', component: LandingPageComponent },
@@ -18,5 +19,9 @@ export const routes: Routes = [
     { path: 'own-products', component: OwnProductsPageComponent },
     { path: 'retail', component: RetailPageComponent },
     { path: 'vehicles', component: VehiclePageComponent },
-    { path: 'real-estate', component: RealestatePageComponent }
+    { path: 'real-estate', component: RealestatePageComponent },
+    {
+        path: 'real-estate-details/:product_id',
+        component: RealestateDetailsComponent
+    }
 ];

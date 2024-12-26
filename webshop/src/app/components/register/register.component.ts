@@ -46,17 +46,14 @@ export class RegisterComponent {
     }
 
     goToFormStep(step: number) {
-        console.log('Hello?');
         if (step === 2 && this.step1Form.invalid) {
             this.markFormGroupTouched(this.step1Form);
             return;
         }
         this.currentStep = step;
-        console.log(this.currentStep);
     }
 
     submitForm() {
-        console.log('here?');
         if (this.step2Form.invalid) {
             this.markFormGroupTouched(this.step2Form);
             return;

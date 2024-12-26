@@ -37,6 +37,34 @@ router.get('/listings', async (req, res) => {
     }
 });
 
+router.get('/listings/:product_id', async (req, res) => {
+    const { product_id } = req.params;
+    try {
+        const allListings = await pool.query(
+            `
+            SELECT  re.product_id, u.email, u.username, p.image_url, p.name, p.description, p.price, 
+            s.status_name, p.created_at, p.updated_at, p.additional_properties, t.type_name, 
+            a.city, a.address, a.province, re.address_details, re.advance_payment, re.rent_start, re.rent_end
+            FROM real_estate re INNER JOIN product p ON re.product_id = p.product_id 
+            INNER JOIN address a ON re.address_id = a.address_id
+            INNER JOIN real_estate_types t ON re.type_id = t.type_id
+            INNER JOIN users u ON p.user_id = u.user_id
+            INNER JOIN statuses s ON p.status_id = s.status_id
+            WHERE re.product_id = $1
+        `,
+            [product_id]
+        );
+
+        if (allListings.rows.length === 0) {
+            return res.status(404).json({ message: 'No listings found' });
+        }
+
+        res.status(200).json(allListings.rows[0]);
+    } catch (error) {
+        res.status(500).send(`Server Error: ${error}`);
+    }
+});
+
 // Helper method to validate product ownership with user_id stored in request token
 async function validateProductOwnership(transaction, product_id, user_id) {
     // Check if user_id is provided and valid
@@ -252,6 +280,15 @@ router.delete('/:product_id', async (req, res) => {
                 .status(403)
                 .json({ message: ownershipValidation.message });
         }
+
+        const messagesResult = await transaction.query(
+            `
+            DELETE FROM messages
+            WHERE product_id = $1
+            RETURNING message_id
+            `,
+            [product_id]
+        );
 
         const productCategoryResult = await transaction.query(
             `
@@ -606,4 +643,30 @@ router.put('/update/:product_id', async (req, res) => {
     }
 });
 
+router.get('/', (req, res) => {
+    res.status(200).json({
+        message: 'Real Estate Routes Work'
+    });
+});
+
+// Ge all types
+router.get('/types', async (req, res) => {
+    try {
+        const real_estate_types = await pool.query(
+            `
+            SELECT  * FROM real_estate_types;
+        `
+        );
+
+        if (real_estate_types.rows.length === 0) {
+            return res
+                .status(404)
+                .json({ message: 'No realestate types found' });
+        }
+
+        res.status(200).json(real_estate_types.rows);
+    } catch (error) {
+        res.status(500).send(`Server Error: ${error}`);
+    }
+});
 module.exports = router;
