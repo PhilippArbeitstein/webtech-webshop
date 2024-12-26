@@ -69,7 +69,7 @@ export class RealestateCreateOverlayComponent {
                 rent_start: ['', Validators.required],
                 rent_end: ['', Validators.required]
             },
-            { validators: this.dateRangeValidator } // Add the custom validator here
+            { validators: this.dateRangeValidator }
         );
     }
 
