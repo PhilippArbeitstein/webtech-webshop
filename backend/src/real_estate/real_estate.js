@@ -653,7 +653,7 @@ router.get('/', (req, res) => {
     });
 });
 
-// Get all real-estate listings
+// Ge all types
 router.get('/types', async (req, res) => {
     try {
         const real_estate_types = await pool.query(
