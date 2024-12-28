@@ -119,10 +119,7 @@ router.get("/:product_id", async (req, res) => {
         res.status(400).send("Incorrect Input");
     } else {
         let query =
-            "SELECT product.name, product.price, product.image_url, vehicles.mileage, vehicles.first_registration_date, product.additional_properties,";
-        query +=
-            " conditions.condition_name, fuel_types.fuel_type_name, vehicles.color, vehicle_marks.mark_name, vehicle_types.type_name from product";
-
+            "SELECT product.product_id, product.name, users.email, users.username, product.image_url, product.description, product.price, statuses.status_name, product.additional_properties, vehicle_marks.mark_name, vehicle_models.model_name, vehicle_types.type_name, vehicles.first_registration_date, vehicles.mileage, fuel_types.fuel_type_name, vehicles.color, conditions.condition_name FROM product";
         query += getFullJoinTable();
         query += " WHERE product.product_id=$1";
         const productId = req.params.product_id;
@@ -131,7 +128,7 @@ router.get("/:product_id", async (req, res) => {
                 console.log(err);
                 res.status(500).send("Error retrieving product");
             } else {
-                res.status(200).json(result.rows);
+                res.status(200).json(result.rows[0]);
             }
         });
     }
