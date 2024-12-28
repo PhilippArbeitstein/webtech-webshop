@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { NewVehicleListing } from '../components/vehicle-create-overlay/vehicle-create-overlay.component';
 export interface VehicleListing {
   product_id: number;
   product_name: string;
@@ -61,6 +62,22 @@ export class VehiclesService {
     return this.httpClient.get<VehicleListing[]>(
       'http://localhost:3000/vehicles/users/user-listings',
       { withCredentials: true }
+    );
+  }
+
+  createListing(
+    newListing: NewVehicleListing
+  ): Observable<{ message: string; product_id: string }> {
+    return this.httpClient.post<{ message: string; product_id: string }>(
+      `http://localhost:3000/vehicles/`,
+      newListing,
+      { withCredentials: true }
+    );
+  }
+
+  getVehicleTypes(): Observable<{ type_id: number; type_name: string }[]> {
+    return this.httpClient.get<{ type_id: number; type_name: string }[]>(
+      `http://localhost:3000/vehicles/types`
     );
   }
 

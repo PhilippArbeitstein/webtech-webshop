@@ -1,1 +1,296 @@
-<p>vehicle-create-overlay works!</p>
+<div
+    class="bg-white shadow-lg max-w-4xl w-full mx-4 relative rounded-2xl overflow-hidden"
+    style="max-height: 90vh"
+    (click)="$event.stopPropagation()"
+>
+    <div
+        class="flex justify-between items-center p-4 sticky top-0 bg-white z-10"
+    >
+        <h2 class="text-2xl font-bold text-gray-800">
+            Create Vehicle Listing
+        </h2>
+        <button class="text-gray-500 hover:text-gray-800" (click)="onClose()">
+            ✖
+        </button>
+    </div>
+
+    <div class="overflow-y-auto" style="max-height: 80vh; padding: 0 1rem">
+        <form
+            [formGroup]="vehicleForm"
+            (ngSubmit)="onCreate()"
+            class="space-y-4 p-4"
+        >
+            <div>
+                <label class="block text-gray-700 font-medium">Image URL</label>
+                <input
+                    type="text"
+                    class="w-full border rounded-lg px-4 py-2"
+                    formControlName="image_url"
+                    placeholder="Enter image URL"
+                />
+                <span
+                    *ngIf="
+                    vehicleForm.controls['image_url'].invalid &&
+                    vehicleForm.controls['image_url'].touched
+                    "
+                    class="text-red-500 text-sm"
+                >
+                    Please enter a valid image URL.
+                </span>
+            </div>
+            <div>
+                <label class="block text-gray-700 font-medium">Name</label>
+                <input
+                    type="text"
+                    class="w-full border rounded-lg px-4 py-2"
+                    formControlName="name"
+                    placeholder="Enter property name"
+                />
+                <span
+                    *ngIf="
+                    vehicleForm.controls['name'].invalid &&
+                    vehicleForm.controls['name'].touched
+                    "
+                    class="text-red-500 text-sm"
+                >
+                    Property name is required.
+                </span>
+            </div>
+            <div>
+                <label class="block text-gray-700 font-medium"
+                    >Mark</label
+                >
+                <input
+                    type="text"
+                    class="w-full border rounded-lg px-4 py-2"
+                    formControlName="mark_name"
+                    placeholder="Enter name of your mark"
+                />
+            </div>
+            <div>
+                <label class="block text-gray-700 font-medium"
+                    >Description (?)</label
+                >
+                <textarea
+                    class="w-full border rounded-lg px-4 py-2"
+                    formControlName="description"
+                    placeholder="Enter property description"
+                ></textarea>
+            </div>
+            <div>
+                <label class="block text-gray-700 font-medium">Price</label>
+                <input
+                    type="number"
+                    class="w-full border rounded-lg px-4 py-2"
+                    formControlName="price"
+                    placeholder="Enter price"
+                />
+                <span
+                    *ngIf="
+                    vehicleForm.controls['price'].invalid &&
+                    vehicleForm.controls['price'].touched
+                    "
+                    class="text-red-500 text-sm"
+                >
+                    <ng-container
+                        *ngIf="
+                        vehicleForm.controls['price'].hasError(
+                                'required'
+                            )
+                        "
+                    >
+                        Price is required.
+                    </ng-container>
+                    <ng-container
+                        *ngIf="vehicleForm.controls['price'].hasError('min')"
+                    >
+                        Price must be greater than 0.
+                    </ng-container>
+                </span>
+            </div>
+            <fieldset class="border p-4 mb-4 rounded-lg">
+                <legend class="text-gray-700 font-bold">
+                    Additional Properties
+                </legend>
+                <!-- Bind the FormArray -->
+                <div formArrayName="additional_properties">
+                    <!-- Loop through each FormGroup in the FormArray -->
+                    <div
+                        *ngFor="
+                            let prop of additionalProperties.controls;
+                            let i = index
+                        "
+                        [formGroupName]="i"
+                    >
+                        <div class="flex items-center space-x-2 mb-2">
+                            <div class="w-1/2">
+                                <input
+                                    type="text"
+                                    class="w-full border rounded-lg px-4 py-2"
+                                    placeholder="Key (e.g., Pool)"
+                                    formControlName="key"
+                                />
+                                <span
+                                    *ngIf="
+                                        prop.get('key')?.invalid &&
+                                        prop.get('key')?.touched
+                                    "
+                                    class="text-red-500 text-sm"
+                                >
+                                    Key is required.
+                                </span>
+                            </div>
+                            <div class="w-1/2">
+                                <input
+                                    type="text"
+                                    class="w-full border rounded-lg px-4 py-2"
+                                    placeholder="Value (e.g., Yes)"
+                                    formControlName="value"
+                                />
+                                <span
+                                    *ngIf="
+                                        prop.get('value')?.invalid &&
+                                        prop.get('value')?.touched
+                                    "
+                                    class="text-red-500 text-sm"
+                                >
+                                    Value is required.
+                                </span>
+                            </div>
+                            <button
+                                type="button"
+                                class="text-red-500 hover:text-red-700"
+                                (click)="removeProperty(i)"
+                            >
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <button
+                    type="button"
+                    class="bg-btn_primary hover:bg-btn_primary_darkened text-white px-4 py-2 rounded-lg"
+                    (click)="addProperty()"
+                >
+                    Add Property
+                </button>
+            </fieldset>
+
+            <div>
+                <label class="block text-gray-700 font-medium"
+                    >Model</label
+                >
+                <input
+                    type="number"
+                    class="w-full border rounded-lg px-4 py-2"
+                    formControlName="model_name"
+                    placeholder="Enter model name"
+                />
+                <span
+                    *ngIf="
+                    vehicleForm.controls['model_name'].invalid &&
+                    vehicleForm.controls['model_name'].touched
+                    "
+                    class="text-red-500 text-sm"
+                >
+                </span>
+            </div>
+            <div>
+                <label class="block text-gray-700 font-medium">Color</label>
+                <input
+                    type="text"
+                    class="w-full border rounded-lg px-4 py-2"
+                    formControlName="color"
+                    placeholder="Enter color"
+                />
+                <span
+                    *ngIf="
+                    vehicleForm.controls['color'].invalid &&
+                    vehicleForm.controls['color'].touched
+                    "
+                    class="text-red-500 text-sm"
+                >
+                    Color is required.
+                </span>
+            </div>
+            <div>
+                <label class="block text-gray-700 font-medium">First Registration</label>
+                <input
+                    type="text"
+                    class="w-full border rounded-lg px-4 py-2"
+                    formControlName="first_registration"
+                    placeholder="Enter first registration"
+                />
+                <span
+                    *ngIf="
+                    vehicleForm.controls['first_registration'].invalid &&
+                    vehicleForm.controls['first_registration'].touched
+                    "
+                    class="text-red-500 text-sm"
+                >
+                first_registration is required.
+                </span>
+            </div>
+            <div>
+                <label class="block text-gray-700 font-medium">Mileage</label>
+                <input
+                    type="text"
+                    class="w-full border rounded-lg px-4 py-2"
+                    formControlName="mileage"
+                    placeholder="Enter mileage"
+                />
+                <span
+                    *ngIf="
+                    vehicleForm.controls['mileage'].invalid &&
+                    vehicleForm.controls['mileage'].touched
+                    "
+                    class="text-red-500 text-sm"
+                >
+                    Mileage is required.
+                </span>
+            </div>
+            <div>
+                <label class="block text-gray-700 font-medium"
+                    >Vehicle Type</label
+                >
+                <select
+                    class="w-full border rounded-lg px-4 py-2"
+                    formControlName="type_name"
+                >
+                    <option value="">Select Vehicle type</option>
+                    <option
+                        *ngFor="let type of vehicleTypes"
+                        [value]="type.type_name"
+                    >
+                        {{ type.type_name }}
+                    </option>
+                </select>
+                <span
+                    *ngIf="
+                    vehicleForm.controls['type_name'].invalid &&
+                    vehicleForm.controls['type_name'].touched
+                    "
+                    class="text-red-500 text-sm"
+                >
+                    Vehicle type is required.
+                </span>
+            </div>
+            
+            <div class="flex justify-end space-x-4 mt-6">
+                <button
+                    type="button"
+                    class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg"
+                    (click)="onClose()"
+                >
+                    Cancel
+                </button>
+                <button
+                    type="submit"
+                    class="bg-btn_primary hover:bg-btn_primary_darkened text-white px-4 py-2 rounded-lg"
+                >
+                    Create
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
