@@ -70,3 +70,13 @@
         (close)="closeOverlay()"
     ></app-realestate-create-overlay>
 </div>
+<div
+    *ngIf="isVehicleOverlayOpen"
+    class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50 overflow-y-auto"
+    (click)="closeVehicleOverlay()"
+>
+    <app-vehicle-create-overlay
+        class="fixed inset-0 bg-gray-500 bg-opacity-20 flex justify-center items-center z-50"
+        (close)="closeVehicleOverlay()"
+    ></app-vehicle-create-overlay>
+</div>
