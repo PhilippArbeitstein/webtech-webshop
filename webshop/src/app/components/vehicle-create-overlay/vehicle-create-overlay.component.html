@@ -44,7 +44,7 @@
                     type="text"
                     class="w-full border rounded-lg px-4 py-2"
                     formControlName="name"
-                    placeholder="Enter property name"
+                    placeholder="Enter vehicle name"
                 />
                 <span
                     *ngIf="
@@ -58,14 +58,29 @@
             </div>
             <div>
                 <label class="block text-gray-700 font-medium"
-                    >Mark</label
+                    >Vehicle Mark</label
                 >
-                <input
-                    type="text"
+                <select
                     class="w-full border rounded-lg px-4 py-2"
                     formControlName="mark_name"
-                    placeholder="Enter name of your mark"
-                />
+                >
+                    <option value="">Select Vehicle mark</option>
+                    <option
+                        *ngFor="let mark of vehicleMarks"
+                        [value]="mark.mark_name"
+                    >
+                        {{ mark.mark_name }}
+                    </option>
+                </select>
+                <span
+                    *ngIf="
+                    vehicleForm.controls['mark_name'].invalid &&
+                    vehicleForm.controls['mark_name'].touched
+                    "
+                    class="text-red-500 text-sm"
+                >
+                    Vehicle Mark is required.
+                </span>
             </div>
             <div>
                 <label class="block text-gray-700 font-medium"
@@ -74,7 +89,7 @@
                 <textarea
                     class="w-full border rounded-lg px-4 py-2"
                     formControlName="description"
-                    placeholder="Enter property description"
+                    placeholder="Enter vehicle description"
                 ></textarea>
             </div>
             <div>
@@ -181,7 +196,7 @@
                     >Model</label
                 >
                 <input
-                    type="number"
+                    type="text"
                     class="w-full border rounded-lg px-4 py-2"
                     formControlName="model_name"
                     placeholder="Enter model name"
@@ -214,12 +229,13 @@
                 </span>
             </div>
             <div>
-                <label class="block text-gray-700 font-medium">First Registration</label>
+                <label class="block text-gray-700 font-medium"
+                    >First Registration</label
+                >
                 <input
-                    type="text"
+                    type="date"
                     class="w-full border rounded-lg px-4 py-2"
                     formControlName="first_registration"
-                    placeholder="Enter first registration"
                 />
                 <span
                     *ngIf="
@@ -228,13 +244,13 @@
                     "
                     class="text-red-500 text-sm"
                 >
-                first_registration is required.
+                    First Registration date is required.
                 </span>
             </div>
             <div>
                 <label class="block text-gray-700 font-medium">Mileage</label>
                 <input
-                    type="text"
+                    type="number"
                     class="w-full border rounded-lg px-4 py-2"
                     formControlName="mileage"
                     placeholder="Enter mileage"
@@ -247,6 +263,42 @@
                     class="text-red-500 text-sm"
                 >
                     Mileage is required.
+                </span>
+            </div>
+            <div>
+                <label class="block text-gray-700 font-medium">Condition</label>
+                <input
+                    type="text"
+                    class="w-full border rounded-lg px-4 py-2"
+                    formControlName="condition"
+                    placeholder="Enter condition"
+                />
+                <span
+                    *ngIf="
+                    vehicleForm.controls['condition'].invalid &&
+                    vehicleForm.controls['condition'].touched
+                    "
+                    class="text-red-500 text-sm"
+                >
+                    Conditon is required.
+                </span>
+            </div>
+            <div>
+                <label class="block text-gray-700 font-medium">Fuel Type</label>
+                <input
+                    type="text"
+                    class="w-full border rounded-lg px-4 py-2"
+                    formControlName="fuel_type"
+                    placeholder="Enter Fuel Type"
+                />
+                <span
+                    *ngIf="
+                    vehicleForm.controls['fuel_type'].invalid &&
+                    vehicleForm.controls['fuel_type'].touched
+                    "
+                    class="text-red-500 text-sm"
+                >
+                Fuel Type is required.
                 </span>
             </div>
             <div>

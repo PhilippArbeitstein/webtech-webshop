@@ -39,6 +39,7 @@ export class VehicleCreateOverlayComponent {
 
   vehicleForm: FormGroup;
   vehicleTypes: { type_id: number; type_name: string }[] = [];
+  vehicleMarks: { mark_id: number; mark_name: string }[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -79,6 +80,16 @@ export class VehicleCreateOverlayComponent {
       },
     });
   }
+  loadVehicleMarks(): void {
+    this.vehicleService.getVehicleMarks().subscribe({
+      next: (data) => {
+        this.vehicleMarks = data;
+      },
+      error: (error) => {
+        console.error('Error loading vehicle Marks:', error);
+      },
+    });
+  }
 
   get additionalProperties(): FormArray {
     return this.vehicleForm.get('additional_properties') as FormArray;
@@ -114,7 +125,7 @@ export class VehicleCreateOverlayComponent {
 
     const newListing: NewVehicleListing = {
       ...this.vehicleForm.value,
-      status_name: 'Available',
+      status: 'Available',
       additional_properties: additionalPropsObj,
       // rent_start: new Date(this.realestateForm.get('rent_start')?.value),
       // rent_end: new Date(this.realestateForm.get('rent_end')?.value)
@@ -122,7 +133,7 @@ export class VehicleCreateOverlayComponent {
 
     this.vehicleService.createListing(newListing).subscribe({
       next: (response) => {
-        alert('Fahrzeug wurde erfolgreich erstellt!');
+        alert(response);
         this.created.emit();
         this.onClose();
       },
