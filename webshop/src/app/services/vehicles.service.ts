@@ -77,7 +77,12 @@ export class VehiclesService {
 
   getVehicleTypes(): Observable<{ type_id: number; type_name: string }[]> {
     return this.httpClient.get<{ type_id: number; type_name: string }[]>(
-      `http://localhost:3000/vehicles/types`
+      `http://localhost:3000/vehicles/types/types`
+    );
+  }
+  getVehicleMarks(): Observable<{ mark_id: number; mark_name: string }[]> {
+    return this.httpClient.get<{ mark_id: number; mark_name: string }[]>(
+      `http://localhost:3000/vehicles/marks/marks`
     );
   }
 
