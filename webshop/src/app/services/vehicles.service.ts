@@ -57,6 +57,12 @@ export class VehiclesService {
       `http://localhost:3000/vehicles/${productId}`
     );
   }
+  getUserSpecificListings(): Observable<VehicleListing[]> {
+    return this.httpClient.get<VehicleListing[]>(
+      'http://localhost:3000/vehicles/users/user-listings',
+      { withCredentials: true }
+    );
+  }
 
   deleteListing(
     product_id: number

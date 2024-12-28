@@ -153,6 +153,35 @@ router.get("/user/:user_id", async (req, res) => {
         });
     }
 });
+// Get vehicle listings from a single user
+router.get("/users/user-listings", async (req, res) => {
+    try {
+        const userExists = await pool.query(
+            `
+            SELECT user_id FROM users WHERE user_id = $1
+            `,
+            [req.session.user_id]
+        );
+
+        if (userExists.rows.length === 0) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        let query =
+            "SELECT product.product_id, product.name, users.email, users.username, product.image_url, product.description, product.price, statuses.status_name, product.additional_properties, vehicle_marks.mark_name, vehicle_models.model_name, vehicle_types.type_name, vehicles.first_registration_date, vehicles.mileage, fuel_types.fuel_type_name, vehicles.color, conditions.condition_name FROM product";
+        query += getFullJoinTable();
+        query += " WHERE users.user_id = $1 ORDER BY product.created_at DESC;";
+
+        const allListings = await pool.query(query, [req.session.user_id]);
+
+        if (allListings.rows.length === 0) {
+            return res.status(404).json({ message: "No listings found" });
+        }
+
+        res.status(200).json(allListings.rows);
+    } catch (error) {
+        res.status(500).send(`Server Error: ${error}`);
+    }
+});
 
 //delete listing.
 //TODO CHECK FOR VALIDATION
