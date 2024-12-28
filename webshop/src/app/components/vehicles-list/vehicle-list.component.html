@@ -4,7 +4,7 @@
 >
     <a
         *ngFor="let listing of filteredListings"
-      
+        [routerLink]="['/vehicle-details', listing.product_id]"
         class="block rounded-2xl no-underline hover:shadow-lg transition duration-200"
     >
         <app-list-item

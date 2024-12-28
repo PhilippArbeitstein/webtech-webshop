@@ -52,4 +52,18 @@ export class VehiclesService {
         },
       });
   }
+  getListingById(productId: number): Observable<VehicleListing> {
+    return this.httpClient.get<VehicleListing>(
+      `http://localhost:3000/vehicles/${productId}`
+    );
+  }
+
+  deleteListing(
+    product_id: number
+  ): Observable<{ message: string; product_id: string }> {
+    return this.httpClient.delete<{ message: string; product_id: string }>(
+      `http://localhost:3000/vehicles/${product_id}`,
+      { withCredentials: true }
+    );
+  }
 }

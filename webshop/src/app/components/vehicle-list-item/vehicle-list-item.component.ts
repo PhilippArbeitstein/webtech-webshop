@@ -70,7 +70,7 @@ export class ListItemComponent {
     const currentRoute = this.router.url;
     this.isTrashIconVisible = currentRoute.includes('own-products');
   }
-  /*
+
   confirmDelete(event: MouseEvent): void {
     event.stopPropagation();
     event.preventDefault();
@@ -93,5 +93,5 @@ export class ListItemComponent {
           },
         });
     }
-  }*/
+  }
 }
