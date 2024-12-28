@@ -10,8 +10,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RoutingService } from '../../services/routing.service';
 
-// Extend RealEstateListing locally to include display properties
-type DisplayVehicleListing = VehicleListing;
+// Extend VehicleListing locally to include display properties
+type DisplayVehicleListing = VehicleListing & {
+  year?: string;
+  kilometers?: string;
+};
 
 @Component({
   selector: 'app-vehicle-details',
@@ -22,13 +25,14 @@ type DisplayVehicleListing = VehicleListing;
 })
 export class VehicleDetailsComponent {
   productId: number = -1;
-  listing: VehicleListing | null = null;
+  listing: DisplayVehicleListing | null = null;
 
   constructor(
     private searchbarService: SearchbarService,
     public vehicleService: VehiclesService,
     private route: ActivatedRoute,
     private router: Router,
+    private datePipe: DatePipe,
     private routingService: RoutingService
   ) {
     const productIdParam = this.route.snapshot.paramMap.get('product_id');
@@ -43,9 +47,7 @@ export class VehicleDetailsComponent {
       next: (listing) => {
         this.listing = {
           ...listing,
-
-          //rent_start_formatted: this.formatDate(listing.rent_start),
-          //rent_end_formatted: this.formatDate(listing.rent_end)
+          year: this.formatDate(listing.first_registration),
         };
       },
       error: (error) => {
@@ -64,25 +66,9 @@ export class VehicleDetailsComponent {
     return obj ? Object.keys(obj) : [];
   }
 
-  /*
-  getPropertyValue(obj: any, key: string): string {
-    const value = obj[key];
-    const formattedKey = key.charAt(0).toUpperCase() + key.slice(1); // Capitalize the key
-
-    if (value === true) {
-      return `With ${formattedKey}`; // Example: "With Garage"
-    } else if (value === false) {
-      return `No ${formattedKey}`; // Optional: "No Garage"
-    } else {
-      return `${formattedKey}: ${value}`; // Example: "Size: 2000 sqm"
-    }
-  }
-    
-
   private formatDate(date: string | Date): string {
     return this.datePipe.transform(date, 'd. MMM y') || '';
   }
-    */
 
   goBack(): void {
     const previousRoute = this.routingService.getPreviousRoute();
