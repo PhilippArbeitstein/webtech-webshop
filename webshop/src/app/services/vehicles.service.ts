@@ -85,6 +85,20 @@ export class VehiclesService {
       `http://localhost:3000/vehicles/marks/marks`
     );
   }
+  getVehicleFuelTypes(): Observable<
+    { fuel_type_id: number; fuel_type_name: string }[]
+  > {
+    return this.httpClient.get<
+      { fuel_type_id: number; fuel_type_name: string }[]
+    >(`http://localhost:3000/vehicles/fuel_types/fuel_types`);
+  }
+  getVehicleConditions(): Observable<
+    { condition_id: number; condition_name: string }[]
+  > {
+    return this.httpClient.get<
+      { condition_id: number; condition_name: string }[]
+    >(`http://localhost:3000/vehicles/conditions/conditions`);
+  }
 
   deleteListing(
     product_id: number
