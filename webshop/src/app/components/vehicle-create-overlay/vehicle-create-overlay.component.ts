@@ -40,7 +40,8 @@ export class VehicleCreateOverlayComponent {
   vehicleForm: FormGroup;
   vehicleTypes: { type_id: number; type_name: string }[] = [];
   vehicleMarks: { mark_id: number; mark_name: string }[] = [];
-
+  vehicleFuelTypes: { fuel_type_id: number; fuel_type_name: string }[] = [];
+  vehicleConditions: { condition_id: number; condition_name: string }[] = [];
   constructor(
     private fb: FormBuilder,
     private vehicleService: VehiclesService
@@ -68,6 +69,9 @@ export class VehicleCreateOverlayComponent {
 
   ngOnInit(): void {
     this.loadVehicleTypes();
+    this.loadVehicleMarks();
+    this.loadVehicleFuelTypes();
+    this.loadVehicleConditions();
   }
 
   loadVehicleTypes(): void {
@@ -84,6 +88,26 @@ export class VehicleCreateOverlayComponent {
     this.vehicleService.getVehicleMarks().subscribe({
       next: (data) => {
         this.vehicleMarks = data;
+      },
+      error: (error) => {
+        console.error('Error loading vehicle Marks:', error);
+      },
+    });
+  }
+  loadVehicleFuelTypes(): void {
+    this.vehicleService.getVehicleFuelTypes().subscribe({
+      next: (data) => {
+        this.vehicleFuelTypes = data;
+      },
+      error: (error) => {
+        console.error('Error loading vehicle Fuel Types:', error);
+      },
+    });
+  }
+  loadVehicleConditions(): void {
+    this.vehicleService.getVehicleConditions().subscribe({
+      next: (data) => {
+        this.vehicleConditions = data;
       },
       error: (error) => {
         console.error('Error loading vehicle Marks:', error);

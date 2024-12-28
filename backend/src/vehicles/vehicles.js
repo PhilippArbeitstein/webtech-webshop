@@ -200,7 +200,47 @@ router.get("/marks/marks", async (req, res) => {
         res.status(500).send(`Server Error: ${error}`);
     }
 });
+// Get all vehicle fuel Types
+router.get("/fuel_types/fuel_types", async (req, res) => {
+    try {
+        const vehicle_fuel_types = await pool.query(
+            `
+            SELECT  * FROM fuel_types;
+        `
+        );
 
+        if (vehicle_fuel_types.rows.length === 0) {
+            return res
+                .status(404)
+                .json({ message: "No vehicle fuel types found" });
+        }
+
+        res.status(200).json(vehicle_fuel_types.rows);
+    } catch (error) {
+        res.status(500).send(`Server Error: ${error}`);
+    }
+});
+
+// Get all vehicle conditions
+router.get("/conditions/conditions", async (req, res) => {
+    try {
+        const vehicle_conditions = await pool.query(
+            `
+            SELECT  * FROM conditions;
+        `
+        );
+
+        if (vehicle_conditions.rows.length === 0) {
+            return res
+                .status(404)
+                .json({ message: "No vehicle conditions found" });
+        }
+
+        res.status(200).json(vehicle_conditions.rows);
+    } catch (error) {
+        res.status(500).send(`Server Error: ${error}`);
+    }
+});
 //delete listing.
 //TODO CHECK FOR VALIDATION
 router.delete("/:product_id", async (req, res) => {
@@ -476,12 +516,7 @@ router.post("/", async (req, res) => {
                 "mark_name",
                 mark_name
             );
-            model = await getIDFromName(
-                "model_id",
-                "vehicle_models",
-                "model_name",
-                model_name
-            );
+
             type = await getIDFromName(
                 "type_id",
                 "vehicle_types",
@@ -502,14 +537,37 @@ router.post("/", async (req, res) => {
             );
             if (
                 isNaN(mark) ||
-                isNaN(model) ||
                 isNaN(type) ||
                 isNaN(fuel_type) ||
                 isNaN(condition)
             ) {
                 throw new Error("Incorrect Input");
             }
+            let model = -1;
+            //Checking if model already exists, otherwise adding it
+            let modelquery =
+                "Select model_id from vehicle_models where model_name=$1";
 
+            let modelresult = await transaction.query(modelquery, [model_name]);
+            if (modelresult.rows.length === 0) {
+                //Model doesnt exist yet so insert into models
+
+                const modelInsertQuery = `INSERT INTO vehicle_models (mark_id, model_name) VALUES ($1, $2) RETURNING model_id;`;
+                modelInsertValues = [mark, model_name];
+                modelResult = await transaction.query(
+                    modelInsertQuery,
+                    modelInsertValues
+                );
+                model = modelResult.rows[0].model_id;
+            } else {
+                //Model already exists so get its id
+                model = getIDFromName(
+                    "model_id",
+                    "vehicle_models",
+                    "model_name",
+                    model_name
+                );
+            }
             const vehicleValues = [
                 productId,
                 mark,

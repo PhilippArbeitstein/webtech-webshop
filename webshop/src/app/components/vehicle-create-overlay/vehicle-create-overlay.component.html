@@ -266,13 +266,21 @@
                 </span>
             </div>
             <div>
-                <label class="block text-gray-700 font-medium">Condition</label>
-                <input
-                    type="text"
+                <label class="block text-gray-700 font-medium"
+                    >Vehicle Condition</label
+                >
+                <select
                     class="w-full border rounded-lg px-4 py-2"
                     formControlName="condition"
-                    placeholder="Enter condition"
-                />
+                >
+                    <option value="">Select Vehicle condition</option>
+                    <option
+                        *ngFor="let condition of vehicleConditions"
+                        [value]="condition.condition_name"
+                    >
+                        {{ condition.condition_name }}
+                    </option>
+                </select>
                 <span
                     *ngIf="
                     vehicleForm.controls['condition'].invalid &&
@@ -280,17 +288,25 @@
                     "
                     class="text-red-500 text-sm"
                 >
-                    Conditon is required.
+                    Vehicle Condition is required.
                 </span>
             </div>
             <div>
-                <label class="block text-gray-700 font-medium">Fuel Type</label>
-                <input
-                    type="text"
+                <label class="block text-gray-700 font-medium"
+                    >Vehicle Fuel Type</label
+                >
+                <select
                     class="w-full border rounded-lg px-4 py-2"
                     formControlName="fuel_type"
-                    placeholder="Enter Fuel Type"
-                />
+                >
+                    <option value="">Select Vehicle fuel type</option>
+                    <option
+                        *ngFor="let fuel_type of vehicleFuelTypes"
+                        [value]="fuel_type.fuel_type_name"
+                    >
+                        {{ fuel_type.fuel_type_name }}
+                    </option>
+                </select>
                 <span
                     *ngIf="
                     vehicleForm.controls['fuel_type'].invalid &&
@@ -298,7 +314,7 @@
                     "
                     class="text-red-500 text-sm"
                 >
-                Fuel Type is required.
+                    Vehicle Fuel Type is required.
                 </span>
             </div>
             <div>
