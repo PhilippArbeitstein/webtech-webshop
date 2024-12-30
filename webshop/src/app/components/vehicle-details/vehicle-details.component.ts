@@ -13,7 +13,6 @@ import { RoutingService } from '../../services/routing.service';
 // Extend VehicleListing locally to include display properties
 type DisplayVehicleListing = VehicleListing & {
   year?: string;
-  kilometers?: string;
 };
 
 @Component({
@@ -54,7 +53,6 @@ export class VehicleDetailsComponent {
         console.error('Error fetching listing:', error);
       },
     });
-    console.log(this.listing);
   }
 
   ngOnDestroy(): void {
@@ -67,6 +65,7 @@ export class VehicleDetailsComponent {
   }
 
   private formatDate(date: string | Date): string {
+    console.log(date);
     return this.datePipe.transform(date, 'd. MMM y') || '';
   }
 
