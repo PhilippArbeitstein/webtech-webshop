@@ -36,6 +36,15 @@
     >
         🗑️
     </button>
+    <!-- Edit Icon on Hover -->
+    <button
+        *ngIf="isEditIconVisible"
+        class="absolute top-4 right-4 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition duration-200 hover:bg-text_gray focus:outline-none"
+        [routerLink]="['/vehicle-edit', listing.product_id]"
+        (click)="clickEditButton($event)"
+    >
+    EDIT ✎
+    </button>
 
     <!-- Confirmation Popup -->
     <div

@@ -74,6 +74,15 @@ export class VehiclesService {
       { withCredentials: true }
     );
   }
+  editListing(
+    newListing: NewVehicleListing
+  ): Observable<{ message: string; product_id: string }> {
+    return this.httpClient.put<{ message: string; product_id: string }>(
+      `http://localhost:3000/vehicles/`,
+      newListing,
+      { withCredentials: true }
+    );
+  }
 
   getVehicleTypes(): Observable<{ type_id: number; type_name: string }[]> {
     return this.httpClient.get<{ type_id: number; type_name: string }[]>(
@@ -98,6 +107,11 @@ export class VehiclesService {
     return this.httpClient.get<
       { condition_id: number; condition_name: string }[]
     >(`http://localhost:3000/vehicles/conditions/conditions`);
+  }
+  getStatuses(): Observable<{ status_id: number; status_name: string }[]> {
+    return this.httpClient.get<{ status_id: number; status_name: string }[]>(
+      `http://localhost:3000/vehicles/status/status`
+    );
   }
 
   deleteListing(

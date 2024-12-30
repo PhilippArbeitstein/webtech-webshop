@@ -5,11 +5,12 @@ import {
 } from '../../services/vehicles.service';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
+import { RouterLink } from '@angular/router';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-list-item',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './vehicle-list-item.component.html',
   styleUrl: './vehicle-list-item.component.css',
 })
@@ -22,6 +23,7 @@ export class ListItemComponent {
   imageError: boolean = false;
   showConfirmationPopup: boolean = false;
   currentProductIdToDelete: number | null = null;
+  isEditIconVisible: boolean = false;
 
   private routeSubscription: Subscription | null = null;
 
@@ -43,6 +45,10 @@ export class ListItemComponent {
     event.preventDefault();
     this.showConfirmationPopup = true;
     this.currentProductIdToDelete = productId;
+  }
+  clickEditButton(event: MouseEvent): void {
+    event.stopPropagation();
+    event.preventDefault();
   }
 
   closeConfirmationPopup(event?: MouseEvent): void {
@@ -69,6 +75,7 @@ export class ListItemComponent {
   private checkRoute(): void {
     const currentRoute = this.router.url;
     this.isTrashIconVisible = currentRoute.includes('own-products');
+    this.isEditIconVisible = currentRoute.includes('own-products');
   }
 
   confirmDelete(event: MouseEvent): void {
