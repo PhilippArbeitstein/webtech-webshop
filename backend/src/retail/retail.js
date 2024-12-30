@@ -81,25 +81,45 @@ router.get("/:product_id", async (req, res) => {
     );
 });
 
-//Get all listings by User
-router.get("/user/:user_id", async (req, res) => {
-    if (!req.session.user_id) {
-        res.status(400).send("Not logged in");
-    }
-    let query = "SELECT product.name, product.price, product.image_url, conditions.condition_name, delivery_methods.delivery_method_name FROM product";
-    query += getFullJoinTable();
-    query += " WHERE product.user_id=$1";
-    const userId = req.params.user_id;
-    pool.query(query, [userId],
-        (err, result) => {
-            if (err) {
-                console.log(err);
-                res.status(500).send("Error retrieving products");
-            } else {
-                res.status(200).json(result.rows);
-            }
+
+// Get real-estate listings from a single user
+router.get('/user-listings', async (req, res) => {
+    try {
+        const userExists = await pool.query(
+            `
+            SELECT user_id FROM users WHERE user_id = $1
+            `,
+            [req.session.user_id]
+        );
+
+        if (userExists.rows.length === 0) {
+            return res.status(404).json({ message: 'User not found' });
         }
-    );
+
+        const allListings = await pool.query(
+            `
+            SELECT re.product_id, u.email, u.username, p.image_url, p.name, p.description, p.price, 
+            s.status_name, p.created_at, p.updated_at, p.additional_properties, 
+            c.condition_name, d.delivery_method_name
+            FROM retail re INNER JOIN product p ON re.product_id = p.product_id 
+            INNER JOIN users u ON p.user_id = u.user_id
+            INNER JOIN statuses s ON p.status_id = s.status_id
+            INNER JOIN delivery_methods d on re.delivery_method_id=d.delivery_method_id
+            INNER JOIN conditions c on re.condition_id=c.condition_id
+            WHERE u.user_id = $1
+            ORDER BY p.created_at DESC;
+            `,
+            [req.session.user_id]
+        );
+
+        if (allListings.rows.length === 0) {
+            return res.status(404).json({ message: 'No listings found' });
+        }
+
+        res.status(200).json(allListings.rows);
+    } catch (error) {
+        res.status(500).send(`Server Error: ${error}`);
+    }
 });
 
 //delete listing. 
@@ -409,7 +429,7 @@ async function getIDFromName(idRowName, tableName, nameRow, name) {
 }
 
 // Helper method to validate product ownership with user_id stored in request token
-async function validateProductOwnership(transaction, product_id, user_id) {
+async function validateProductOwnership(product_id, user_id) {
     // Check if user_id is provided and valid
     if (!user_id) {
         return {
