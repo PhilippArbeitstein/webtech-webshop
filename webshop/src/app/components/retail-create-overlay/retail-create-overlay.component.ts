@@ -33,19 +33,19 @@ export interface NewRetailListing {
   templateUrl: './retail-create-overlay.component.html',
   styleUrls: ['./retail-create-overlay.component.css'],
 })
-export class retailCreateOverlayComponent {
+export class RetailCreateOverlayComponent {
   @Output() close = new EventEmitter<void>();
   @Output() created = new EventEmitter<void>();
 
-  retailForm: FormGroup;
-  retailTypes: { type_id: number; type_name: string }[] = [];
-  retailConditions: { condition_id: number; condition_name: string }[] = [];
+  RetailForm: FormGroup;
+  RetailTypes: { type_id: number; type_name: string }[] = [];
+  RetailConditions: { condition_id: number; condition_name: string }[] = [];
   constructor(
     private fb: FormBuilder,
     private RetailsService: RetailsService
   ) {
     // Initialize the form using FormBuilder
-    this.retailForm = this.fb.group({
+    this.RetailForm = this.fb.group({
       image_url: [
         '',
         [Validators.required, Validators.pattern('(http|https)://.+')],
@@ -66,7 +66,7 @@ export class retailCreateOverlayComponent {
   loadretailConditions(): void {
     this.RetailsService.getRetailConditions().subscribe({
       next: (data) => {
-        this.retailConditions = data;
+        this.RetailConditions = data;
       },
       error: (error) => {
         console.error('Error loading retail Conditions:', error);
@@ -75,7 +75,7 @@ export class retailCreateOverlayComponent {
   }
 
   get additionalProperties(): FormArray {
-    return this.retailForm.get('additional_properties') as FormArray;
+    return this.RetailForm.get('additional_properties') as FormArray;
   }
 
   addProperty(): void {
@@ -91,12 +91,12 @@ export class retailCreateOverlayComponent {
   }
 
   onCreate(): void {
-    if (this.retailForm.invalid) {
-      this.markFormGroupTouched(this.retailForm);
+    if (this.RetailForm.invalid) {
+      this.markFormGroupTouched(this.RetailForm);
       return;
     }
 
-    const additionalPropsArray = this.retailForm.get(
+    const additionalPropsArray = this.RetailForm.get(
       'additional_properties'
     )?.value;
     const additionalPropsObj: { [key: string]: string } = {};
@@ -107,7 +107,7 @@ export class retailCreateOverlayComponent {
     });
 
     const newListing: NewRetailListing = {
-      ...this.retailForm.value,
+      ...this.RetailForm.value,
       status: 'Available',
       additional_properties: additionalPropsObj,
       // rent_start: new Date(this.realestateForm.get('rent_start')?.value),

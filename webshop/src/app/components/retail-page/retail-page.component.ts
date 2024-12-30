@@ -9,12 +9,12 @@ import {
 } from '../../services/retail.service';
 
 @Component({
-  selector: 'app-vehicle-page',
+  selector: 'app-retail-page',
   imports: [NavbarComponent, FooterComponent, RetailListComponent],
-  templateUrl: './vehicle-page.component.html',
-  styleUrl: './vehicle-page.component.css',
+  templateUrl: './retail-page.component.html',
+  styleUrl: './retail-page.component.css',
 })
-export class VehiclePageComponent {
+export class RetailPageComponent {
   retailListings: RetailListing[] = [];
 
   constructor(
