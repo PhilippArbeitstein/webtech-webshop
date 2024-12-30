@@ -304,6 +304,26 @@ router.put("/:product_id", async (req, res) => {
 });
 
 
+// Get all retail conditions
+router.get("/conditions", async (req, res) => {
+    try {
+        const retail_conditions = await pool.query(
+            `
+            SELECT  * FROM conditions;
+        `
+        );
+
+        if (retail_conditions.rows.length === 0) {
+            return res
+                .status(404)
+                .json({ message: "No retail conditions found" });
+        }
+
+        res.status(200).json(retail_conditions.rows);
+    } catch (error) {
+        res.status(500).send(`Server Error: ${error}`);
+    }
+});
 
 //Add new retail product
 router.post("/new", async (req, res) => {
