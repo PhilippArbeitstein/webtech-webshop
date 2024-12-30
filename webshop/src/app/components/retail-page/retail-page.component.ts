@@ -2,31 +2,31 @@ import { Component } from '@angular/core';
 import { SearchbarService } from '../../services/searchbar.service';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { FooterComponent } from '../footer/footer.component';
-import { VehiclesListComponent } from '../vehicles-list/vehicle-list.component';
+import { RetailListComponent } from '../retail-list/retail-list.component';
 import {
-  VehicleListing,
-  VehiclesService,
-} from '../../services/vehicles.service';
+  RetailListing,
+  RetailsService,
+} from '../../services/retail.service';
 
 @Component({
   selector: 'app-vehicle-page',
-  imports: [NavbarComponent, FooterComponent, VehiclesListComponent],
+  imports: [NavbarComponent, FooterComponent, RetailListComponent],
   templateUrl: './vehicle-page.component.html',
   styleUrl: './vehicle-page.component.css',
 })
 export class VehiclePageComponent {
-  vehiclesListings: VehicleListing[] = [];
+  retailListings: RetailListing[] = [];
 
   constructor(
     private searchbarService: SearchbarService,
-    private vehiclesService: VehiclesService
+    private retailService: RetailsService
   ) {}
 
   ngOnInit(): void {
-    this.searchbarService.setSearchBarContext('vehicles');
-    this.vehiclesService.getListings();
-    this.vehiclesService.listings$.subscribe({
-      next: (listings) => (this.vehiclesListings = listings),
+    this.searchbarService.setSearchBarContext('retail');
+    this.retailService.getListings();
+    this.retailService.listings$.subscribe({
+      next: (listings) => (this.retailListings = listings),
       error: (error) => console.error('Error fetching listings:', error),
     });
   }

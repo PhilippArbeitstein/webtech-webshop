@@ -6,31 +6,31 @@ import {
   OnDestroy,
 } from '@angular/core';
 import {
-  VehicleListing,
-  VehiclesService,
-} from '../../services/vehicles.service';
+  RetailListing,
+  RetailsService,
+} from '../../services/retail.service';
 import { CommonModule } from '@angular/common';
-import { ListItemComponent } from '../vehicle-list-item/vehicle-list-item.component';
+import { ListItemComponent } from '../retail-list-item/retail-list-item.component';
 import { RouterLink } from '@angular/router';
 import { RoutingService } from '../../services/routing.service';
 import { debounceTime, Subscription } from 'rxjs';
 import { SearchbarService } from '../../services/searchbar.service';
 
 @Component({
-  selector: 'app-vehicle-list',
+  selector: 'app-retail-list',
   imports: [CommonModule, ListItemComponent, RouterLink],
-  templateUrl: './vehicle-list.component.html',
-  styleUrl: './vehicle-list.component.css',
+  templateUrl: './retail-list.component.html',
+  styleUrl: './retail-list.component.css',
 })
-export class VehiclesListComponent implements OnChanges, OnDestroy {
-  @Input() listings: VehicleListing[] = [];
+export class RetailListComponent implements OnChanges, OnDestroy {
+  @Input() listings: RetailListing[] = [];
   @Input() onDeleteCallback!: () => void;
 
-  filteredListings: VehicleListing[] = [];
+  filteredListings: RetailListing[] = [];
   private searchSubscription: Subscription | null = null;
 
   constructor(
-    public vehiclesService: VehiclesService,
+    public retailService: RetailsService,
     private routingService: RoutingService,
     private searchbarService: SearchbarService
   ) {}
@@ -38,7 +38,7 @@ export class VehiclesListComponent implements OnChanges, OnDestroy {
   ngOnInit() {
     location.pathname.includes('own-product')
       ? this.routingService.setPreviousRoute('own-product')
-      : this.routingService.setPreviousRoute('vehicles');
+      : this.routingService.setPreviousRoute('retail');
 
     this.searchSubscription = this.searchbarService.searchQuery$
       .pipe(debounceTime(300)) // Wait 300ms after each keystroke
