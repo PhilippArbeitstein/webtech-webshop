@@ -9,6 +9,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RoutingService } from '../../services/routing.service';
+import { UserService } from '../../services/user.service';
 
 // Extend RealEstateListing locally to include display properties
 type DisplayRealEstateListing = RealEstateListing & {
@@ -30,6 +31,7 @@ export class RealestateDetailsComponent {
     constructor(
         private searchbarService: SearchbarService,
         public realestateService: RealestateService,
+        public userService: UserService,
         private route: ActivatedRoute,
         private router: Router,
         private datePipe: DatePipe,
@@ -87,8 +89,23 @@ export class RealestateDetailsComponent {
         const previousRoute = this.routingService.getPreviousRoute();
         if (previousRoute == 'own-product') {
             this.router.navigate(['/own-products']);
+        } else if (previousRoute == 'messages') {
+            this.router.navigate(['/messages']);
         } else {
             this.router.navigate(['/real-estate']);
         }
+    }
+
+    startNewChat(): void {
+        if (!this.listing) {
+            return; // Ensure the listing is available
+        }
+
+        const productId = this.listing.product_id;
+        const ownerId = this.listing.user_id;
+
+        this.router.navigate(['/messages'], {
+            queryParams: { product_id: productId, to_user_id: ownerId }
+        });
     }
 }

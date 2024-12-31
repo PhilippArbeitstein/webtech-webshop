@@ -1,9 +1,156 @@
 <div
-    class="w-screen h-screen flex flex-col md:px-48 md:py-12 relative overflow-hidden"
+    class="w-screen h-screen flex flex-col md:px-48 md:py-12 relative overflow-hidden space-y-6"
 >
-    <div class="flex flex-col h-full">
-        <app-navbar class="shrink-0"></app-navbar>
+    <app-navbar class="shrink-0"></app-navbar>
+    <div
+        class="flex-grow rounded-lg overflow-hidden shadow-custom-top bg-white flex"
+    >
+        <!-- Sidebar showing list of chats -->
+        <div class="w-1/4 h-full overflow-y-auto border-r border-gray-300">
+            <div
+                *ngFor="let chat of chats | keyvalue"
+                class="p-4 flex items-center cursor-pointer hover:bg-gray-200 space-x-4"
+                (click)="selectChat(chat.key)"
+                [attr.data-chat-key]="chat.key"
+            >
+                <img
+                    [src]="chat.value.product.image_url"
+                    alt="Product Image"
+                    class="w-12 h-12 object-cover rounded-full"
+                />
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        {{ chat.value.product.product_name }}
+                    </h3>
+                    <p class="text-sm text-gray-500">
+                        {{ chat.value.product.city }},
+                        {{ chat.value.product.province }}
+                    </p>
+                </div>
+            </div>
+        </div>
 
-        <app-footer class="shrink-0"></app-footer>
+        <!-- Chat container -->
+        <div class="flex-grow flex flex-col h-full">
+            <!-- Chat header -->
+            <div
+                class="bg-white p-4 border-b border-gray-300"
+                *ngIf="selectedChat"
+            >
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <img
+                            [src]="selectedChat.product.image_url"
+                            alt="Product Image"
+                            class="w-16 h-16 object-cover rounded-full shadow-xl hover:cursor-pointer"
+                            [routerLink]="[
+                                '/real-estate-details',
+                                selectedChat.product.product_id
+                            ]"
+                            title="View Product Details"
+                        />
+                        <h2 class="text-xl font-semibold text-gray-800">
+                            {{ selectedChat.product.product_name }}
+                        </h2>
+                    </div>
+                    <div>
+                        <p class="text-gray-500">
+                            Owner: {{ selectedChat.product.owner_username }} ({{
+                                selectedChat.product.owner_email
+                            }})
+                        </p>
+                        <p class="text-gray-500" *ngIf="chatParticipant">
+                            Chatting with: {{ chatParticipant.username }} ({{
+                                chatParticipant.email
+                            }})
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat messages -->
+            <div
+                #scrollContainer
+                class="flex-grow overflow-y-auto p-4 space-y-4"
+            >
+                <div *ngIf="loading" class="text-gray-500 text-lg">
+                    Loading chats...
+                </div>
+
+                <div *ngIf="errorMessage" class="text-red-500 text-lg">
+                    {{ errorMessage }}
+                </div>
+
+                <div *ngIf="!loading && !errorMessage && selectedChat">
+                    <!-- Loop through each message -->
+                    <div
+                        *ngFor="let message of selectedChat.messages"
+                        class="flex mb-4"
+                        [ngClass]="{
+                            'justify-end':
+                                message.from_user_id ===
+                                userService.loggedInUser.user_id,
+                            'justify-start':
+                                message.from_user_id !==
+                                userService.loggedInUser.user_id
+                        }"
+                    >
+                        <!-- Message Bubble -->
+                        <div
+                            [ngClass]="{
+                                'bg-gray-200 text-gray-800':
+                                    message.from_user_id !==
+                                    userService.loggedInUser.user_id,
+                                'bg-btn_primary text-white':
+                                    message.from_user_id ===
+                                    userService.loggedInUser.user_id
+                            }"
+                            class="p-3 rounded-lg max-w-[70%]"
+                        >
+                            <p>{{ message.message }}</p>
+                        </div>
+                        <!-- Timestamp -->
+                        <span
+                            class="text-xs text-gray-500 self-end mx-2"
+                            [ngClass]="{
+                                'text-right':
+                                    message.from_user_id ===
+                                    userService.loggedInUser.user_id,
+                                'text-left':
+                                    message.from_user_id !==
+                                    userService.loggedInUser.user_id
+                            }"
+                        >
+                            {{ message.created_at | date : 'short' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Message input box -->
+            <div class="bg-white px-6 py-4 border-gray-300">
+                <div class="flex items-center space-x-4">
+                    <input
+                        type="text"
+                        placeholder="Type a message..."
+                        [(ngModel)]="newMessage"
+                        name="message"
+                        class="flex-grow border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        (keydown.enter)="sendMessage()"
+                    />
+                    <button
+                        type="button"
+                        class="bg-btn_primary text-white px-4 py-2 rounded-lg hover:bg-btn_primary_darkened"
+                        (click)="sendMessage()"
+                    >
+                        Send
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
+    <app-footer
+        class="shrink-0 fixed bottom-0 left-0 w-full z-10"
+        [show]="false"
+    ></app-footer>
 </div>

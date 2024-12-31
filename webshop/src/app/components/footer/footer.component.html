@@ -1,6 +1,6 @@
 <div class="h-16 w-full">
     <img
-        *ngIf="!(searchbarService.showSearchBar$ | async)"
+        *ngIf="!(searchbarService.showSearchBar$ | async) && show"
         src="../assets/background.svg"
         alt="Background"
         class="absolute bottom-0 left-0 w-full pointer-events-none"
