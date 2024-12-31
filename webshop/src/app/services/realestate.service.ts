@@ -42,12 +42,15 @@ export class RealestateService {
         []
     );
     private categoriesSubject = new BehaviorSubject<any[]>([]);
+    private additionalPropertiesSubject = new BehaviorSubject<string[]>([]);
 
     listings$: Observable<RealEstateListing[]> =
         this.listingsSubject.asObservable();
     filteredListings$: Observable<RealEstateListing[]> =
         this.filteredListingsSubject.asObservable();
     categories$: Observable<any[]> = this.categoriesSubject.asObservable();
+    additionalProperties$: Observable<string[]> =
+        this.additionalPropertiesSubject.asObservable();
 
     constructor(private httpClient: HttpClient) {}
 
@@ -60,7 +63,6 @@ export class RealestateService {
                 next: (response) => {
                     const { listings, categories } = response;
 
-                    // Update listings and categories
                     this.listingsSubject.next(listings);
                     this.filteredListingsSubject.next([...listings]);
                     this.categoriesSubject.next(categories);
@@ -121,6 +123,7 @@ export class RealestateService {
         province: string;
         city: string;
         available_now: boolean;
+        additional_properties: { [key: string]: string | null };
     }): void {
         const params: { [key: string]: any } = {};
 
@@ -148,12 +151,19 @@ export class RealestateService {
         if (filters.available_now) {
             params['available_now'] = filters.available_now;
         }
+        if (filters.additional_properties) {
+            // Convert additional_properties to a JSON string
+            params['additional_properties'] = JSON.stringify(
+                filters.additional_properties
+            );
+        }
 
         this.httpClient
-            .get<{ listings: RealEstateListing[]; categories: any[] }>(
-                'http://localhost:3000/real-estate/listings',
-                { params }
-            )
+            .get<{
+                listings: RealEstateListing[];
+                categories: any[];
+                additional_properties: string[];
+            }>('http://localhost:3000/real-estate/listings', { params })
             .subscribe({
                 next: (response) => {
                     const { listings, categories } = response;
@@ -163,6 +173,28 @@ export class RealestateService {
                 },
                 error: (error) => {
                     console.error('Error filtering listings:', error);
+                }
+            });
+    }
+
+    getAdditionalProperties(category_id: number) {
+        this.httpClient
+            .get<string[]>(
+                `http://localhost:3000/real-estate/additional-properties`,
+                {
+                    params: { category_id: category_id.toString() }
+                }
+            )
+            .subscribe({
+                next: (properties) => {
+                    this.additionalPropertiesSubject.next(properties);
+                },
+                error: (error) => {
+                    console.error(
+                        'Error fetching additional properties:',
+                        error
+                    );
+                    this.additionalPropertiesSubject.next([]);
                 }
             });
     }

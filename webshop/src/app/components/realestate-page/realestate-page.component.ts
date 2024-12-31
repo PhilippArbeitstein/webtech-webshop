@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { SearchbarService } from '../../services/searchbar.service';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { FooterComponent } from '../footer/footer.component';
@@ -22,6 +22,11 @@ import { RealestateDetailedFilterComponent } from '../realestate-detailed-filter
 })
 export class RealestatePageComponent {
     realEstateListings: RealEstateListing[] = [];
+    @ViewChild('scrollableContainer', { static: false })
+    scrollableContainer!: ElementRef;
+
+    @ViewChild(RealestateDetailedFilterComponent, { static: false })
+    filterComponent!: RealestateDetailedFilterComponent;
 
     constructor(
         private searchbarService: SearchbarService,
@@ -40,8 +45,28 @@ export class RealestatePageComponent {
         this.realestateService.getListings();
     }
 
+    ngAfterViewInit(): void {
+        this.scrollableContainer.nativeElement.addEventListener(
+            'scroll',
+            this.onScroll.bind(this)
+        );
+    }
+
     ngOnDestroy(): void {
         this.searchbarService.setSearchBarContext(null);
         this.searchbarService.setSearchQuery('');
+
+        if (this.scrollableContainer) {
+            this.scrollableContainer.nativeElement.removeEventListener(
+                'scroll',
+                this.onScroll
+            );
+        }
+    }
+
+    onScroll(): void {
+        if (this.filterComponent && !this.filterComponent.filterCollapsed) {
+            this.filterComponent.collapseFilterOnScroll();
+        }
     }
 }

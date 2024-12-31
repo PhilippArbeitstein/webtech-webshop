@@ -28,6 +28,16 @@ router.get('/listings', async (req, res) => {
     } = req.query;
 
     try {
+        // Parse additional_properties if provided
+        const parsedAdditionalProperties = additional_properties
+            ? JSON.parse(additional_properties)
+            : {};
+
+        // Filter out empty or null additional properties
+        const validAdditionalProperties = Object.entries(
+            parsedAdditionalProperties
+        ).filter(([key, value]) => value !== null && value !== '');
+
         let query = `
             SELECT re.product_id, u.user_id, u.email, u.username, p.image_url, p.name, p.description, p.price, 
                    s.status_name, p.created_at, p.updated_at, p.additional_properties, t.type_name, 
@@ -53,6 +63,7 @@ router.get('/listings', async (req, res) => {
             query += ` AND p.price >= $${params.length + 1}`;
             params.push(min_price);
         }
+
         if (max_price) {
             query += ` AND p.price <= $${params.length + 1}`;
             params.push(max_price);
@@ -62,6 +73,7 @@ router.get('/listings', async (req, res) => {
             query += ` AND re.rent_start >= $${params.length + 1}`;
             params.push(rent_start);
         }
+
         if (rent_end) {
             query += ` AND re.rent_end <= $${params.length + 1}`;
             params.push(rent_end);
@@ -71,6 +83,7 @@ router.get('/listings', async (req, res) => {
             query += ` AND a.province = $${params.length + 1}`;
             params.push(province);
         }
+
         if (city) {
             query += ` AND a.city = $${params.length + 1}`;
             params.push(city);
@@ -80,14 +93,13 @@ router.get('/listings', async (req, res) => {
             query += ` AND s.status_name = 'Available' AND re.rent_start <= NOW() AND re.rent_end > NOW()`;
         }
 
-        if (additional_properties) {
-            const additionalProps = JSON.parse(additional_properties);
-            for (const [key, value] of Object.entries(additionalProps)) {
+        if (validAdditionalProperties.length > 0) {
+            validAdditionalProperties.forEach(([key, value]) => {
                 query += ` AND p.additional_properties->>$${
                     params.length + 1
                 } = $${params.length + 2}`;
                 params.push(key, value);
-            }
+            });
         }
 
         query += ` ORDER BY p.created_at DESC;`;
@@ -106,7 +118,7 @@ router.get('/listings', async (req, res) => {
             WITH RECURSIVE category_hierarchy AS (
                 SELECT category_id, parent_category_id, name, additional_properties
                 FROM categories
-                WHERE parent_category_id IS NULL -- Start with top-level categories
+                WHERE parent_category_id IS NULL
                 UNION ALL
                 SELECT c.category_id, c.parent_category_id, c.name, c.additional_properties
                 FROM categories c
@@ -140,7 +152,10 @@ router.get('/listings', async (req, res) => {
         });
     } catch (error) {
         console.error('Error fetching listings:', error);
-        res.status(500).send(`Server Error: ${error.message}`);
+        res.status(500).json({
+            error: 'Internal server error',
+            details: error.message
+        });
     }
 });
 
@@ -1016,6 +1031,47 @@ router.get('/events', async (req, res) => {
         res.status(500).json({
             error: 'An error occurred while sending the message.'
         });
+    }
+});
+
+// Get additional properties based on category
+router.get('/additional-properties', async (req, res) => {
+    try {
+        const { category_id } = req.query;
+
+        // Validate the input
+        if (!category_id) {
+            return res.status(400).json({ message: 'category_id is required' });
+        }
+
+        // Query to fetch additional properties for the selected category
+        const additionalPropertiesQuery = `
+            SELECT DISTINCT jsonb_object_keys(p.additional_properties) AS property_key
+            FROM product p 
+            LEFT JOIN product_has_category pc ON p.product_id = pc.product_id
+            JOIN real_estate re ON re.product_id = p.product_id 
+            WHERE pc.category_id = $1
+        `;
+
+        const additionalPropertiesResult = await pool.query(
+            additionalPropertiesQuery,
+            [category_id]
+        );
+
+        if (additionalPropertiesResult.rows.length === 0) {
+            return res.status(404).json({
+                message:
+                    'No additional properties found for the given category_id'
+            });
+        }
+
+        const additionalProperties = additionalPropertiesResult.rows.map(
+            (row) => row.property_key
+        );
+
+        res.status(200).json(additionalProperties);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 });
 

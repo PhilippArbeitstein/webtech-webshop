@@ -18,12 +18,15 @@ interface Category {
     styleUrls: ['./realestate-detailed-filter.component.css']
 })
 export class RealestateDetailedFilterComponent implements OnInit {
-    filterCollapsed = false;
     categories: Category[] = [];
     currentSubcategories: Category[] | null = null;
     selectedCategory: Category | null = null;
 
     categoryDropdownOpen = false;
+    additionalPropertiesCollapsed = true;
+    filterCollapsed = false;
+
+    additionalProperties: string[] = [];
 
     filters: {
         category_id: number | null;
@@ -34,6 +37,7 @@ export class RealestateDetailedFilterComponent implements OnInit {
         province: string;
         city: string;
         available_now: boolean;
+        additional_properties: { [key: string]: string | null };
     } = {
         category_id: null,
         min_price: null,
@@ -42,7 +46,8 @@ export class RealestateDetailedFilterComponent implements OnInit {
         rent_end: null,
         province: '',
         city: '',
-        available_now: false
+        available_now: false,
+        additional_properties: {}
     };
 
     constructor(private realestateService: RealestateService) {}
@@ -56,6 +61,10 @@ export class RealestateDetailedFilterComponent implements OnInit {
                 this.categories = realEstateCategory?.subcategories || [];
             }
         );
+
+        this.realestateService.additionalProperties$.subscribe((properties) => {
+            this.additionalProperties = properties;
+        });
     }
 
     toggleCategoryDropdown() {
@@ -70,6 +79,15 @@ export class RealestateDetailedFilterComponent implements OnInit {
         this.selectedCategory = category;
         this.filters.category_id = category.category_id;
         this.categoryDropdownOpen = false;
+
+        this.filters.additional_properties = {};
+        this.additionalProperties = [];
+
+        if (category.category_id) {
+            this.realestateService.getAdditionalProperties(
+                category.category_id
+            );
+        }
     }
 
     applyFilters() {
@@ -84,6 +102,10 @@ export class RealestateDetailedFilterComponent implements OnInit {
         this.selectedCategory = null;
         this.filters.category_id = null;
         this.categoryDropdownOpen = false;
+
+        // Clear additional properties when category is cleared
+        this.filters.additional_properties = {};
+        this.additionalProperties = [];
     }
 
     clearFilters() {
@@ -95,9 +117,20 @@ export class RealestateDetailedFilterComponent implements OnInit {
             rent_end: null,
             province: '',
             city: '',
-            available_now: false
+            available_now: false,
+            additional_properties: {}
         };
         this.selectedCategory = null;
+        this.additionalProperties = [];
         this.applyFilters();
+    }
+
+    toggleAdditionalPropertiesCollapse() {
+        this.additionalPropertiesCollapsed =
+            !this.additionalPropertiesCollapsed;
+    }
+
+    collapseFilterOnScroll(): void {
+        this.filterCollapsed = true;
     }
 }

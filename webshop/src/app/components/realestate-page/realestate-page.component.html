@@ -5,6 +5,7 @@
         <app-navbar class="shrink-0"></app-navbar>
         <app-realestate-detailed-filter></app-realestate-detailed-filter>
         <div
+            #scrollableContainer
             class="flex-grow flex flex-col items-center space-y-6 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none]"
         >
             <style>
@@ -21,6 +22,7 @@
                 [listings]="realEstateListings"
             ></app-realestate-list>
         </div>
+
         <app-footer
             class="shrink-0 fixed bottom-0 left-0 w-full z-10"
         ></app-footer>
