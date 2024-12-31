@@ -41,6 +41,30 @@ INSERT INTO categories (name, additional_properties) VALUES
 ('Real Estate', '{"type": "category"}'),
 ('Retail', '{"type": "category"}');
 
+INSERT INTO categories (category_id, parent_category_id, name, additional_properties)
+VALUES 
+    -- Level 1: Real Estate -> Apartments
+    (4, 2, 'Apartments', '{"type": "subcategory"}'),
+    -- Level 2: Apartments -> Family Apartment
+    (5, 4, 'Family Apartment', '{"type": "subcategory"}'),
+    -- Level 2: Apartments -> Studio Apartment
+    (6, 4, 'Studio Apartment', '{"type": "subcategory"}'),
+    
+    -- Level 1: Real Estate -> Houses
+    (7, 2, 'Houses', '{"type": "subcategory"}'),
+    -- Level 2: Houses -> Family House
+    (8, 7, 'Family House', '{"type": "subcategory"}'),
+    -- Level 2: Houses -> Villas
+    (9, 7, 'Villas', '{"type": "subcategory"}'),
+    
+    -- Level 1: Real Estate -> Commercial Properties
+    (10, 2, 'Commercial Properties', '{"type": "subcategory"}'),
+    -- Level 2: Commercial Properties -> Offices
+    (11, 10, 'Offices', '{"type": "subcategory"}'),
+    -- Level 2: Commercial Properties -> Retail Spaces
+    (12, 10, 'Retail Spaces', '{"type": "subcategory"}');
+
+
 -- Populate table: conditions
 INSERT INTO conditions (condition_name) VALUES
 ('New'),
@@ -145,11 +169,12 @@ INSERT INTO vehicles (product_id, mark_id, model_id, type_id, first_registration
 
 -- Populate table: real_estate_types
 INSERT INTO real_estate_types (type_name) VALUES
-('Apartment'),
-('House'),
-('Commercial'),
-('Villa'), 
-('Family House');
+('Family Apartment'),
+('Studio Apartment'),
+('Office'),
+('Retail Space'), 
+('Family House'),
+('Villa');
 
 -- Populate table: real_estate
 INSERT INTO real_estate (product_id, type_id, address_id, address_details, advance_payment, rent_start, rent_end) VALUES
