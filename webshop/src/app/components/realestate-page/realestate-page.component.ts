@@ -7,10 +7,16 @@ import {
     RealEstateListing,
     RealestateService
 } from '../../services/realestate.service';
+import { RealestateDetailedFilterComponent } from '../realestate-detailed-filter/realestate-detailed-filter.component';
 
 @Component({
     selector: 'app-realestate-page',
-    imports: [NavbarComponent, FooterComponent, RealestateListComponent],
+    imports: [
+        NavbarComponent,
+        FooterComponent,
+        RealestateListComponent,
+        RealestateDetailedFilterComponent
+    ],
     templateUrl: './realestate-page.component.html',
     styleUrl: './realestate-page.component.css'
 })
@@ -24,11 +30,14 @@ export class RealestatePageComponent {
 
     ngOnInit(): void {
         this.searchbarService.setSearchBarContext('real-estate');
-        this.realestateService.getListings();
-        this.realestateService.listings$.subscribe({
+
+        this.realestateService.filteredListings$.subscribe({
             next: (listings) => (this.realEstateListings = listings),
-            error: (error) => console.error('Error fetching listings:', error)
+            error: (error) =>
+                console.error('Error fetching filtered listings:', error)
         });
+
+        this.realestateService.getListings();
     }
 
     ngOnDestroy(): void {

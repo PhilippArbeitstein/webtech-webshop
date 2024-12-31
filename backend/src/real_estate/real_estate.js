@@ -6,7 +6,6 @@ const checkAuth = require('../auth/auth.js');
 
 const EventEmitter = require('events');
 const eventEmitter = new EventEmitter();
-const cors = require('cors');
 
 router.get('/', (req, res) => {
     res.status(200).json({
@@ -18,7 +17,6 @@ router.get('/', (req, res) => {
 router.get('/listings', async (req, res) => {
     const {
         category_id,
-        type_id,
         min_price,
         max_price,
         rent_start,
@@ -27,14 +25,13 @@ router.get('/listings', async (req, res) => {
         city,
         available_now,
         additional_properties
-    } = req.body;
+    } = req.query;
 
     try {
-        // Base query
         let query = `
             SELECT re.product_id, u.user_id, u.email, u.username, p.image_url, p.name, p.description, p.price, 
                    s.status_name, p.created_at, p.updated_at, p.additional_properties, t.type_name, 
-                   a.city, a.address, a.province, re.address_details, re.advance_payment, re.rent_start, re.rent_end
+                   a.city, a.address, a.province, re.address_details, re.advance_payment, re.rent_start, re.rent_end, pc.category_id
             FROM real_estate re 
             INNER JOIN product p ON re.product_id = p.product_id 
             INNER JOIN address a ON re.address_id = a.address_id
@@ -45,22 +42,13 @@ router.get('/listings', async (req, res) => {
             WHERE 1=1
         `;
 
-        // Parameters for query
         const params = [];
 
-        // Add category filter
         if (category_id) {
             query += ` AND pc.category_id = $${params.length + 1}`;
             params.push(category_id);
         }
 
-        // Add real estate type filter
-        if (type_id) {
-            query += ` AND re.type_id = $${params.length + 1}`;
-            params.push(type_id);
-        }
-
-        // Add price range filter
         if (min_price) {
             query += ` AND p.price >= $${params.length + 1}`;
             params.push(min_price);
@@ -70,7 +58,6 @@ router.get('/listings', async (req, res) => {
             params.push(max_price);
         }
 
-        // Add renting period filter
         if (rent_start) {
             query += ` AND re.rent_start >= $${params.length + 1}`;
             params.push(rent_start);
@@ -80,7 +67,6 @@ router.get('/listings', async (req, res) => {
             params.push(rent_end);
         }
 
-        // Add address filters
         if (province) {
             query += ` AND a.province = $${params.length + 1}`;
             params.push(province);
@@ -90,12 +76,10 @@ router.get('/listings', async (req, res) => {
             params.push(city);
         }
 
-        // Add availability filter
         if (available_now) {
             query += ` AND s.status_name = 'Available' AND re.rent_start <= NOW() AND re.rent_end > NOW()`;
         }
 
-        // Add additional properties filter
         if (additional_properties) {
             const additionalProps = JSON.parse(additional_properties);
             for (const [key, value] of Object.entries(additionalProps)) {
@@ -111,10 +95,49 @@ router.get('/listings', async (req, res) => {
         const filteredListings = await pool.query(query, params);
 
         if (filteredListings.rows.length === 0) {
-            return res.status(404).json({ message: 'No listings found' });
+            return res.status(200).json({
+                message: 'No listings found',
+                listings: [],
+                categories: []
+            });
         }
 
-        res.status(200).json(filteredListings.rows);
+        const categoriesQuery = `
+            WITH RECURSIVE category_hierarchy AS (
+                SELECT category_id, parent_category_id, name, additional_properties
+                FROM categories
+                WHERE parent_category_id IS NULL -- Start with top-level categories
+                UNION ALL
+                SELECT c.category_id, c.parent_category_id, c.name, c.additional_properties
+                FROM categories c
+                INNER JOIN category_hierarchy ch ON c.parent_category_id = ch.category_id
+            )
+            SELECT * FROM category_hierarchy;
+        `;
+
+        const categories = await pool.query(categoriesQuery);
+
+        // Format the categories into a hierarchical structure
+        const formatCategories = (categories, parentId = null) => {
+            return categories
+                .filter((category) => category.parent_category_id === parentId)
+                .map((category) => ({
+                    category_id: category.category_id,
+                    name: category.name,
+                    additional_properties: category.additional_properties,
+                    subcategories: formatCategories(
+                        categories,
+                        category.category_id
+                    )
+                }));
+        };
+
+        const categoryHierarchy = formatCategories(categories.rows);
+
+        res.status(200).json({
+            listings: filteredListings.rows,
+            categories: categoryHierarchy
+        });
     } catch (error) {
         console.error('Error fetching listings:', error);
         res.status(500).send(`Server Error: ${error.message}`);
