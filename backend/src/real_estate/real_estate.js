@@ -12,28 +12,108 @@ router.get('/', (req, res) => {
 
 // Get all real-estate listings
 router.get('/listings', async (req, res) => {
+    const {
+        category_id,
+        type_id,
+        min_price,
+        max_price,
+        rent_start,
+        rent_end,
+        province,
+        city,
+        available_now,
+        additional_properties
+    } = req.body;
+
     try {
-        const allListings = await pool.query(
-            `
-            SELECT  re.product_id, u.email, u.username, p.image_url, p.name, p.description, p.price, 
-            s.status_name, p.created_at, p.updated_at, p.additional_properties, t.type_name, 
-            a.city, a.address, a.province, re.address_details, re.advance_payment, re.rent_start, re.rent_end
-            FROM real_estate re INNER JOIN product p ON re.product_id = p.product_id 
+        // Base query
+        let query = `
+            SELECT re.product_id, u.email, u.username, p.image_url, p.name, p.description, p.price, 
+                   s.status_name, p.created_at, p.updated_at, p.additional_properties, t.type_name, 
+                   a.city, a.address, a.province, re.address_details, re.advance_payment, re.rent_start, re.rent_end
+            FROM real_estate re 
+            INNER JOIN product p ON re.product_id = p.product_id 
             INNER JOIN address a ON re.address_id = a.address_id
             INNER JOIN real_estate_types t ON re.type_id = t.type_id
             INNER JOIN users u ON p.user_id = u.user_id
             INNER JOIN statuses s ON p.status_id = s.status_id
-            ORDER BY p.created_at DESC;
-        `
-        );
+            LEFT JOIN product_has_category pc ON p.product_id = pc.product_id
+            WHERE 1=1
+        `;
 
-        if (allListings.rows.length === 0) {
+        // Parameters for query
+        const params = [];
+
+        // Add category filter
+        if (category_id) {
+            query += ` AND pc.category_id = $${params.length + 1}`;
+            params.push(category_id);
+        }
+
+        // Add real estate type filter
+        if (type_id) {
+            query += ` AND re.type_id = $${params.length + 1}`;
+            params.push(type_id);
+        }
+
+        // Add price range filter
+        if (min_price) {
+            query += ` AND p.price >= $${params.length + 1}`;
+            params.push(min_price);
+        }
+        if (max_price) {
+            query += ` AND p.price <= $${params.length + 1}`;
+            params.push(max_price);
+        }
+
+        // Add renting period filter
+        if (rent_start) {
+            query += ` AND re.rent_start >= $${params.length + 1}`;
+            params.push(rent_start);
+        }
+        if (rent_end) {
+            query += ` AND re.rent_end <= $${params.length + 1}`;
+            params.push(rent_end);
+        }
+
+        // Add address filters
+        if (province) {
+            query += ` AND a.province = $${params.length + 1}`;
+            params.push(province);
+        }
+        if (city) {
+            query += ` AND a.city = $${params.length + 1}`;
+            params.push(city);
+        }
+
+        // Add availability filter
+        if (available_now) {
+            query += ` AND s.status_name = 'Available' AND re.rent_start <= NOW() AND re.rent_end > NOW()`;
+        }
+
+        // Add additional properties filter
+        if (additional_properties) {
+            const additionalProps = JSON.parse(additional_properties);
+            for (const [key, value] of Object.entries(additionalProps)) {
+                query += ` AND p.additional_properties->>$${
+                    params.length + 1
+                } = $${params.length + 2}`;
+                params.push(key, value);
+            }
+        }
+
+        query += ` ORDER BY p.created_at DESC;`;
+
+        const filteredListings = await pool.query(query, params);
+
+        if (filteredListings.rows.length === 0) {
             return res.status(404).json({ message: 'No listings found' });
         }
 
-        res.status(200).json(allListings.rows);
+        res.status(200).json(filteredListings.rows);
     } catch (error) {
-        res.status(500).send(`Server Error: ${error}`);
+        console.error('Error fetching listings:', error);
+        res.status(500).send(`Server Error: ${error.message}`);
     }
 });
 
