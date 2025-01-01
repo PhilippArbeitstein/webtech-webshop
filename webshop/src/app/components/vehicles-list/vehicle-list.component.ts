@@ -45,7 +45,7 @@ export class VehiclesListComponent implements OnChanges, OnDestroy {
 
   // Filter criteria
   filterCriteria = {
-    name: '',
+    searchQuery: '',
     description: '',
     mark: '',
     model: '',
@@ -70,7 +70,7 @@ export class VehiclesListComponent implements OnChanges, OnDestroy {
     this.searchSubscription = this.searchbarService.searchQuery$
       .pipe(debounceTime(300)) // Wait 300ms after each keystroke
       .subscribe((query) => {
-        this.filterCriteria.name = query; // Search input
+        this.filterCriteria.searchQuery = query; // Search input
         this.applyFilters();
       });
 
@@ -143,15 +143,20 @@ export class VehiclesListComponent implements OnChanges, OnDestroy {
   private applyFilters(): void {
     this.filteredListings = this.listings.filter((listing) => {
       const matchesName =
-        !this.filterCriteria.name ||
+        !this.filterCriteria.searchQuery ||
         listing.name
           .toLowerCase()
-          .includes(this.filterCriteria.name.toLowerCase());
-      const matchesDescription =
-        !this.filterCriteria.name ||
+          .includes(this.filterCriteria.searchQuery.toLowerCase()) ||
         listing.description
           .toLowerCase()
-          .includes(this.filterCriteria.name.toLowerCase());
+          .includes(this.filterCriteria.searchQuery.toLowerCase()) ||
+        listing.type_name
+          .toLowerCase()
+          .includes(this.filterCriteria.searchQuery.toLowerCase()) ||
+        listing.color
+          .toLowerCase()
+          .includes(this.filterCriteria.searchQuery.toLowerCase());
+
       const matchesMark =
         !this.filterCriteria.mark ||
         listing.mark_name
@@ -182,7 +187,6 @@ export class VehiclesListComponent implements OnChanges, OnDestroy {
           .includes(this.filterCriteria.fuel_type.toLowerCase());
       return (
         matchesName &&
-        matchesDescription &&
         matchesMark &&
         matchesModel &&
         matchesType &&
