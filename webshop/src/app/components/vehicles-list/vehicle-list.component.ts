@@ -56,7 +56,6 @@ export class VehiclesListComponent implements OnChanges, OnDestroy {
     searchQuery: '',
     description: '',
     mark: '',
-    model: '',
     type: '',
     priceMin: 0,
     priceMax: Infinity,
@@ -199,6 +198,9 @@ export class VehiclesListComponent implements OnChanges, OnDestroy {
         listing.type_name
           .toLowerCase()
           .includes(this.filterCriteria.searchQuery.toLowerCase()) ||
+        listing.model_name
+          .toLowerCase()
+          .includes(this.filterCriteria.searchQuery.toLowerCase()) ||
         listing.color
           .toLowerCase()
           .includes(this.filterCriteria.searchQuery.toLowerCase());
@@ -208,11 +210,6 @@ export class VehiclesListComponent implements OnChanges, OnDestroy {
         listing.mark_name
           .toLowerCase()
           .includes(this.filterCriteria.mark.toLowerCase());
-      const matchesModel =
-        !this.filterCriteria.model ||
-        listing.model_name
-          .toLowerCase()
-          .includes(this.filterCriteria.model.toLowerCase());
       const matchesType =
         !this.filterCriteria.type ||
         listing.type_name
@@ -237,7 +234,6 @@ export class VehiclesListComponent implements OnChanges, OnDestroy {
       return (
         matchesQuery &&
         matchesMark &&
-        matchesModel &&
         matchesType &&
         matchesPrice &&
         matchesCondtion &&
