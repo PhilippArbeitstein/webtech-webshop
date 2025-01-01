@@ -48,6 +48,35 @@
                         {{ mark.mark_name }}
                     </option>
                 </select>
+                <!-- Price Range Filter -->
+  <div class="flex gap-2">
+    <input
+      type="number"
+      placeholder="Min Price"
+      class="border px-2 py-1 rounded"
+      #minPrice
+    />
+    <input
+      type="number"
+      placeholder="Max Price"
+      class="border px-2 py-1 rounded"
+      #maxPrice
+     />
+  </div>
+  <div class="flex gap-2">
+    <input
+      type="number"
+      placeholder="Min Mileage"
+      class="border px-2 py-1 rounded"
+      #minMileage
+    />
+    <input
+      type="number"
+      placeholder="Max Mileage"
+      class="border px-2 py-1 rounded"
+      #maxMileage
+     />
+  </div>
 </div>
 <button (click)="applyFilter()">Apply Filter</button>
   

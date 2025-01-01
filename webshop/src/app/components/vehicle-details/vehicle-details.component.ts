@@ -65,7 +65,6 @@ export class VehicleDetailsComponent {
   }
 
   private formatDate(date: string | Date): string {
-    console.log(date);
     return this.datePipe.transform(date, 'd. MMM y') || '';
   }
 
