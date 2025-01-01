@@ -97,17 +97,34 @@ export class VehicleEditComponent {
       status: [this.listing?.status_name || '', Validators.required],
     });
   }
-  loadListing(): void {
-    // Fetch the listing directly
-    this.vehicleService.getListingById(this.productId).subscribe({
-      next: (listing) => {
-        this.listing = {
-          ...listing,
-        };
-      },
-      error: (error) => {
-        console.error('Error fetching listing:', error);
-      },
+  async loadListing(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.vehicleService.getListingById(this.productId).subscribe({
+        next: (listing) => {
+          this.listing = listing;
+          // Populate the form once the listing is fetched
+          this.vehicleForm.patchValue({
+            image_url: listing.image_url || '',
+            name: listing.name || '',
+            description: listing.description || '',
+            price: listing.price || null,
+            mark_name: listing.mark_name || '',
+            model_name: listing.model_name || '',
+            type_name: listing.type_name || '',
+            first_registration: listing.first_registration || '',
+            mileage: listing.mileage || null,
+            fuel_type: listing.fuel_type_name || '',
+            color: listing.color || '',
+            condition: listing.condition_name || '',
+            status: listing.status_name || '',
+          });
+          resolve();
+        },
+        error: (error) => {
+          console.error('Error fetching listing:', error);
+          reject(error);
+        },
+      });
     });
   }
 
