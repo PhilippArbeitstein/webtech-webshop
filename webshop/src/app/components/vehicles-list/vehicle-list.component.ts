@@ -34,6 +34,14 @@ export class VehiclesListComponent implements OnChanges, OnDestroy {
   vehicleMarkSelect!: ElementRef<HTMLSelectElement>;
   @ViewChild('vehicleTypeSelect')
   vehicleTypeSelect!: ElementRef<HTMLSelectElement>;
+  @ViewChild('minPrice')
+  vehicleMinPrice!: ElementRef<HTMLSelectElement>;
+  @ViewChild('maxPrice')
+  vehicleMaxPrice!: ElementRef<HTMLSelectElement>;
+  @ViewChild('maxMileage')
+  vehicleMaxMileage!: ElementRef<HTMLSelectElement>;
+  @ViewChild('minMileage')
+  vehicleMinMileage!: ElementRef<HTMLSelectElement>;
 
   filteredListings: VehicleListing[] = [];
   private searchSubscription: Subscription | null = null;
@@ -54,6 +62,8 @@ export class VehiclesListComponent implements OnChanges, OnDestroy {
     priceMax: Infinity,
     condition: '',
     fuel_type: '',
+    mileageMin: 0,
+    mileageMax: Infinity,
   };
 
   constructor(
@@ -113,6 +123,10 @@ export class VehiclesListComponent implements OnChanges, OnDestroy {
     const selectedMark = this.vehicleMarkSelect.nativeElement.value;
     const selectedType = this.vehicleTypeSelect.nativeElement.value;
     const selectedCondition = this.vehicleConditionSelect.nativeElement.value;
+    const minPrice = this.vehicleMinPrice.nativeElement.value;
+    const maxPrice = this.vehicleMaxPrice.nativeElement.value;
+    const minMileage = this.vehicleMinMileage.nativeElement.value;
+    const maxMileage = this.vehicleMaxMileage.nativeElement.value;
     if (selectedFuelType) {
       this.filterCriteria.fuel_type = selectedFuelType;
     }
@@ -124,6 +138,26 @@ export class VehiclesListComponent implements OnChanges, OnDestroy {
     }
     if (selectedCondition) {
       this.filterCriteria.condition = selectedCondition;
+    }
+    if (minPrice) {
+      this.filterCriteria.priceMin =
+        Number(minPrice) > 0 ? Number(minPrice) : 0;
+    }
+    if (maxPrice) {
+      this.filterCriteria.priceMax =
+        Number(maxPrice) > Number(minPrice)
+          ? Number(maxPrice)
+          : Number(minPrice);
+    }
+    if (minMileage) {
+      this.filterCriteria.mileageMin =
+        Number(minMileage) > 0 ? Number(minMileage) : 0;
+    }
+    if (maxMileage) {
+      this.filterCriteria.mileageMax =
+        Number(maxMileage) > Number(minMileage)
+          ? Number(maxMileage)
+          : Number(minMileage);
     }
     if (selectedFuelType == '') {
       this.filterCriteria.fuel_type = '';
@@ -137,12 +171,24 @@ export class VehiclesListComponent implements OnChanges, OnDestroy {
     if (selectedCondition == '') {
       this.filterCriteria.condition = '';
     }
+    if (minPrice == '') {
+      this.filterCriteria.priceMin = 0;
+    }
+    if (maxPrice == '') {
+      this.filterCriteria.priceMax = Infinity;
+    }
+    if (minMileage == '') {
+      this.filterCriteria.mileageMin = 0;
+    }
+    if (maxMileage == '') {
+      this.filterCriteria.mileageMax = Infinity;
+    }
     this.applyFilters();
   }
 
   private applyFilters(): void {
     this.filteredListings = this.listings.filter((listing) => {
-      const matchesName =
+      const matchesQuery =
         !this.filterCriteria.searchQuery ||
         listing.name
           .toLowerCase()
@@ -175,6 +221,9 @@ export class VehiclesListComponent implements OnChanges, OnDestroy {
       const matchesPrice =
         listing.price >= this.filterCriteria.priceMin &&
         listing.price <= this.filterCriteria.priceMax;
+      const matchesMileage =
+        listing.mileage >= this.filterCriteria.mileageMin &&
+        listing.mileage <= this.filterCriteria.mileageMax;
       const matchesCondtion =
         !this.filterCriteria.condition ||
         listing.condition_name
@@ -186,13 +235,14 @@ export class VehiclesListComponent implements OnChanges, OnDestroy {
           .toLowerCase()
           .includes(this.filterCriteria.fuel_type.toLowerCase());
       return (
-        matchesName &&
+        matchesQuery &&
         matchesMark &&
         matchesModel &&
         matchesType &&
         matchesPrice &&
         matchesCondtion &&
-        matchesFuelType
+        matchesFuelType &&
+        matchesMileage
       );
     });
   }
