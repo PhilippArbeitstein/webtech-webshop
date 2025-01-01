@@ -4,6 +4,8 @@ import {
   OnChanges,
   SimpleChanges,
   OnDestroy,
+  ViewChild,
+  ElementRef,
 } from '@angular/core';
 import {
   VehicleListing,
@@ -25,12 +27,37 @@ import { SearchbarService } from '../../services/searchbar.service';
 export class VehiclesListComponent implements OnChanges, OnDestroy {
   @Input() listings: VehicleListing[] = [];
   @Input() onDeleteCallback!: () => void;
+  @ViewChild('fuelTypeSelect') fuelTypeSelect!: ElementRef<HTMLSelectElement>;
+  @ViewChild('vehicleConditionSelect')
+  vehicleConditionSelect!: ElementRef<HTMLSelectElement>;
+  @ViewChild('vehicleMarkSelect')
+  vehicleMarkSelect!: ElementRef<HTMLSelectElement>;
+  @ViewChild('vehicleTypeSelect')
+  vehicleTypeSelect!: ElementRef<HTMLSelectElement>;
 
   filteredListings: VehicleListing[] = [];
   private searchSubscription: Subscription | null = null;
 
+  vehicleTypes: { type_id: number; type_name: string }[] = [];
+  vehicleMarks: { mark_id: number; mark_name: string }[] = [];
+  vehicleFuelTypes: { fuel_type_id: number; fuel_type_name: string }[] = [];
+  vehicleConditions: { condition_id: number; condition_name: string }[] = [];
+
+  // Filter criteria
+  filterCriteria = {
+    name: '',
+    description: '',
+    mark: '',
+    model: '',
+    type: '',
+    priceMin: 0,
+    priceMax: Infinity,
+    condition: '',
+    fuel_type: '',
+  };
+
   constructor(
-    public vehiclesService: VehiclesService,
+    public vehicleService: VehiclesService,
     private routingService: RoutingService,
     private searchbarService: SearchbarService
   ) {}
@@ -43,13 +70,19 @@ export class VehiclesListComponent implements OnChanges, OnDestroy {
     this.searchSubscription = this.searchbarService.searchQuery$
       .pipe(debounceTime(300)) // Wait 300ms after each keystroke
       .subscribe((query) => {
-        this.filterListings(query);
+        this.filterCriteria.name = query; // Search input
+        this.applyFilters();
       });
+
+    this.loadVehicleConditions();
+    this.loadVehicleFuelTypes();
+    this.loadVehicleMarks();
+    this.loadVehicleTypes();
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['listings']) {
-      // Update filtered listings whenever the listings input changes, nessecary due to reloads on the page
+      // Update filtered listings whenever the listings input changes, necessary due to reloads on the page
       this.filteredListings = [...this.listings];
     }
   }
@@ -60,11 +93,144 @@ export class VehiclesListComponent implements OnChanges, OnDestroy {
     }
   }
 
-  private filterListings(query: string): void {
-    this.filteredListings = query
-      ? this.listings.filter((listing) =>
-          listing.name.toLowerCase().includes(query.toLowerCase())
-        )
-      : [...this.listings];
+  setMark(mark: string): void {
+    this.filterCriteria.mark = mark;
+    this.applyFilters();
+  }
+
+  setType(type: string): void {
+    this.filterCriteria.type = type;
+    this.applyFilters();
+  }
+
+  setPriceInterval(min: number, max: number): void {
+    this.filterCriteria.priceMin = min;
+    this.filterCriteria.priceMax = max;
+    this.applyFilters();
+  }
+  applyFilter() {
+    const selectedFuelType = this.fuelTypeSelect.nativeElement.value;
+    const selectedMark = this.vehicleMarkSelect.nativeElement.value;
+    const selectedType = this.vehicleTypeSelect.nativeElement.value;
+    const selectedCondition = this.vehicleConditionSelect.nativeElement.value;
+    if (selectedFuelType) {
+      this.filterCriteria.fuel_type = selectedFuelType;
+    }
+    if (selectedMark) {
+      this.filterCriteria.mark = selectedMark;
+    }
+    if (selectedType) {
+      this.filterCriteria.type = selectedType;
+    }
+    if (selectedCondition) {
+      this.filterCriteria.condition = selectedCondition;
+    }
+    if (selectedFuelType == '') {
+      this.filterCriteria.fuel_type = '';
+    }
+    if (selectedMark == '') {
+      this.filterCriteria.mark = '';
+    }
+    if (selectedType == '') {
+      this.filterCriteria.type = '';
+    }
+    if (selectedCondition == '') {
+      this.filterCriteria.condition = '';
+    }
+    this.applyFilters();
+  }
+
+  private applyFilters(): void {
+    this.filteredListings = this.listings.filter((listing) => {
+      const matchesName =
+        !this.filterCriteria.name ||
+        listing.name
+          .toLowerCase()
+          .includes(this.filterCriteria.name.toLowerCase());
+      const matchesDescription =
+        !this.filterCriteria.name ||
+        listing.description
+          .toLowerCase()
+          .includes(this.filterCriteria.name.toLowerCase());
+      const matchesMark =
+        !this.filterCriteria.mark ||
+        listing.mark_name
+          .toLowerCase()
+          .includes(this.filterCriteria.mark.toLowerCase());
+      const matchesModel =
+        !this.filterCriteria.model ||
+        listing.model_name
+          .toLowerCase()
+          .includes(this.filterCriteria.model.toLowerCase());
+      const matchesType =
+        !this.filterCriteria.type ||
+        listing.type_name
+          .toLowerCase()
+          .includes(this.filterCriteria.type.toLowerCase());
+      const matchesPrice =
+        listing.price >= this.filterCriteria.priceMin &&
+        listing.price <= this.filterCriteria.priceMax;
+      const matchesCondtion =
+        !this.filterCriteria.condition ||
+        listing.condition_name
+          .toLowerCase()
+          .includes(this.filterCriteria.condition.toLowerCase());
+      const matchesFuelType =
+        !this.filterCriteria.fuel_type ||
+        listing.fuel_type_name
+          .toLowerCase()
+          .includes(this.filterCriteria.fuel_type.toLowerCase());
+      return (
+        matchesName &&
+        matchesDescription &&
+        matchesMark &&
+        matchesModel &&
+        matchesType &&
+        matchesPrice &&
+        matchesCondtion &&
+        matchesFuelType
+      );
+    });
+  }
+
+  loadVehicleTypes(): void {
+    this.vehicleService.getVehicleTypes().subscribe({
+      next: (data) => {
+        this.vehicleTypes = data;
+      },
+      error: (error) => {
+        console.error('Error loading vehicle types:', error);
+      },
+    });
+  }
+  loadVehicleMarks(): void {
+    this.vehicleService.getVehicleMarks().subscribe({
+      next: (data) => {
+        this.vehicleMarks = data;
+      },
+      error: (error) => {
+        console.error('Error loading vehicle Marks:', error);
+      },
+    });
+  }
+  loadVehicleFuelTypes(): void {
+    this.vehicleService.getVehicleFuelTypes().subscribe({
+      next: (data) => {
+        this.vehicleFuelTypes = data;
+      },
+      error: (error) => {
+        console.error('Error loading vehicle Fuel Types:', error);
+      },
+    });
+  }
+  loadVehicleConditions(): void {
+    this.vehicleService.getVehicleConditions().subscribe({
+      next: (data) => {
+        this.vehicleConditions = data;
+      },
+      error: (error) => {
+        console.error('Error loading vehicle Marks:', error);
+      },
+    });
   }
 }
