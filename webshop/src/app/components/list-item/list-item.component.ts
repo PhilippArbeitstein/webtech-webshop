@@ -6,22 +6,29 @@ import {
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
+import { RealestateUpdateOverlayComponent } from '../realestate-update-overlay/realestate-update-overlay.component';
 
 @Component({
     selector: 'app-list-item',
-    imports: [CommonModule],
+    imports: [CommonModule, RealestateUpdateOverlayComponent],
     templateUrl: './list-item.component.html',
     styleUrl: './list-item.component.css'
 })
 export class ListItemComponent {
     @Input() listing!: RealEstateListing;
-    @Input() onDeleteCallback!: () => void; // Accept a callback for post-delete actions
+    @Input() onDeleteCallback!: () => void;
+    @Input() onUpdateCallback!: () => void;
 
     fallbackImageUrl = '../../../assets/house.svg';
     isTrashIconVisible: boolean = false;
+    isEditIconVisible: boolean = false;
+
     imageError: boolean = false;
     showConfirmationPopup: boolean = false;
     currentProductIdToDelete: number | null = null;
+
+    showEditOverlayState: boolean = false;
+    selectedListing: RealEstateListing | null = null;
 
     private routeSubscription: Subscription | null = null;
 
@@ -36,6 +43,27 @@ export class ListItemComponent {
             this.checkRoute();
         });
         this.checkRoute();
+    }
+
+    openEditOverlay(event: MouseEvent, listing: RealEstateListing): void {
+        event.stopPropagation();
+        event.preventDefault();
+        this.selectedListing = listing;
+        this.showEditOverlayState = true;
+    }
+
+    closeEditOverlay(event?: MouseEvent): void {
+        if (event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
+        this.selectedListing = null;
+        this.showEditOverlayState = false;
+
+        if (this.onUpdateCallback) {
+            console.log('ja callback');
+            this.onUpdateCallback(); // Trigger the update callback
+        }
     }
 
     openConfirmationPopup(event: MouseEvent, productId: number): void {
@@ -69,6 +97,7 @@ export class ListItemComponent {
     private checkRoute(): void {
         const currentRoute = this.router.url;
         this.isTrashIconVisible = currentRoute.includes('own-products');
+        this.isEditIconVisible = currentRoute.includes('own-products');
     }
 
     confirmDelete(event: MouseEvent): void {
@@ -78,12 +107,12 @@ export class ListItemComponent {
             this.realestateService
                 .deleteListing(this.currentProductIdToDelete)
                 .subscribe({
-                    next: (response) => {
+                    next: () => {
                         this.showConfirmationPopup = false;
                         this.currentProductIdToDelete = null;
 
                         if (this.onDeleteCallback) {
-                            this.onDeleteCallback(); // Refresh list
+                            this.onDeleteCallback();
                         }
                     },
                     error: (error) => {

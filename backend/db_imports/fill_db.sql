@@ -55,14 +55,14 @@ VALUES
     -- Level 2: Houses -> Family House
     (8, 7, 'Family House', '{"type": "subcategory"}'),
     -- Level 2: Houses -> Villas
-    (9, 7, 'Villas', '{"type": "subcategory"}'),
+    (9, 7, 'Villa', '{"type": "subcategory"}'),
     
     -- Level 1: Real Estate -> Commercial Properties
     (10, 2, 'Commercial Properties', '{"type": "subcategory"}'),
     -- Level 2: Commercial Properties -> Offices
-    (11, 10, 'Offices', '{"type": "subcategory"}'),
+    (11, 10, 'Office', '{"type": "subcategory"}'),
     -- Level 2: Commercial Properties -> Retail Spaces
-    (12, 10, 'Retail Spaces', '{"type": "subcategory"}');
+    (12, 10, 'Retail Space', '{"type": "subcategory"}');
 
 
 -- Populate table: conditions

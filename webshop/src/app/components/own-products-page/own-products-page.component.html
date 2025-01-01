@@ -33,6 +33,7 @@
                 *ngIf="userListings$ | async as userListings"
                 [listings]="userListings"
                 [onDeleteCallback]="loadUserListings.bind(this)"
+                [onUpdateCallback]="loadUserListings.bind(this)"
             ></app-realestate-list>
         </div>
         <app-footer

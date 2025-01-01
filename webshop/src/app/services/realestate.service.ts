@@ -198,4 +198,15 @@ export class RealestateService {
                 }
             });
     }
+
+    updateListing(
+        productId: number,
+        updatedListing: RealEstateListing
+    ): Observable<{ message: string; product_id: string }> {
+        return this.httpClient.put<{ message: string; product_id: string }>(
+            `http://localhost:3000/real-estate/update/${productId}`,
+            updatedListing,
+            { withCredentials: true }
+        );
+    }
 }

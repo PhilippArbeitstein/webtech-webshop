@@ -683,7 +683,7 @@ router.put('/update/:product_id', async (req, res) => {
         city,
         address,
         province,
-        type_name,
+        type_name, // Use type_name as the category_name
         address_details,
         advance_payment,
         rent_start,
@@ -693,6 +693,7 @@ router.put('/update/:product_id', async (req, res) => {
     try {
         await transaction.query('BEGIN');
 
+        // Validate product ownership
         const ownershipValidation = await validateProductOwnership(
             transaction,
             product_id,
@@ -725,6 +726,7 @@ router.put('/update/:product_id', async (req, res) => {
             additional_properties
         });
 
+        // Handle address update
         const addressResult = await transaction.query(
             `
             SELECT address_id FROM real_estate
@@ -743,6 +745,7 @@ router.put('/update/:product_id', async (req, res) => {
             });
         }
 
+        // Update real estate details
         await updateRealEstate(transaction, product_id, {
             type_id,
             address_details,
@@ -750,6 +753,46 @@ router.put('/update/:product_id', async (req, res) => {
             rent_start,
             rent_end
         });
+
+        // Find `category_id` based on `type_name` (category_name)
+        if (type_name) {
+            console.log(type_name);
+            const categoryResult = await transaction.query(
+                `
+                SELECT category_id FROM categories
+                WHERE name = $1
+                `,
+                [type_name]
+            );
+
+            if (categoryResult.rows.length === 0) {
+                await transaction.query('ROLLBACK');
+                return res.status(404).json({ message: 'Category not found' });
+            }
+
+            const category_id = categoryResult.rows[0].category_id;
+            console.log(category_id);
+            // Update `product_has_category` table
+            const updateResult = await transaction.query(
+                `
+                UPDATE product_has_category
+                SET category_id = $2
+                WHERE product_id = $1
+                `,
+                [product_id, category_id]
+            );
+
+            // If no rows were updated, insert a new row
+            if (updateResult.rowCount === 0) {
+                await transaction.query(
+                    `
+                    INSERT INTO product_has_category (product_id, category_id)
+                    VALUES ($1, $2)
+                    `,
+                    [product_id, category_id]
+                );
+            }
+        }
 
         await transaction.query('COMMIT');
         res.status(200).json({
