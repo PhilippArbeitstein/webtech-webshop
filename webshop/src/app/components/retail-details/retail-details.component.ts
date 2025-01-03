@@ -10,10 +10,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RoutingService } from '../../services/routing.service';
 
-// Extend RetailListing locally to include display properties
-type DisplayRetailListing = RetailListing & {
-  year?: string;
-};
+
 
 @Component({
   selector: 'app-retail-details',
@@ -24,7 +21,7 @@ type DisplayRetailListing = RetailListing & {
 })
 export class RetailDetailsComponent {
   productId: number = -1;
-  listing: DisplayRetailListing | null = null;
+  listing: RetailListing | null = null;
 
   constructor(
     private searchbarService: SearchbarService,
@@ -36,22 +33,29 @@ export class RetailDetailsComponent {
   ) {
     const productIdParam = this.route.snapshot.paramMap.get('product_id');
     this.productId = productIdParam ? Number(productIdParam) : -1;
+    console.log("SOMETHIGasdasdN PLEASE");
   }
 
   ngOnInit(): void {
     this.searchbarService.setSearchBarContext('retail');
-
-    // Fetch the listing directly
+    console.log("SOMETHIGN PLEASE");
     this.retailService.getListingById(this.productId).subscribe({
-      next: (listing) => {
-        this.listing = {
-          ...listing
-        };
+      next: (data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          const listingData = data[0]; 
+          this.listing = {
+            ...listingData,
+            price: Number(listingData.price), 
+          };
+        } else {
+          console.error('No listing data found for productId:', this.productId);
+        }
       },
       error: (error) => {
         console.error('Error fetching listing:', error);
       },
     });
+    
   }
 
   ngOnDestroy(): void {
@@ -61,11 +65,6 @@ export class RetailDetailsComponent {
 
   objectKeys(obj: any): string[] {
     return obj ? Object.keys(obj) : [];
-  }
-
-  private formatDate(date: string | Date): string {
-    console.log(date);
-    return this.datePipe.transform(date, 'd. MMM y') || '';
   }
 
   goBack(): void {
