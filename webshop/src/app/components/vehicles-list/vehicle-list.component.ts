@@ -45,7 +45,7 @@ export class VehiclesListComponent implements OnChanges, OnDestroy {
 
   filteredListings: VehicleListing[] = [];
   private searchSubscription: Subscription | null = null;
-
+  isFiltersOpen = false;
   vehicleTypes: { type_id: number; type_name: string }[] = [];
   vehicleMarks: { mark_id: number; mark_name: string }[] = [];
   vehicleFuelTypes: { fuel_type_id: number; fuel_type_name: string }[] = [];
@@ -75,7 +75,7 @@ export class VehiclesListComponent implements OnChanges, OnDestroy {
     location.pathname.includes('own-product')
       ? this.routingService.setPreviousRoute('own-product')
       : this.routingService.setPreviousRoute('vehicles');
-
+    this.isFiltersOpen = location.pathname.includes('vehicles');
     this.searchSubscription = this.searchbarService.searchQuery$
       .pipe(debounceTime(300)) // Wait 300ms after each keystroke
       .subscribe((query) => {
@@ -231,6 +231,7 @@ export class VehiclesListComponent implements OnChanges, OnDestroy {
         listing.fuel_type_name
           .toLowerCase()
           .includes(this.filterCriteria.fuel_type.toLowerCase());
+      const notSold = listing.status_name.toLowerCase().includes('Available');
       return (
         matchesQuery &&
         matchesMark &&

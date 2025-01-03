@@ -1,8 +1,9 @@
-<div class="filter-bar px-4 py-4 flex gap-4 items-center">
-   
+
+<div *ngIf="isFiltersOpen" class="filter-bar px-4 py-4 grid gap-4 items-center">
+   <div class="px-4 py-4 flex gap-2 items-center filter-bar">
   <!-- Vehicle Type-->
     <select class="w-full border rounded-lg px-4 py-2" #vehicleTypeSelect>
-        <option value="">Select Vehicle type</option>
+        <option value="">Fahrzeug Typ</option>
          <option
             *ngFor="let type of vehicleTypes" [value]="type.type_name">
                 {{ type.type_name }}
@@ -13,7 +14,7 @@
                     class="w-full border rounded-lg px-4 py-2"
                     #fuelTypeSelect
                 >
-                    <option value="">Select Vehicle fuel type</option>
+                    <option value="">Fahrzeug Treibstoff</option>
                     <option
                         *ngFor="let fuel_type of vehicleFuelTypes"
                         [value]="fuel_type.fuel_type_name"
@@ -27,7 +28,7 @@
                     class="w-full border rounded-lg px-4 py-2"
                    #vehicleConditionSelect
                 >
-                    <option value="">Select Vehicle condition</option>
+                    <option value="">Fahrzeug Zustand</option>
                     <option
                         *ngFor="let condition of vehicleConditions"
                         [value]="condition.condition_name"
@@ -40,7 +41,7 @@
                     class="w-full border rounded-lg px-4 py-2"
                     #vehicleMarkSelect
                 >
-                    <option value="">Select Vehicle mark</option>
+                    <option value=""> Fahrzeug Marke</option>
                     <option
                         *ngFor="let mark of vehicleMarks"
                         [value]="mark.mark_name"
@@ -48,38 +49,43 @@
                         {{ mark.mark_name }}
                     </option>
                 </select>
+            </div>
                 <!-- Price Range Filter -->
-  <div class="flex gap-2">
+                 <div class="grid grid-cols-2 items-center">
+  <div class="flex gap-2 items-center filter-bar">
+    <label>Preis</label>
     <input
       type="number"
-      placeholder="Min Price"
+      placeholder="Min Preis"
       class="border px-2 py-1 rounded"
       #minPrice
     />
     <input
       type="number"
-      placeholder="Max Price"
+      placeholder="Max Preis"
       class="border px-2 py-1 rounded"
       #maxPrice
      />
   </div>
+</div>
   <div class="flex gap-2">
+    <label>Kilometer</label>
     <input
       type="number"
-      placeholder="Min Mileage"
+      placeholder="Min Kilometer"
       class="border px-2 py-1 rounded"
       #minMileage
     />
     <input
       type="number"
-      placeholder="Max Mileage"
+      placeholder="Max Kilometer"
       class="border px-2 py-1 rounded"
       #maxMileage
      />
   </div>
+
+<button class=" bg-btn_primary hover:bg-btn_primary_darkened text-white px-4 py-2 rounded-lg" (click)="applyFilter()">Filter Anwenden</button>
 </div>
-<button (click)="applyFilter()">Apply Filter</button>
-  
   <!-- Listings Section -->
   <div
     *ngIf="filteredListings && filteredListings.length > 0; else noListings"
