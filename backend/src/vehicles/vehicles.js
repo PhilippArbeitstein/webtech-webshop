@@ -422,7 +422,7 @@ router.put("/", async (req, res) => {
                 model = modelResult.rows[0].model_id;
             } else {
                 //Model already exists so get its id
-                model = getIDFromName(
+                model = await getIDFromName(
                     "model_id",
                     "vehicle_models",
                     "model_name",
@@ -440,6 +440,7 @@ router.put("/", async (req, res) => {
                 condition,
                 product_id,
             ];
+
             const vehicleUpdateQuery = `
             UPDATE vehicles
             SET mark_id = $1, model_id = $2, type_id = $3, first_registration_date = $4, 
