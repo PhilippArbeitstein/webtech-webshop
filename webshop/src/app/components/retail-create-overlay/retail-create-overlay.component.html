@@ -167,6 +167,32 @@
           Retail Condition is required.
         </span>
       </div>
+
+      <div>
+        <label class="block text-gray-700 font-medium"> Delivery Method</label>
+        <select
+          class="w-full border rounded-lg px-4 py-2"
+          formControlName="delivery_method"
+        >
+          <option value="">Select Delivery Method</option>
+          <option
+            *ngFor="let delivery_method of RetailDeliveryMethods"
+            [value]="delivery_method.delivery_method_name"
+          >
+            {{ delivery_method.delivery_method_name }}
+          </option>
+        </select>
+        <span
+          *ngIf="
+            RetailForm.controls['delivery_method'].invalid &&
+            RetailForm.controls['delivery_method'].touched
+          "
+          class="text-red-500 text-sm"
+        >
+          Delivery Method is required.
+        </span>
+      </div>
+
       <div class="flex justify-end space-x-4 mt-6">
         <button
           type="button"

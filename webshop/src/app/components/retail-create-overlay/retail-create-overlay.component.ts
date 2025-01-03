@@ -17,14 +17,9 @@ export interface NewRetailListing {
   additional_properties: {
     [key: string]: string | number | boolean;
   };
-  mark_name: string;
-  model_name: string;
-  type_name: string;
-  first_registration: Date;
-  mileage: number;
-  fuel_type: string;
   color: string;
   condition: string;
+  delivery_method: string;
 }
 
 @Component({
@@ -38,8 +33,8 @@ export class RetailCreateOverlayComponent {
   @Output() created = new EventEmitter<void>();
 
   RetailForm: FormGroup;
-  RetailTypes: { type_id: number; type_name: string }[] = [];
   RetailConditions: { condition_id: number; condition_name: string }[] = [];
+  RetailDeliveryMethods: { delivery_method_id: number; delivery_method_name: string }[] = [];
   constructor(
     private fb: FormBuilder,
     private RetailsService: RetailsService
@@ -55,21 +50,34 @@ export class RetailCreateOverlayComponent {
       price: [null, [Validators.required, Validators.min(0)]],
       additional_properties: this.fb.array([]),
       condition: ['', Validators.required],
+      delivery_method: ['', Validators.required],
     });
   }
 
   ngOnInit(): void {
 
-    this.loadretailConditions();
+    this.loadRetailConditions();
+    this.loadRetailDeliveryMethods();
   }
 
-  loadretailConditions(): void {
+  loadRetailConditions(): void {
     this.RetailsService.getRetailConditions().subscribe({
       next: (data) => {
         this.RetailConditions = data;
       },
       error: (error) => {
         console.error('Error loading retail Conditions:', error);
+      },
+    });
+  }
+
+  loadRetailDeliveryMethods(): void {
+    this.RetailsService.getRetailDeliveryMethods().subscribe({
+      next: (data) => {
+        this.RetailDeliveryMethods = data;
+      },
+      error: (error) => {
+        console.error('Error loading retail delivery methods:', error);
       },
     });
   }
@@ -110,8 +118,6 @@ export class RetailCreateOverlayComponent {
       ...this.RetailForm.value,
       status: 'Available',
       additional_properties: additionalPropsObj,
-      // rent_start: new Date(this.realestateForm.get('rent_start')?.value),
-      // rent_end: new Date(this.realestateForm.get('rent_end')?.value)
     };
 
     this.RetailsService.createListing(newListing).subscribe({

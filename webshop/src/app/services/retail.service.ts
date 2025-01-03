@@ -18,6 +18,7 @@ export interface RetailListing {
 
   };
   condition_name: string;
+  delivery_method_name: string;
 }
 @Injectable({
   providedIn: 'root',
@@ -52,7 +53,7 @@ export class RetailsService {
   }
   getUserSpecificListings(): Observable<RetailListing[]> {
     return this.httpClient.get<RetailListing[]>(
-      'http://localhost:3000/retail/user-listings',
+      'http://localhost:3000/retail/users/user-listings',
       { withCredentials: true }
     );
   }
@@ -72,9 +73,16 @@ export class RetailsService {
 > {
   return this.httpClient.get<
     { condition_id: number; condition_name: string }[]
-  >(`http://localhost:3000/retail/conditions`);
+  >(`http://localhost:3000/retail/conditions/conditions`);
 }
 
+getRetailDeliveryMethods(): Observable<
+{ delivery_method_id: number; delivery_method_name: string }[]
+> {
+return this.httpClient.get<
+  { delivery_method_id: number; delivery_method_name: string }[]
+>(`http://localhost:3000/retail/delivery/methods`);
+}
 
   deleteListing(
     product_id: number

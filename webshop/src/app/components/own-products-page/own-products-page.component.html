@@ -1,82 +1,106 @@
 <div
-    class="w-screen h-screen flex flex-col md:px-48 md:py-12 relative overflow-hidden"
+  class="w-screen h-screen flex flex-col md:px-48 md:py-12 relative overflow-hidden"
 >
-    <div class="flex flex-col h-full">
-        <app-navbar class="shrink-0"></app-navbar>
-        <div
-            class="flex-grow flex flex-col items-center space-y-6 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none]"
+  <div class="flex flex-col h-full">
+    <app-navbar class="shrink-0"></app-navbar>
+    <div
+      class="flex-grow flex flex-col items-center space-y-6 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none]"
+    >
+      <div
+        class="w-full flex items-center mt-12 space-x-4 justify-between px-28"
+      >
+        <h2 class="text-2xl font-bold text-gray-800">Deine Immobilien</h2>
+        <button
+          class="bg-btn_primary hover:bg-btn_primary_darkened text-white font-semibold px-4 rounded-lg transition duration-200 h-8 flex items-center"
+          (click)="openOverlay()"
         >
-            <div
-                class="w-full flex items-center mt-12 space-x-4 justify-between px-28"
-            >
-                <h2 class="text-2xl font-bold text-gray-800">
-                    Deine Immobilien
-                </h2>
-                <button
-                    class="bg-btn_primary hover:bg-btn_primary_darkened text-white font-semibold px-4 rounded-lg transition duration-200 h-8 flex items-center"
-                    (click)="openOverlay()"
-                >
-                    New
-                </button>
-            </div>
+          New
+        </button>
+      </div>
 
-            <!-- Vehicles Button-->
-            <div
-            class="w-full flex items-center mt-12 space-x-4 justify-between px-28"
+      <!-- Vehicles Button-->
+      <div
+        class="w-full flex items-center mt-12 space-x-4 justify-between px-28"
+      >
+        <h2 class="text-2xl font-bold text-gray-800">Deine Fahrzeuge</h2>
+        <button
+          class="bg-btn_primary hover:bg-btn_primary_darkened text-white font-semibold px-4 rounded-lg transition duration-200 h-8 flex items-center"
+          (click)="openVehicleOverlay()"
         >
-            <h2 class="text-2xl font-bold text-gray-800">
-                Deine Fahrzeuge
-            </h2>
-            <button
-                class="bg-btn_primary hover:bg-btn_primary_darkened text-white font-semibold px-4 rounded-lg transition duration-200 h-8 flex items-center"
-                (click)="openVehicleOverlay()"
-            >
-                Neues Fahrzeug
-            </button>
-        </div>
-            <style>
-                .scrollbar-hidden::-webkit-scrollbar {
-                    display: none;
-                }
-                .scrollbar-hidden {
-                    scrollbar-width: none; /* Firefox */
-                    -ms-overflow-style: none; /* IE and Edge */
-                }
-            </style>
-            <app-realestate-list
-                *ngIf="userListings$ | async as userListings"
-                [listings]="userListings"
-                [onDeleteCallback]="loadUserListings.bind(this)"
-            ></app-realestate-list>
-            
-            <app-vehicle-list
-                *ngIf="userVehiclesListings$ | async as userVehiclesListings"
-                [listings]="userVehiclesListings"
-                [onDeleteCallback]="loadUserVehicleListings.bind(this)"
-            ></app-vehicle-list>
-        </div>
-        
-        
+          Neues Fahrzeug
+        </button>
+      </div>
+
+      <!-- Retail Button-->
+      <div
+        class="w-full flex items-center mt-12 space-x-4 justify-between px-28"
+      >
+        <h2 class="text-2xl font-bold text-gray-800">Deine Gegenstände</h2>
+        <button
+          class="bg-btn_primary hover:bg-btn_primary_darkened text-white font-semibold px-4 rounded-lg transition duration-200 h-8 flex items-center"
+          (click)="openRetailOverlay()"
+        >
+          Neuen Gegenstand
+        </button>
+      </div>
+      <style>
+        .scrollbar-hidden::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hidden {
+          scrollbar-width: none; /* Firefox */
+          -ms-overflow-style: none; /* IE and Edge */
+        }
+      </style>
+      <app-realestate-list
+        *ngIf="userListings$ | async as userListings"
+        [listings]="userListings"
+        [onDeleteCallback]="loadUserListings.bind(this)"
+      ></app-realestate-list>
+
+      <app-vehicle-list
+        *ngIf="userVehiclesListings$ | async as userVehiclesListings"
+        [listings]="userVehiclesListings"
+        [onDeleteCallback]="loadUserVehicleListings.bind(this)"
+      ></app-vehicle-list>
+
+      <app-retail-list
+      *ngIf="userRetailListings$ | async as userRetailListings"
+      [listings]="userRetailListings"
+      [onDeleteCallback]="loadUserRetailListings.bind(this)"
+    ></app-retail-list>
     </div>
+  </div>
 </div>
 
 <div
-    *ngIf="isOverlayOpen"
-    class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50 overflow-y-auto"
-    (click)="closeOverlay()"
+  *ngIf="isOverlayOpen"
+  class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50 overflow-y-auto"
+  (click)="closeOverlay()"
 >
-    <app-realestate-create-overlay
-        class="fixed inset-0 bg-gray-500 bg-opacity-20 flex justify-center items-center z-50"
-        (close)="closeOverlay()"
-    ></app-realestate-create-overlay>
+  <app-realestate-create-overlay
+    class="fixed inset-0 bg-gray-500 bg-opacity-20 flex justify-center items-center z-50"
+    (close)="closeOverlay()"
+  ></app-realestate-create-overlay>
 </div>
 <div
-    *ngIf="isVehicleOverlayOpen"
-    class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50 overflow-y-auto"
-    (click)="closeVehicleOverlay()"
+  *ngIf="isVehicleOverlayOpen"
+  class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50 overflow-y-auto"
+  (click)="closeVehicleOverlay()"
 >
-    <app-vehicle-create-overlay
-        class="fixed inset-0 bg-gray-500 bg-opacity-20 flex justify-center items-center z-50"
-        (close)="closeVehicleOverlay()"
-    ></app-vehicle-create-overlay>
+  <app-vehicle-create-overlay
+    class="fixed inset-0 bg-gray-500 bg-opacity-20 flex justify-center items-center z-50"
+    (close)="closeVehicleOverlay()"
+  ></app-vehicle-create-overlay>
+</div>
+
+<div
+  *ngIf="isRetailOverlayOpen"
+  class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50 overflow-y-auto"
+  (click)="closeRetailOverlay()"
+>
+  <app-retail-create-overlay
+    class="fixed inset-0 bg-gray-500 bg-opacity-20 flex justify-center items-center z-50"
+    (close)="closeRetailOverlay()"
+  ></app-retail-create-overlay>
 </div>

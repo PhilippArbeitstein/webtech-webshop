@@ -51,7 +51,7 @@ INSERT INTO conditions (condition_name) VALUES
 INSERT INTO delivery_methods (delivery_method_name) VALUES
 ('Self Pick-Up'),
 ('Postal Delivery'), 
-('Both');
+('Self Pick-up & Postal Delivery');
 
 -- Populate table: product
 INSERT INTO product (user_id, image_url, name, description, price, status_id, additional_properties) VALUES
