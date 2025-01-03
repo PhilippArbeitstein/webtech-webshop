@@ -47,7 +47,7 @@ export class RetailListComponent implements OnChanges, OnDestroy {
       });
   }
 
-  ngOnChanges(changes: SimpleChanges) {
+  ngOnChanges(changes: SimpleChanges) { 
     if (changes['listings']) {
       // Update filtered listings whenever the listings input changes, nessecary due to reloads on the page
       this.filteredListings = [...this.listings];
