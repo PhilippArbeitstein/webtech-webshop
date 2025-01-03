@@ -12,6 +12,8 @@ import {
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
+import { RoutingService } from '../../services/routing.service';
 export interface EditVehicleListing {
   product_id: number;
   image_url: string;
@@ -33,7 +35,7 @@ export interface EditVehicleListing {
 
 @Component({
   selector: 'app-vehicle-edit',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './vehicle-edit.component.html',
   styleUrls: ['./vehicle-edit.component.css'],
 })
@@ -50,6 +52,7 @@ export class VehicleEditComponent {
   vehicleConditions: { condition_id: number; condition_name: string }[] = [];
   statuses: { status_id: number; status_name: string }[] = [];
   constructor(
+    private routingService: RoutingService,
     private fb: FormBuilder,
     private vehicleService: VehiclesService,
     private route: ActivatedRoute
@@ -60,6 +63,9 @@ export class VehicleEditComponent {
   }
 
   ngOnInit(): void {
+    location.pathname.includes('vehicle-edit')
+      ? this.routingService.setPreviousRoute('own-product')
+      : this.routingService.setPreviousRoute('vehicles');
     Promise.all([
       this.loadVehicleTypes(),
       this.loadVehicleMarks(),
