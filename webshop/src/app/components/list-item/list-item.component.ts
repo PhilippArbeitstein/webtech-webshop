@@ -61,8 +61,7 @@ export class ListItemComponent {
         this.showEditOverlayState = false;
 
         if (this.onUpdateCallback) {
-            console.log('ja callback');
-            this.onUpdateCallback(); // Trigger the update callback
+            this.onUpdateCallback();
         }
     }
 

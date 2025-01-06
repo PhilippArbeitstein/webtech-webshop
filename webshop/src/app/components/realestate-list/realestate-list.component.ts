@@ -75,9 +75,6 @@ export class RealestateListComponent implements OnChanges, OnDestroy {
     @HostListener('scroll', ['$event'])
     onScroll(event: Event) {
         const target = event.target as HTMLElement;
-
-        console.log('SCROLL');
-
         if (target.scrollTop > 0) {
             this.scrollEvent.emit();
         }

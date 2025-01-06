@@ -275,8 +275,6 @@ export class MessagePageComponent {
                 message.to_user_id
             )}_${Math.max(message.from_user_id, message.to_user_id)}`;
 
-            console.log('Existing chats:', this.chats); // Debug existing chats
-
             if (this.chats[chatKey]) {
                 const chat = this.chats[chatKey];
 
