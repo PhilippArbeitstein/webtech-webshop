@@ -28,7 +28,6 @@ router.get('/listings', async (req, res) => {
     } = req.query;
 
     try {
-        // Parse additional_properties if provided
         const parsedAdditionalProperties = additional_properties
             ? JSON.parse(additional_properties)
             : {};
@@ -189,7 +188,6 @@ router.get('/listings/:product_id', async (req, res) => {
 
 // Helper method to validate product ownership with user_id stored in request token
 async function validateProductOwnership(transaction, product_id, user_id) {
-    // Check if user_id is provided and valid
     if (!user_id) {
         return {
             success: false,
@@ -197,7 +195,6 @@ async function validateProductOwnership(transaction, product_id, user_id) {
         };
     }
 
-    // Query to check ownership
     const productOwnerResult = await transaction.query(
         `
         SELECT user_id FROM product WHERE product_id = $1
@@ -381,7 +378,6 @@ router.post('/new', async (req, res) => {
 });
 
 // Delete a real estate listing
-// TODO: Validate that the product_id belongs to the user sending the request
 router.delete('/:product_id', async (req, res) => {
     const { product_id } = req.params;
     let transaction;
@@ -427,7 +423,6 @@ router.delete('/:product_id', async (req, res) => {
             );
         }
 
-        // Delete from the `real_estate` table
         const realEstateResult = await transaction.query(
             `
             DELETE FROM real_estate 
@@ -443,7 +438,6 @@ router.delete('/:product_id', async (req, res) => {
             );
         }
 
-        // Delete from the `address` table (if address is not reused)
         const addressResult = await transaction.query(
             `
             DELETE FROM address 
@@ -455,7 +449,6 @@ router.delete('/:product_id', async (req, res) => {
             [product_id]
         );
 
-        // Delete from the `product` table
         const productResult = await transaction.query(
             `
             DELETE FROM product 
@@ -692,8 +685,6 @@ router.put('/update/:product_id', async (req, res) => {
 
     try {
         await transaction.query('BEGIN');
-
-        // Validate product ownership
         const ownershipValidation = await validateProductOwnership(
             transaction,
             product_id,
@@ -745,7 +736,6 @@ router.put('/update/:product_id', async (req, res) => {
             });
         }
 
-        // Update real estate details
         await updateRealEstate(transaction, product_id, {
             type_id,
             address_details,
@@ -756,7 +746,6 @@ router.put('/update/:product_id', async (req, res) => {
 
         // Find `category_id` based on `type_name` (category_name)
         if (type_name) {
-            console.log(type_name);
             const categoryResult = await transaction.query(
                 `
                 SELECT category_id FROM categories
@@ -771,8 +760,7 @@ router.put('/update/:product_id', async (req, res) => {
             }
 
             const category_id = categoryResult.rows[0].category_id;
-            console.log(category_id);
-            // Update `product_has_category` table
+
             const updateResult = await transaction.query(
                 `
                 UPDATE product_has_category
@@ -814,7 +802,7 @@ router.get('/', (req, res) => {
     });
 });
 
-// Ge all types
+// Get all types
 router.get('/types', async (req, res) => {
     try {
         const real_estate_types = await pool.query(
@@ -1082,12 +1070,10 @@ router.get('/additional-properties', async (req, res) => {
     try {
         const { category_id } = req.query;
 
-        // Validate the input
         if (!category_id) {
             return res.status(400).json({ message: 'category_id is required' });
         }
 
-        // Query to fetch additional properties for the selected category
         const additionalPropertiesQuery = `
             SELECT DISTINCT jsonb_object_keys(p.additional_properties) AS property_key
             FROM product p 
