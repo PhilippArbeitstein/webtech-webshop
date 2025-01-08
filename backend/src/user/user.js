@@ -4,6 +4,29 @@ const router = express.Router();
 const pool = require('../pool');
 const checkAuth = require('../auth/auth.js');
 
+router.get('/address/:address_id', checkAuth, async (req, res) => {
+    const { address_id } = req.params;
+    console.log('Address ID:', address_id);
+
+    if (!address_id) {
+        return res.status(400).json({ error: 'Address ID is required.' });
+    }
+
+    try {
+        const getAddressQuery = `SELECT * FROM address WHERE address_id = $1`;
+        const result = await pool.query(getAddressQuery, [address_id]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Address not found.' });
+        }
+
+        res.status(200).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error getting address:', error);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+});
+
 router.get('/:userId', checkAuth, async (req, res) => {
     const userId = parseInt(req.params.userId);
     if (!userId) {

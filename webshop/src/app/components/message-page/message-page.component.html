@@ -88,11 +88,9 @@
                         class="flex mb-4"
                         [ngClass]="{
                             'justify-end':
-                                message.from_user_id ===
-                                userService.loggedInUser.user_id,
+                                message.from_user_id === loggedInUser?.user_id,
                             'justify-start':
-                                message.from_user_id !==
-                                userService.loggedInUser.user_id
+                                message.from_user_id !== loggedInUser?.user_id
                         }"
                     >
                         <!-- Message Bubble -->
@@ -100,10 +98,10 @@
                             [ngClass]="{
                                 'bg-gray-200 text-gray-800':
                                     message.from_user_id !==
-                                    userService.loggedInUser.user_id,
+                                    loggedInUser?.user_id,
                                 'bg-btn_primary text-white':
                                     message.from_user_id ===
-                                    userService.loggedInUser.user_id
+                                    loggedInUser?.user_id
                             }"
                             class="p-3 rounded-lg max-w-[70%]"
                         >
@@ -115,10 +113,10 @@
                             [ngClass]="{
                                 'text-right':
                                     message.from_user_id ===
-                                    userService.loggedInUser.user_id,
+                                    loggedInUser?.user_id,
                                 'text-left':
                                     message.from_user_id !==
-                                    userService.loggedInUser.user_id
+                                    loggedInUser?.user_id
                             }"
                         >
                             {{ message.created_at | date : 'short' }}

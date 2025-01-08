@@ -89,9 +89,8 @@
                         <!-- Button pushed to the bottom -->
                         <button
                             *ngIf="
-                                userService.loggedInUser.user_id != -1 &&
-                                userService.loggedInUser.user_id !=
-                                    listing.user_id
+                                loggedInUser?.user_id != -1 &&
+                                loggedInUser?.user_id != listing.user_id
                             "
                             class="bg-btn_primary text-white font-semibold py-2 px-4 rounded-full hover:bg-btn_primary_darkened w-full mt-auto"
                             (click)="startNewChat()"

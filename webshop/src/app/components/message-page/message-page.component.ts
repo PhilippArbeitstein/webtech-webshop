@@ -30,6 +30,7 @@ import { FormsModule } from '@angular/forms';
     styleUrls: ['./message-page.component.css']
 })
 export class MessagePageComponent {
+    loggedInUser: any;
     chats: { [key: string]: Chat } = {};
     selectedChat: Chat | null = null;
     chatParticipant: {
@@ -53,6 +54,10 @@ export class MessagePageComponent {
 
     ngOnInit() {
         this.routingService.setPreviousRoute('messages');
+
+        this.userService.loggedInUser$.subscribe((user) => {
+            this.loggedInUser = user;
+        });
 
         this.route.queryParams.subscribe((params) => {
             const productId = params['product_id'];
@@ -129,12 +134,11 @@ export class MessagePageComponent {
         }
 
         const isProductOwner =
-            this.selectedChat.product.owner_email ===
-            this.userService.loggedInUser?.email;
+            this.selectedChat.product.owner_email === this.loggedInUser?.email;
 
         if (isProductOwner) {
             const participant = this.selectedChat.participants.find(
-                (p) => p.email !== this.userService.loggedInUser?.email
+                (p) => p.email !== this.loggedInUser?.email
             );
             if (participant) {
                 this.chatParticipant = {
@@ -185,7 +189,7 @@ export class MessagePageComponent {
         const messageContent = this.newMessage.trim();
 
         const tempMessage: Message = {
-            from_user_id: this.userService.loggedInUser.user_id,
+            from_user_id: this.loggedInUser?.user_id,
             to_user_id,
             product_id,
             message: messageContent,
@@ -207,9 +211,9 @@ export class MessagePageComponent {
 
     startOrSelectChat(productId: number, toUserId: number): void {
         const chatKey = `${productId}_${Math.min(
-            this.userService.loggedInUser.user_id,
+            this.loggedInUser?.user_id,
             toUserId
-        )}_${Math.max(this.userService.loggedInUser.user_id, toUserId)}`;
+        )}_${Math.max(this.loggedInUser?.user_id, toUserId)}`;
 
         if (this.chats[chatKey]) {
             const existingChat = this.chats[chatKey];

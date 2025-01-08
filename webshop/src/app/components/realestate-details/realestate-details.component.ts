@@ -25,6 +25,8 @@ type DisplayRealEstateListing = RealEstateListing & {
     providers: [DatePipe]
 })
 export class RealestateDetailsComponent {
+    loggedInUser: any;
+
     productId: number = -1;
     listing: DisplayRealEstateListing | null = null;
 
@@ -42,6 +44,10 @@ export class RealestateDetailsComponent {
     }
 
     ngOnInit(): void {
+        this.userService.loggedInUser$.subscribe((user) => {
+            this.loggedInUser = user;
+        });
+
         this.searchbarService.setSearchBarContext('real-estate');
 
         // Fetch the listing directly

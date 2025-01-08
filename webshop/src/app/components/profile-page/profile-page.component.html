@@ -3,7 +3,189 @@
 >
     <div class="flex flex-col h-full">
         <app-navbar class="shrink-0"></app-navbar>
+        <div class="flex-grow flex justify-center items-center md:px-4">
+            <!-- Ensure the form container is on top with relative positioning and high z-index -->
+            <div
+                class="p-6 bg-white rounded-xl shadow-custom-top w-2/5 relative z-10"
+            >
+                <!-- Step 1 Form -->
+                <div *ngIf="currentStep === 1">
+                    <form
+                        [formGroup]="step1Form"
+                        class="flex flex-col space-y-6"
+                    >
+                        <h1
+                            class="text-2xl font-bold text-center text-gray-800"
+                        >
+                            Update Profile
+                        </h1>
 
-        <app-footer class="shrink-0"></app-footer>
+                        <div class="flex flex-col space-y-2">
+                            <label for="email" class="text-grayish font-medium"
+                                >Email</label
+                            >
+                            <input
+                                id="email"
+                                type="email"
+                                formControlName="email"
+                                placeholder="john.doe@gmail.com"
+                                class="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            />
+                            <span
+                                *ngIf="
+                                    step1Form.controls['email'].invalid &&
+                                    step1Form.controls['email'].touched
+                                "
+                                class="text-red-500 text-sm"
+                            >
+                                Please enter a valid email address.
+                            </span>
+                        </div>
+                        <div class="flex flex-col space-y-2">
+                            <label
+                                for="username"
+                                class="text-grayish font-medium"
+                                >Username</label
+                            >
+                            <input
+                                id="username"
+                                type="username"
+                                formControlName="username"
+                                placeholder="JohnDoe"
+                                class="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            />
+                            <span
+                                *ngIf="
+                                    step1Form.controls['username'].invalid &&
+                                    step1Form.controls['username'].touched
+                                "
+                                class="text-red-500 text-sm"
+                            >
+                                Please enter a username.
+                            </span>
+                        </div>
+                        <div class="flex flex-col space-y-2">
+                            <label
+                                for="password"
+                                class="text-grayish font-medium"
+                                >Password</label
+                            >
+                            <input
+                                id="password"
+                                type="password"
+                                formControlName="password"
+                                placeholder="••••••••"
+                                class="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            />
+                            <span
+                                *ngIf="
+                                    step1Form.controls['password'].invalid &&
+                                    step1Form.controls['password'].touched
+                                "
+                                class="text-red-500 text-sm"
+                            >
+                                Password must be at least 8 characters long.
+                            </span>
+                        </div>
+                        <button
+                            type="button"
+                            (click)="goToFormStep(2)"
+                            class="px-4 py-2 text-white font-semibold rounded-md bg-btn_primary hover:bg-green-500 cursor-pointer transition duration-200"
+                        >
+                            Next
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Step 2 Form -->
+                <div *ngIf="currentStep === 2">
+                    <form
+                        [formGroup]="step2Form"
+                        class="flex flex-col space-y-6"
+                    >
+                        <h1
+                            class="text-2xl font-bold text-center text-gray-800"
+                        >
+                            Update Profile
+                        </h1>
+                        <div class="flex flex-col space-y-2">
+                            <label for="city" class="text-grayish font-medium"
+                                >City</label
+                            >
+                            <input
+                                id="city"
+                                type="text"
+                                formControlName="city"
+                                placeholder="Enter your city"
+                                class="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            />
+                            <span
+                                *ngIf="
+                                    step2Form.controls['city'].invalid &&
+                                    step2Form.controls['city'].touched
+                                "
+                                class="text-red-500 text-sm"
+                            >
+                                City is required.
+                            </span>
+                        </div>
+                        <div class="flex flex-col space-y-2">
+                            <label
+                                for="address"
+                                class="text-grayish font-medium"
+                                >Address</label
+                            >
+                            <input
+                                id="address"
+                                type="text"
+                                formControlName="address"
+                                placeholder="Enter your address"
+                                class="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            />
+                            <span
+                                *ngIf="
+                                    step2Form.controls['address'].invalid &&
+                                    step2Form.controls['address'].touched
+                                "
+                                class="text-red-500 text-sm"
+                            >
+                                Address is required.
+                            </span>
+                        </div>
+                        <div class="flex flex-col space-y-2">
+                            <label
+                                for="province"
+                                class="text-grayish font-medium"
+                                >Province</label
+                            >
+                            <input
+                                id="province"
+                                type="text"
+                                formControlName="province"
+                                placeholder="Enter your province"
+                                class="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            />
+                            <span
+                                *ngIf="
+                                    step2Form.controls['province'].invalid &&
+                                    step2Form.controls['province'].touched
+                                "
+                                class="text-red-500 text-sm"
+                            >
+                                Province is required.
+                            </span>
+                        </div>
+                        <button
+                            type="submit"
+                            (click)="submitForm()"
+                            class="px-4 py-2 text-white font-semibold rounded-md bg-btn_primary hover:bg-green-500 cursor-pointer transition duration-200"
+                        >
+                            Update Profile
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <app-footer class="shrink-0" [show]="true"></app-footer>
     </div>
 </div>
