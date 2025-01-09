@@ -231,7 +231,7 @@ export class VehiclesListComponent implements OnChanges, OnDestroy {
         listing.fuel_type_name
           .toLowerCase()
           .includes(this.filterCriteria.fuel_type.toLowerCase());
-      const notSold = listing.status_name.toLowerCase().includes('Available');
+
       return (
         matchesQuery &&
         matchesMark &&
