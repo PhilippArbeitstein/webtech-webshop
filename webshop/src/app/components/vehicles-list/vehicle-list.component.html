@@ -3,7 +3,7 @@
    <div class="px-4 py-4 flex gap-2 items-center filter-bar">
   <!-- Vehicle Type-->
     <select class="w-full border rounded-lg px-4 py-2" #vehicleTypeSelect>
-        <option value="">Fahrzeug Typ</option>
+        <option value="">Vehicle Type</option>
          <option
             *ngFor="let type of vehicleTypes" [value]="type.type_name">
                 {{ type.type_name }}
@@ -14,7 +14,7 @@
                     class="w-full border rounded-lg px-4 py-2"
                     #fuelTypeSelect
                 >
-                    <option value="">Fahrzeug Treibstoff</option>
+                    <option value="">Vehicle Fuel</option>
                     <option
                         *ngFor="let fuel_type of vehicleFuelTypes"
                         [value]="fuel_type.fuel_type_name"
@@ -28,7 +28,7 @@
                     class="w-full border rounded-lg px-4 py-2"
                    #vehicleConditionSelect
                 >
-                    <option value="">Fahrzeug Zustand</option>
+                    <option value="">Vehicle Condition</option>
                     <option
                         *ngFor="let condition of vehicleConditions"
                         [value]="condition.condition_name"
@@ -41,7 +41,7 @@
                     class="w-full border rounded-lg px-4 py-2"
                     #vehicleMarkSelect
                 >
-                    <option value=""> Fahrzeug Marke</option>
+                    <option value="">Vehicle Mark</option>
                     <option
                         *ngFor="let mark of vehicleMarks"
                         [value]="mark.mark_name"
@@ -53,38 +53,38 @@
                 <!-- Price Range Filter -->
                  <div class="grid grid-cols-2 items-center">
   <div class="flex gap-2 items-center filter-bar">
-    <label>Preis</label>
+    <label>Price</label>
     <input
       type="number"
-      placeholder="Min Preis"
+      placeholder="Min price"
       class="border px-2 py-1 rounded"
       #minPrice
     />
     <input
       type="number"
-      placeholder="Max Preis"
+      placeholder="Max price"
       class="border px-2 py-1 rounded"
       #maxPrice
      />
   </div>
 </div>
   <div class="flex gap-2">
-    <label>Kilometer</label>
+    <label>Mileage</label>
     <input
       type="number"
-      placeholder="Min Kilometer"
+      placeholder="Min mileage"
       class="border px-2 py-1 rounded"
       #minMileage
     />
     <input
       type="number"
-      placeholder="Max Kilometer"
+      placeholder="Max mileage"
       class="border px-2 py-1 rounded"
       #maxMileage
      />
   </div>
 
-<button class=" bg-btn_primary hover:bg-btn_primary_darkened text-white px-4 py-2 rounded-lg" (click)="applyFilter()">Filter Anwenden</button>
+<button class=" bg-btn_primary hover:bg-btn_primary_darkened text-white px-4 py-2 rounded-lg" (click)="applyFilter()">Apply Filters</button>
 </div>
   <!-- Listings Section -->
   <div
