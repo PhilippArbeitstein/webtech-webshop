@@ -19,9 +19,8 @@ router.get("/", async (req, res) => {
         color,
         condition,
     } = req.body;
-
     let query =
-        "SELECT product.name, product.price, product.image_url, vehicles.mileage, vehicles.first_registration_date FROM product";
+        "SELECT product.product_id, product.name, users.email, users.username, product.image_url, product.description, product.price, statuses.status_name, product.additional_properties, vehicle_marks.mark_name, vehicle_models.model_name, vehicle_types.type_name, vehicles.first_registration_date, vehicles.mileage, fuel_types.fuel_type_name, vehicles.color, conditions.condition_name FROM product";
     query += getFullJoinTable();
     let params = [];
     let conditions = [];
@@ -120,10 +119,7 @@ router.get("/:product_id", async (req, res) => {
         res.status(400).send("Incorrect Input");
     } else {
         let query =
-            "SELECT product.name, product.price, product.image_url, vehicles.mileage, vehicles.first_registration_date, product.additional_properties,";
-        query +=
-            " conditions.condition_name, fuel_types.fuel_type_name, vehicles.color, vehicle_marks.mark_name, vehicle_types.type_name from product";
-
+            "SELECT product.product_id, product.name, users.email, users.username, product.image_url, product.description, product.price, statuses.status_name, product.additional_properties, vehicle_marks.mark_name, vehicle_models.model_name, vehicle_types.type_name, vehicles.first_registration_date, vehicles.mileage, fuel_types.fuel_type_name, vehicles.color, conditions.condition_name FROM product";
         query += getFullJoinTable();
         query += " WHERE product.product_id=$1";
         const productId = req.params.product_id;
@@ -132,32 +128,140 @@ router.get("/:product_id", async (req, res) => {
                 console.log(err);
                 res.status(500).send("Error retrieving product");
             } else {
-                res.status(200).json(result.rows);
-            }
-        });
-    }
-});
-//Get all listings by User
-router.get("/user/:user_id", async (req, res) => {
-    if (isNaN(req.params.user_id)) {
-        res.status(400).send("Incorrect Input");
-    } else {
-        let query =
-            "SELECT product.name, product.price, product.image_url, vehicles.mileage, vehicles.first_registration_date FROM product";
-        query += getFullJoinTable();
-        query += " WHERE product.user_id=$1";
-        const userId = req.params.user_id;
-        await pool.query(query, [userId], (err, result) => {
-            if (err) {
-                console.log(err);
-                res.status(500).send("Error retrieving product");
-            } else {
-                res.status(200).json(result.rows);
+                res.status(200).json(result.rows[0]);
             }
         });
     }
 });
 
+// Get vehicle listings from a single user
+router.get("/users/user-listings", async (req, res) => {
+    try {
+        const userExists = await pool.query(
+            `
+            SELECT user_id FROM users WHERE user_id = $1
+            `,
+            [req.session.user_id]
+        );
+
+        if (userExists.rows.length === 0) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        let query =
+            "SELECT product.product_id, product.name, users.email, users.username, product.image_url, product.description, product.price, statuses.status_name, product.additional_properties, vehicle_marks.mark_name, vehicle_models.model_name, vehicle_types.type_name, vehicles.first_registration_date, vehicles.mileage, fuel_types.fuel_type_name, vehicles.color, conditions.condition_name FROM product";
+        query += getFullJoinTable();
+        query += " WHERE users.user_id = $1 ORDER BY product.created_at DESC;";
+
+        const allListings = await pool.query(query, [req.session.user_id]);
+
+        if (allListings.rows.length === 0) {
+            return res.status(404).json({ message: "No listings found" });
+        }
+
+        res.status(200).json(allListings.rows);
+    } catch (error) {
+        res.status(500).send(`Server Error: ${error}`);
+    }
+});
+
+// Get all vehicle types
+router.get("/types/types", async (req, res) => {
+    try {
+        const vehicle_types = await pool.query(
+            `
+            SELECT  * FROM vehicle_types;
+        `
+        );
+
+        if (vehicle_types.rows.length === 0) {
+            return res.status(404).json({ message: "No vehicle types found" });
+        }
+
+        res.status(200).json(vehicle_types.rows);
+    } catch (error) {
+        res.status(500).send(`Server Error: ${error}`);
+    }
+});
+// Get all vehicle marks
+router.get("/marks/marks", async (req, res) => {
+    try {
+        const vehicle_marks = await pool.query(
+            `
+            SELECT  * FROM vehicle_marks;
+        `
+        );
+
+        if (vehicle_marks.rows.length === 0) {
+            return res.status(404).json({ message: "No vehicle marks found" });
+        }
+
+        res.status(200).json(vehicle_marks.rows);
+    } catch (error) {
+        res.status(500).send(`Server Error: ${error}`);
+    }
+});
+// Get all vehicle fuel Types
+router.get("/fuel_types/fuel_types", async (req, res) => {
+    try {
+        const vehicle_fuel_types = await pool.query(
+            `
+            SELECT  * FROM fuel_types;
+        `
+        );
+
+        if (vehicle_fuel_types.rows.length === 0) {
+            return res
+                .status(404)
+                .json({ message: "No vehicle fuel types found" });
+        }
+
+        res.status(200).json(vehicle_fuel_types.rows);
+    } catch (error) {
+        res.status(500).send(`Server Error: ${error}`);
+    }
+});
+
+// Get all vehicle conditions
+router.get("/conditions/conditions", async (req, res) => {
+    try {
+        const vehicle_conditions = await pool.query(
+            `
+            SELECT  * FROM conditions;
+        `
+        );
+
+        if (vehicle_conditions.rows.length === 0) {
+            return res
+                .status(404)
+                .json({ message: "No vehicle conditions found" });
+        }
+
+        res.status(200).json(vehicle_conditions.rows);
+    } catch (error) {
+        res.status(500).send(`Server Error: ${error}`);
+    }
+});
+
+// Get all Statuses
+router.get("/status/status", async (req, res) => {
+    try {
+        const statuses = await pool.query(
+            `
+            SELECT  * FROM statuses;
+        `
+        );
+
+        if (statuses.rows.length === 0) {
+            return res
+                .status(404)
+                .json({ message: "No vehicle conditions found" });
+        }
+
+        res.status(200).json(statuses.rows);
+    } catch (error) {
+        res.status(500).send(`Server Error: ${error}`);
+    }
+});
 //delete listing.
 //TODO CHECK FOR VALIDATION
 router.delete("/:product_id", async (req, res) => {
@@ -190,182 +294,17 @@ router.delete("/:product_id", async (req, res) => {
 
 //Update Product
 //TODO check for validation
-router.put("/:product_id", async (req, res) => {
-    const productId = parseInt(req.params.product_id, 10);
-    if (isNaN(productId)) {
-        return res.status(400).send("Invalid product ID");
-    }
-
-    const {
-        mark,
-        model,
-        type,
-        first_registration,
-        mileage,
-        fuel_type,
-        color,
-        condition,
-        image_url,
-        name,
-        description,
-        price,
-        status,
-        additional_properties,
-    } = req.body;
-
-    const transaction = await pool.connect();
-    await transaction.query("BEGIN");
-
-    try {
-        const vehicleUpdates = [];
-        const vehicleParams = [];
-
-        // Update vehicle
-        if (mark) {
-            const markId = await getIDFromName(
-                "mark_id",
-                "vehicle_marks",
-                "mark_name",
-                mark
-            );
-            vehicleUpdates.push(`mark_id = $${vehicleParams.length + 1}`);
-            vehicleParams.push(markId);
-        }
-        if (model) {
-            const modelId = await getIDFromName(
-                "model_id",
-                "vehicle_models",
-                "model_name",
-                model
-            );
-            vehicleUpdates.push(`model_id = $${vehicleParams.length + 1}`);
-            vehicleParams.push(modelId);
-        }
-        if (type) {
-            const typeId = await getIDFromName(
-                "type_id",
-                "vehicle_types",
-                "type_name",
-                type
-            );
-            vehicleUpdates.push(`type_id = $${vehicleParams.length + 1}`);
-            vehicleParams.push(typeId);
-        }
-        if (fuel_type) {
-            const fuelTypeId = await getIDFromName(
-                "fuel_type_id",
-                "fuel_types",
-                "fuel_type_name",
-                fuel_type
-            );
-            vehicleUpdates.push(`fuel_type_id = $${vehicleParams.length + 1}`);
-            vehicleParams.push(fuelTypeId);
-        }
-        if (condition) {
-            const conditionId = await getIDFromName(
-                "condition_id",
-                "conditions",
-                "condition_name",
-                condition
-            );
-            vehicleUpdates.push(`condition_id = $${vehicleParams.length + 1}`);
-            vehicleParams.push(conditionId);
-        }
-        if (first_registration) {
-            vehicleUpdates.push(
-                `first_registration_date = $${vehicleParams.length + 1}`
-            );
-            vehicleParams.push(first_registration);
-        }
-        if (mileage) {
-            vehicleUpdates.push(`mileage = $${vehicleParams.length + 1}`);
-            vehicleParams.push(mileage);
-        }
-        if (color) {
-            vehicleUpdates.push(`color = $${vehicleParams.length + 1}`);
-            vehicleParams.push(color);
-        }
-
-        if (vehicleUpdates.length > 0) {
-            const vehicleQuery = `
-                UPDATE vehicles 
-                SET ${vehicleUpdates.join(", ")} 
-                WHERE product_id = $${vehicleParams.length + 1}
-            `;
-            vehicleParams.push(productId);
-            await transaction.query(vehicleQuery, vehicleParams);
-        }
-
-        // Update product
-        const productUpdates = [];
-        const productParams = [];
-
-        if (status) {
-            const statusId = await getIDFromName(
-                "status_id",
-                "statuses",
-                "status_name",
-                status
-            );
-            productUpdates.push(`status_id = $${productParams.length + 1}`);
-            productParams.push(statusId);
-        }
-        if (image_url) {
-            productUpdates.push(`image_url = $${productParams.length + 1}`);
-            productParams.push(image_url);
-        }
-        if (name) {
-            productUpdates.push(`name = $${productParams.length + 1}`);
-            productParams.push(name);
-        }
-        if (description) {
-            productUpdates.push(`description = $${productParams.length + 1}`);
-            productParams.push(description);
-        }
-        if (price) {
-            productUpdates.push(`price = $${productParams.length + 1}`);
-            productParams.push(price);
-        }
-        if (additional_properties) {
-            productUpdates.push(
-                `additional_properties = $${productParams.length + 1}`
-            );
-            productParams.push(additional_properties);
-        }
-
-        if (productUpdates.length > 0) {
-            const productQuery = `
-                UPDATE product 
-                SET ${productUpdates.join(", ")} 
-                WHERE product_id = $${productParams.length + 1}
-            `;
-            productParams.push(productId);
-            await transaction.query(productQuery, productParams);
-        }
-
-        await transaction.query("COMMIT");
-        res.status(200).send("Successfully updated vehicle and product");
-    } catch (error) {
-        await transaction.query("ROLLBACK");
-        console.error("Error updating vehicle:", error);
-        res.status(500).send(`Error updating vehicle. ${error.message}`);
-    } finally {
-        transaction.release();
-    }
-});
-
-//Add new car
-router.post("/", async (req, res) => {
+router.put("/", async (req, res) => {
     let {
-        mark,
-        model,
-        type,
+        product_id,
+        mark_name,
+        model_name,
+        type_name,
         first_registration,
         mileage,
         fuel_type,
         color,
         condition,
-        user,
         image_url,
         name,
         description,
@@ -374,15 +313,15 @@ router.post("/", async (req, res) => {
         additional_properties,
     } = req.body;
     if (
-        !mark ||
-        !model ||
-        !type ||
+        !product_id ||
+        !mark_name ||
+        !model_name ||
+        !type_name ||
         !first_registration ||
         !mileage ||
         !fuel_type ||
         !color ||
         !condition ||
-        !user ||
         !image_url ||
         !name ||
         !description ||
@@ -402,12 +341,181 @@ router.post("/", async (req, res) => {
                 "status_name",
                 status
             );
-            user = await getIDFromName("user_id", "users", "username", user);
-            if (isNaN(status) || isNaN(user)) {
-                res.status(400).send("Incorrect Input");
-            }
+
             const productValues = [
-                user,
+                req.session.user_id,
+                image_url,
+                name,
+                description,
+                price,
+                status,
+                additional_properties,
+                product_id,
+            ];
+
+            const productUpdateQuery = `
+            UPDATE product
+            SET user_id = $1, image_url = $2, name = $3, description = $4, price = $5, 
+                status_id = $6, additional_properties = $7
+            WHERE product_id = $8
+            RETURNING product_id;
+        `;
+
+            const productResult = await transaction.query(
+                productUpdateQuery,
+                productValues
+            );
+            if (productResult.rows.length === 0) {
+                throw new Error("Error updating product");
+            }
+            const productId = productResult.rows[0].product_id;
+
+            //Adding for vehicle
+            mark = await getIDFromName(
+                "mark_id",
+                "vehicle_marks",
+                "mark_name",
+                mark_name
+            );
+
+            type = await getIDFromName(
+                "type_id",
+                "vehicle_types",
+                "type_name",
+                type_name
+            );
+            fuel_type = await getIDFromName(
+                "fuel_type_id",
+                "fuel_types",
+                "fuel_type_name",
+                fuel_type
+            );
+            condition = await getIDFromName(
+                "condition_id",
+                "conditions",
+                "condition_name",
+                condition
+            );
+            if (
+                isNaN(mark) ||
+                isNaN(type) ||
+                isNaN(fuel_type) ||
+                isNaN(condition)
+            ) {
+                throw new Error("Incorrect Input");
+            }
+            let model = -1;
+            //Checking if model already exists, otherwise adding it
+            let modelquery =
+                "Select model_id from vehicle_models where model_name=$1";
+
+            let modelresult = await transaction.query(modelquery, [model_name]);
+            if (modelresult.rows.length === 0) {
+                //Model doesnt exist yet so insert into models
+
+                const modelInsertQuery = `INSERT INTO vehicle_models (mark_id, model_name) VALUES ($1, $2) RETURNING model_id;`;
+                modelInsertValues = [mark, model_name];
+                modelResult = await transaction.query(
+                    modelInsertQuery,
+                    modelInsertValues
+                );
+                model = modelResult.rows[0].model_id;
+            } else {
+                //Model already exists so get its id
+                model = await getIDFromName(
+                    "model_id",
+                    "vehicle_models",
+                    "model_name",
+                    model_name
+                );
+            }
+            const vehicleValues = [
+                mark,
+                model,
+                type,
+                first_registration,
+                mileage,
+                fuel_type,
+                color,
+                condition,
+                product_id,
+            ];
+
+            const vehicleUpdateQuery = `
+            UPDATE vehicles
+            SET mark_id = $1, model_id = $2, type_id = $3, first_registration_date = $4, 
+                mileage = $5, fuel_type_id = $6, color = $7, condition_id = $8
+            WHERE product_id = $9 returning product_id;
+        `;
+
+            const result = await transaction.query(
+                vehicleUpdateQuery,
+                vehicleValues
+            );
+            if (result.rows.length === 0) {
+                throw new Error("Error inserting product");
+            }
+            await transaction.query("COMMIT");
+
+            res.status(200).json("Successfully inserted product");
+        } catch (error) {
+            await transaction.query("ROLLBACK");
+            res.status(500).send(`Error ${error}`);
+        } finally {
+            transaction.release();
+        }
+    }
+});
+
+//Add new car
+router.post("/", async (req, res) => {
+    let {
+        mark_name,
+        model_name,
+        type_name,
+        first_registration,
+        mileage,
+        fuel_type,
+        color,
+        condition,
+        image_url,
+        name,
+        description,
+        price,
+        status,
+        additional_properties,
+    } = req.body;
+    if (
+        !mark_name ||
+        !model_name ||
+        !type_name ||
+        !first_registration ||
+        !mileage ||
+        !fuel_type ||
+        !color ||
+        !condition ||
+        !image_url ||
+        !name ||
+        !description ||
+        !price ||
+        !status ||
+        !additional_properties
+    ) {
+        res.status(400).send("Insufficient Information");
+    } else {
+        const transaction = await pool.connect();
+        await transaction.query("BEGIN");
+        try {
+            //Adding for product
+            status = await getIDFromName(
+                "status_id",
+                "statuses",
+                "status_name",
+                status
+            );
+
+            const productValues = [
+                req.session.user_id,
                 image_url,
                 name,
                 description,
@@ -436,19 +544,14 @@ router.post("/", async (req, res) => {
                 "mark_id",
                 "vehicle_marks",
                 "mark_name",
-                mark
+                mark_name
             );
-            model = await getIDFromName(
-                "model_id",
-                "vehicle_models",
-                "model_name",
-                model
-            );
+
             type = await getIDFromName(
                 "type_id",
                 "vehicle_types",
                 "type_name",
-                type
+                type_name
             );
             fuel_type = await getIDFromName(
                 "fuel_type_id",
@@ -464,14 +567,37 @@ router.post("/", async (req, res) => {
             );
             if (
                 isNaN(mark) ||
-                isNaN(model) ||
                 isNaN(type) ||
                 isNaN(fuel_type) ||
                 isNaN(condition)
             ) {
                 throw new Error("Incorrect Input");
             }
+            let model = -1;
+            //Checking if model already exists, otherwise adding it
+            let modelquery =
+                "Select model_id from vehicle_models where model_name=$1";
 
+            let modelresult = await transaction.query(modelquery, [model_name]);
+            if (modelresult.rows.length === 0) {
+                //Model doesnt exist yet so insert into models
+
+                const modelInsertQuery = `INSERT INTO vehicle_models (mark_id, model_name) VALUES ($1, $2) RETURNING model_id;`;
+                modelInsertValues = [mark, model_name];
+                modelResult = await transaction.query(
+                    modelInsertQuery,
+                    modelInsertValues
+                );
+                model = modelResult.rows[0].model_id;
+            } else {
+                //Model already exists so get its id
+                model = getIDFromName(
+                    "model_id",
+                    "vehicle_models",
+                    "model_name",
+                    model_name
+                );
+            }
             const vehicleValues = [
                 productId,
                 mark,
@@ -492,10 +618,11 @@ router.post("/", async (req, res) => {
                 vehicleInsertQuery,
                 vehicleValues
             );
-            if (productResult.rows.length === 0) {
+            if (result.rows.length === 0) {
                 throw new Error("Error inserting product");
             }
-            await pool.query("COMMIT");
+            await transaction.query("COMMIT");
+
             res.status(200).json("Successfully inserted product");
         } catch (error) {
             await transaction.query("ROLLBACK");
@@ -579,11 +706,11 @@ module.exports = router;
 
 function getFullJoinTable() {
     let query =
-        " join vehicles on vehicles.product_id=product.product_id join users on product.user_id=users.user_id join vehicle_marks on vehicles.mark_id=vehicle_marks.mark_id";
+        " INNER JOIN vehicles on vehicles.product_id=product.product_id INNER JOIN users on product.user_id=users.user_id INNER JOIN vehicle_marks on vehicles.mark_id=vehicle_marks.mark_id";
     query +=
-        " join vehicle_types on vehicle_types.type_id=vehicles.type_id join vehicle_models on vehicle_models.model_id=vehicles.model_id";
+        " INNER JOIN vehicle_types on vehicle_types.type_id=vehicles.type_id INNER JOIN vehicle_models on vehicle_models.model_id=vehicles.model_id";
     query +=
-        " join fuel_types on vehicles.fuel_type_id=fuel_types.fuel_type_id join conditions on vehicles.condition_id=conditions.condition_id";
+        " INNER JOIN fuel_types on vehicles.fuel_type_id=fuel_types.fuel_type_id INNER JOIN conditions on vehicles.condition_id=conditions.condition_id INNER JOIN statuses on product.status_id=statuses.status_id";
     return query;
 }
 

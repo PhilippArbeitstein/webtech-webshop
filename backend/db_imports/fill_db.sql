@@ -227,3 +227,7 @@ INSERT INTO messages (from_user_id, to_user_id, product_id, message, created_at)
 (3, 1, 2, 'Yes, I would like to see it in person. When are you free?', '2024-12-12 10:30:00'),
 (1, 3, 2, 'I am free on Wednesday afternoon. Does that work?', '2024-12-12 10:45:00'),
 (3, 1, 2, 'Perfect. See you then.', '2024-12-12 11:00:00');
+
+-- Fixing stupid mistake
+ALTER TABLE vehicles
+ALTER COLUMN first_registration_date TYPE TIMESTAMP USING first_registration_date::TIMESTAMP;

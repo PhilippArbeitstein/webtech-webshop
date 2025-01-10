@@ -1,0 +1,113 @@
+
+<div *ngIf="isFiltersOpen" class="filter-bar px-4 py-4 grid gap-4 items-center">
+   <div class="px-4 py-4 flex gap-2 items-center filter-bar">
+  <!-- Vehicle Type-->
+    <select class="w-full border rounded-lg px-4 py-2" #vehicleTypeSelect>
+        <option value="">Vehicle Type</option>
+         <option
+            *ngFor="let type of vehicleTypes" [value]="type.type_name">
+                {{ type.type_name }}
+            </option>
+    </select>
+    <!--Fuel Type-->
+    <select
+                    class="w-full border rounded-lg px-4 py-2"
+                    #fuelTypeSelect
+                >
+                    <option value="">Vehicle Fuel</option>
+                    <option
+                        *ngFor="let fuel_type of vehicleFuelTypes"
+                        [value]="fuel_type.fuel_type_name"
+                    >
+                        {{ fuel_type.fuel_type_name }}
+                    </option>
+                </select>
+                
+    <!--Condition-->
+    <select
+                    class="w-full border rounded-lg px-4 py-2"
+                   #vehicleConditionSelect
+                >
+                    <option value="">Vehicle Condition</option>
+                    <option
+                        *ngFor="let condition of vehicleConditions"
+                        [value]="condition.condition_name"
+                    >
+                        {{ condition.condition_name }}
+                    </option>
+                </select>
+    <!--Vehicle Mark-->
+    <select
+                    class="w-full border rounded-lg px-4 py-2"
+                    #vehicleMarkSelect
+                >
+                    <option value="">Vehicle Mark</option>
+                    <option
+                        *ngFor="let mark of vehicleMarks"
+                        [value]="mark.mark_name"
+                    >
+                        {{ mark.mark_name }}
+                    </option>
+                </select>
+            </div>
+                <!-- Price Range Filter -->
+                 <div class="grid grid-cols-2 items-center">
+  <div class="flex gap-2 items-center filter-bar">
+    <label>Price</label>
+    <input
+      type="number"
+      placeholder="Min price"
+      class="border px-2 py-1 rounded"
+      #minPrice
+    />
+    <input
+      type="number"
+      placeholder="Max price"
+      class="border px-2 py-1 rounded"
+      #maxPrice
+     />
+  </div>
+</div>
+  <div class="flex gap-2">
+    <label>Mileage</label>
+    <input
+      type="number"
+      placeholder="Min mileage"
+      class="border px-2 py-1 rounded"
+      #minMileage
+    />
+    <input
+      type="number"
+      placeholder="Max mileage"
+      class="border px-2 py-1 rounded"
+      #maxMileage
+     />
+  </div>
+
+<button class=" bg-btn_primary hover:bg-btn_primary_darkened text-white px-4 py-2 rounded-lg" (click)="applyFilter()">Apply Filters</button>
+</div>
+  <!-- Listings Section -->
+  <div
+    *ngIf="filteredListings && filteredListings.length > 0; else noListings"
+    class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-8 px-4 pb-8"
+  >
+    <a
+      *ngFor="let listing of filteredListings"
+      [routerLink]="['/vehicle-details', listing.product_id]"
+      class="block rounded-2xl no-underline hover:shadow-lg transition duration-200"
+    >
+      <app-list-item
+        [listing]="listing"
+        [onDeleteCallback]="onDeleteCallback"
+      ></app-list-item>
+    </a>
+  </div>
+  
+  <ng-template #noResults>
+    <p class="text-gray-600">No listings match the current filter.</p>
+  </ng-template>
+  
+  <ng-template #noListings>
+    <p class="text-gray-600">Loading listings...</p>
+  </ng-template>
+  
