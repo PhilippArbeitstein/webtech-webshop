@@ -3,7 +3,10 @@ import {
     Input,
     OnChanges,
     SimpleChanges,
-    OnDestroy
+    OnDestroy,
+    HostListener,
+    Output,
+    EventEmitter
 } from '@angular/core';
 import {
     RealEstateListing,
@@ -25,6 +28,8 @@ import { SearchbarService } from '../../services/searchbar.service';
 export class RealestateListComponent implements OnChanges, OnDestroy {
     @Input() listings: RealEstateListing[] = [];
     @Input() onDeleteCallback!: () => void;
+    @Input() onUpdateCallback!: () => void;
+    @Output() scrollEvent = new EventEmitter<void>();
 
     filteredListings: RealEstateListing[] = [];
     private searchSubscription: Subscription | null = null;
@@ -41,7 +46,7 @@ export class RealestateListComponent implements OnChanges, OnDestroy {
             : this.routingService.setPreviousRoute('real-estate');
 
         this.searchSubscription = this.searchbarService.searchQuery$
-            .pipe(debounceTime(300)) // Wait 300ms after each keystroke
+            .pipe(debounceTime(300))
             .subscribe((query) => {
                 this.filterListings(query);
             });
@@ -49,7 +54,6 @@ export class RealestateListComponent implements OnChanges, OnDestroy {
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes['listings']) {
-            // Update filtered listings whenever the listings input changes, nessecary due to reloads on the page
             this.filteredListings = [...this.listings];
         }
     }
@@ -66,5 +70,13 @@ export class RealestateListComponent implements OnChanges, OnDestroy {
                   listing.name.toLowerCase().includes(query.toLowerCase())
               )
             : [...this.listings];
+    }
+
+    @HostListener('scroll', ['$event'])
+    onScroll(event: Event) {
+        const target = event.target as HTMLElement;
+        if (target.scrollTop > 0) {
+            this.scrollEvent.emit();
+        }
     }
 }

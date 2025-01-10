@@ -9,7 +9,9 @@ import { RetailPageComponent } from './components/retail-page/retail-page.compon
 import { VehiclePageComponent } from './components/vehicle-page/vehicle-page.component';
 import { RealestatePageComponent } from './components/realestate-page/realestate-page.component';
 import { RealestateDetailsComponent } from './components/realestate-details/realestate-details.component';
-
+import { VehicleDetailsComponent } from './components/vehicle-details/vehicle-details.component';
+import { RetailDetailsComponent } from './components/retail-details/retail-details.component';
+import { VehicleEditComponent } from './components/vehicle-edit/vehicle-edit.component';
 export const routes: Routes = [
     { path: '', component: LandingPageComponent },
     { path: 'register', component: RegisterComponent },
@@ -23,5 +25,17 @@ export const routes: Routes = [
     {
         path: 'real-estate-details/:product_id',
         component: RealestateDetailsComponent
+    },
+    {
+        path: 'vehicle-details/:product_id',
+        component: VehicleDetailsComponent
+    },
+    {
+        path: 'retail-details/:product_id',
+        component: RetailDetailsComponent
+    },
+    {
+        path: 'vehicle-edit/:product_id',
+        component: VehicleEditComponent
     }
 ];

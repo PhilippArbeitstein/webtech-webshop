@@ -1,41 +1,32 @@
-<!-- Navbar -->
 <div class="flex justify-between items-center px-8 py-4 h-16">
-    <!-- Logo -->
     <a [routerLink]="['/']" class="md:text-4xl font-bold">Fynd</a>
-
     <app-searchbar
         *ngIf="searchbarService.showSearchBar$ | async"
     ></app-searchbar>
-
-    <!-- Authentication Links -->
     <div *ngIf="!(isLoggedIn$ | async); else loggedIn" class="flex space-x-6">
         <a
             [routerLink]="['/register']"
             class="text-lg font-medium hover:underline"
         >
-            Registriere Dich
+            Register
         </a>
         <a
             [routerLink]="['/login']"
             class="text-lg font-medium hover:underline"
         >
-            Einloggen
+            Login
         </a>
     </div>
 
-    <!-- Logged-In State -->
     <ng-template #loggedIn>
         <div class="flex space-x-6 items-center">
-            <!-- Messages Link -->
             <a
                 [routerLink]="['/messages']"
                 routerLinkActive="font-bold underline text-teal-950"
                 class="text-lg font-medium hover:underline text-text_gray"
             >
-                Nachrichten
+                Messages
             </a>
-
-            <!-- Profile Picture -->
             <div class="flex items-center">
                 <img
                     src="assets/profile-picture.png"

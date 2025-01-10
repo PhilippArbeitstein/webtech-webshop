@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, pipe, tap } from 'rxjs';
+import { BehaviorSubject, Observable, pipe, tap } from 'rxjs';
 
 export interface User {
     user_id: number;
@@ -10,6 +10,13 @@ export interface User {
     address_id: number;
     created_at: Date;
     updated_at: Date;
+}
+
+export interface Address {
+    address_id: number;
+    city: string;
+    address: string;
+    province: string;
 }
 
 @Injectable({
@@ -26,7 +33,20 @@ export class UserService {
         updated_at: new Date()
     };
 
-    loggedInUser: User = this.emptyUser;
+    emptyAddress: Address = {
+        address_id: -1,
+        city: '',
+        address: '',
+        province: ''
+    };
+
+    private loggedInUserSubject = new BehaviorSubject<User>(this.emptyUser);
+    private loggedInUserAddressSubject = new BehaviorSubject<Address>(
+        this.emptyAddress
+    );
+
+    loggedInUser$ = this.loggedInUserSubject.asObservable();
+    loggedInUserAddress$ = this.loggedInUserAddressSubject.asObservable();
 
     constructor(private httpClient: HttpClient) {}
 
@@ -36,9 +56,52 @@ export class UserService {
                 withCredentials: true
             })
             .pipe(
-                tap((response: User) => {
-                    this.loggedInUser = response;
-                    console.log('Logged in user:', this.loggedInUser);
+                tap((user: User) => {
+                    this.loggedInUserSubject.next(user); // Update BehaviorSubject
+                })
+            );
+    }
+
+    getCurrentAddress(address_id: number): Observable<Address> {
+        return this.httpClient
+            .get<Address>(`http://localhost:3000/user/address/${address_id}`, {
+                withCredentials: true
+            })
+            .pipe(
+                tap((address: Address) => {
+                    this.loggedInUserAddressSubject.next(address); // Update BehaviorSubject
+                })
+            );
+    }
+
+    clearUserData(): void {
+        this.loggedInUserSubject.next(this.emptyUser);
+        this.loggedInUserAddressSubject.next(this.emptyAddress);
+    }
+
+    setLoggedInUser(user: User): void {
+        this.loggedInUserSubject.next(user);
+    }
+
+    updateUser(updateCredentials: {
+        user_id: number;
+        email: string;
+        username: string;
+        password?: string;
+        address_id: number;
+        city: string;
+        address: string;
+        province: string;
+    }): Observable<any> {
+        return this.httpClient
+            .put('http://localhost:3000/user/update', updateCredentials, {
+                withCredentials: true
+            })
+            .pipe(
+                tap((response: any) => {
+                    if (response.user) {
+                        this.loggedInUserSubject.next(response.user);
+                    }
                 })
             );
     }

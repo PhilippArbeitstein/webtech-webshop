@@ -4,6 +4,9 @@ const router = express.Router();
 const pool = require('../pool');
 const checkAuth = require('../auth/auth.js');
 
+const EventEmitter = require('events');
+const eventEmitter = new EventEmitter();
+
 router.get('/', (req, res) => {
     res.status(200).json({
         message: 'Real Estate Routes Work'
@@ -12,28 +15,146 @@ router.get('/', (req, res) => {
 
 // Get all real-estate listings
 router.get('/listings', async (req, res) => {
+    const {
+        category_id,
+        min_price,
+        max_price,
+        rent_start,
+        rent_end,
+        province,
+        city,
+        available_now,
+        additional_properties
+    } = req.query;
+
     try {
-        const allListings = await pool.query(
-            `
-            SELECT  re.product_id, u.email, u.username, p.image_url, p.name, p.description, p.price, 
-            s.status_name, p.created_at, p.updated_at, p.additional_properties, t.type_name, 
-            a.city, a.address, a.province, re.address_details, re.advance_payment, re.rent_start, re.rent_end
-            FROM real_estate re INNER JOIN product p ON re.product_id = p.product_id 
+        const parsedAdditionalProperties = additional_properties
+            ? JSON.parse(additional_properties)
+            : {};
+
+        // Filter out empty or null additional properties
+        const validAdditionalProperties = Object.entries(
+            parsedAdditionalProperties
+        ).filter(([key, value]) => value !== null && value !== '');
+
+        let query = `
+            SELECT re.product_id, u.user_id, u.email, u.username, p.image_url, p.name, p.description, p.price, 
+                   s.status_name, p.created_at, p.updated_at, p.additional_properties, t.type_name, 
+                   a.city, a.address, a.province, re.address_details, re.advance_payment, re.rent_start, re.rent_end, pc.category_id
+            FROM real_estate re 
+            INNER JOIN product p ON re.product_id = p.product_id 
             INNER JOIN address a ON re.address_id = a.address_id
             INNER JOIN real_estate_types t ON re.type_id = t.type_id
             INNER JOIN users u ON p.user_id = u.user_id
             INNER JOIN statuses s ON p.status_id = s.status_id
-            ORDER BY p.created_at DESC;
-        `
-        );
+            LEFT JOIN product_has_category pc ON p.product_id = pc.product_id
+            WHERE 1=1
+        `;
 
-        if (allListings.rows.length === 0) {
-            return res.status(404).json({ message: 'No listings found' });
+        const params = [];
+
+        if (category_id) {
+            query += ` AND pc.category_id = $${params.length + 1}`;
+            params.push(category_id);
         }
 
-        res.status(200).json(allListings.rows);
+        if (min_price) {
+            query += ` AND p.price >= $${params.length + 1}`;
+            params.push(min_price);
+        }
+
+        if (max_price) {
+            query += ` AND p.price <= $${params.length + 1}`;
+            params.push(max_price);
+        }
+
+        if (rent_start) {
+            query += ` AND re.rent_start >= $${params.length + 1}`;
+            params.push(rent_start);
+        }
+
+        if (rent_end) {
+            query += ` AND re.rent_end <= $${params.length + 1}`;
+            params.push(rent_end);
+        }
+
+        if (province) {
+            query += ` AND a.province = $${params.length + 1}`;
+            params.push(province);
+        }
+
+        if (city) {
+            query += ` AND a.city = $${params.length + 1}`;
+            params.push(city);
+        }
+
+        if (available_now) {
+            query += ` AND s.status_name = 'Available' AND re.rent_start <= NOW() AND re.rent_end > NOW()`;
+        }
+
+        if (validAdditionalProperties.length > 0) {
+            validAdditionalProperties.forEach(([key, value]) => {
+                query += ` AND p.additional_properties->>$${
+                    params.length + 1
+                } = $${params.length + 2}`;
+                params.push(key, value);
+            });
+        }
+
+        query += ` ORDER BY p.created_at DESC;`;
+
+        const filteredListings = await pool.query(query, params);
+
+        if (filteredListings.rows.length === 0) {
+            return res.status(200).json({
+                message: 'No listings found',
+                listings: [],
+                categories: []
+            });
+        }
+
+        const categoriesQuery = `
+            WITH RECURSIVE category_hierarchy AS (
+                SELECT category_id, parent_category_id, name, additional_properties
+                FROM categories
+                WHERE parent_category_id IS NULL
+                UNION ALL
+                SELECT c.category_id, c.parent_category_id, c.name, c.additional_properties
+                FROM categories c
+                INNER JOIN category_hierarchy ch ON c.parent_category_id = ch.category_id
+            )
+            SELECT * FROM category_hierarchy;
+        `;
+
+        const categories = await pool.query(categoriesQuery);
+
+        // Format the categories into a hierarchical structure
+        const formatCategories = (categories, parentId = null) => {
+            return categories
+                .filter((category) => category.parent_category_id === parentId)
+                .map((category) => ({
+                    category_id: category.category_id,
+                    name: category.name,
+                    additional_properties: category.additional_properties,
+                    subcategories: formatCategories(
+                        categories,
+                        category.category_id
+                    )
+                }));
+        };
+
+        const categoryHierarchy = formatCategories(categories.rows);
+
+        res.status(200).json({
+            listings: filteredListings.rows,
+            categories: categoryHierarchy
+        });
     } catch (error) {
-        res.status(500).send(`Server Error: ${error}`);
+        console.error('Error fetching listings:', error);
+        res.status(500).json({
+            error: 'Internal server error',
+            details: error.message
+        });
     }
 });
 
@@ -42,7 +163,7 @@ router.get('/listings/:product_id', async (req, res) => {
     try {
         const allListings = await pool.query(
             `
-            SELECT  re.product_id, u.email, u.username, p.image_url, p.name, p.description, p.price, 
+            SELECT  re.product_id, u.user_id, u.email, u.username, p.image_url, p.name, p.description, p.price, 
             s.status_name, p.created_at, p.updated_at, p.additional_properties, t.type_name, 
             a.city, a.address, a.province, re.address_details, re.advance_payment, re.rent_start, re.rent_end
             FROM real_estate re INNER JOIN product p ON re.product_id = p.product_id 
@@ -67,7 +188,6 @@ router.get('/listings/:product_id', async (req, res) => {
 
 // Helper method to validate product ownership with user_id stored in request token
 async function validateProductOwnership(transaction, product_id, user_id) {
-    // Check if user_id is provided and valid
     if (!user_id) {
         return {
             success: false,
@@ -75,7 +195,6 @@ async function validateProductOwnership(transaction, product_id, user_id) {
         };
     }
 
-    // Query to check ownership
     const productOwnerResult = await transaction.query(
         `
         SELECT user_id FROM product WHERE product_id = $1
@@ -259,7 +378,6 @@ router.post('/new', async (req, res) => {
 });
 
 // Delete a real estate listing
-// TODO: Validate that the product_id belongs to the user sending the request
 router.delete('/:product_id', async (req, res) => {
     const { product_id } = req.params;
     let transaction;
@@ -305,7 +423,6 @@ router.delete('/:product_id', async (req, res) => {
             );
         }
 
-        // Delete from the `real_estate` table
         const realEstateResult = await transaction.query(
             `
             DELETE FROM real_estate 
@@ -321,7 +438,6 @@ router.delete('/:product_id', async (req, res) => {
             );
         }
 
-        // Delete from the `address` table (if address is not reused)
         const addressResult = await transaction.query(
             `
             DELETE FROM address 
@@ -333,7 +449,6 @@ router.delete('/:product_id', async (req, res) => {
             [product_id]
         );
 
-        // Delete from the `product` table
         const productResult = await transaction.query(
             `
             DELETE FROM product 
@@ -561,7 +676,7 @@ router.put('/update/:product_id', async (req, res) => {
         city,
         address,
         province,
-        type_name,
+        type_name, // Use type_name as the category_name
         address_details,
         advance_payment,
         rent_start,
@@ -570,7 +685,6 @@ router.put('/update/:product_id', async (req, res) => {
 
     try {
         await transaction.query('BEGIN');
-
         const ownershipValidation = await validateProductOwnership(
             transaction,
             product_id,
@@ -603,6 +717,7 @@ router.put('/update/:product_id', async (req, res) => {
             additional_properties
         });
 
+        // Handle address update
         const addressResult = await transaction.query(
             `
             SELECT address_id FROM real_estate
@@ -629,6 +744,44 @@ router.put('/update/:product_id', async (req, res) => {
             rent_end
         });
 
+        // Find `category_id` based on `type_name` (category_name)
+        if (type_name) {
+            const categoryResult = await transaction.query(
+                `
+                SELECT category_id FROM categories
+                WHERE name = $1
+                `,
+                [type_name]
+            );
+
+            if (categoryResult.rows.length === 0) {
+                await transaction.query('ROLLBACK');
+                return res.status(404).json({ message: 'Category not found' });
+            }
+
+            const category_id = categoryResult.rows[0].category_id;
+
+            const updateResult = await transaction.query(
+                `
+                UPDATE product_has_category
+                SET category_id = $2
+                WHERE product_id = $1
+                `,
+                [product_id, category_id]
+            );
+
+            // If no rows were updated, insert a new row
+            if (updateResult.rowCount === 0) {
+                await transaction.query(
+                    `
+                    INSERT INTO product_has_category (product_id, category_id)
+                    VALUES ($1, $2)
+                    `,
+                    [product_id, category_id]
+                );
+            }
+        }
+
         await transaction.query('COMMIT');
         res.status(200).json({
             message: 'Real estate listing updated successfully',
@@ -649,7 +802,7 @@ router.get('/', (req, res) => {
     });
 });
 
-// Ge all types
+// Get all types
 router.get('/types', async (req, res) => {
     try {
         const real_estate_types = await pool.query(
@@ -669,4 +822,286 @@ router.get('/types', async (req, res) => {
         res.status(500).send(`Server Error: ${error}`);
     }
 });
+
+router.get('/messages', async (req, res) => {
+    try {
+        const user_id = req.session.user_id;
+
+        if (!user_id) {
+            console.warn('Unauthorized access attempt');
+            return res
+                .status(401)
+                .json({ message: 'Unauthorized: User not logged in' });
+        }
+
+        const messagesQuery = `
+            SELECT 
+                m.product_id,
+                m.from_user_id,
+                m.to_user_id,
+                m.message,
+                m.created_at
+            FROM messages m
+            JOIN real_estate re ON m.product_id = re.product_id
+            WHERE m.from_user_id = $1 OR m.to_user_id = $1
+            ORDER BY m.product_id, m.created_at;
+        `;
+
+        let messagesResult;
+        try {
+            messagesResult = await pool.query(messagesQuery, [user_id]);
+        } catch (error) {
+            console.error('Error querying messages:', error);
+            return res
+                .status(500)
+                .json({ message: 'Error retrieving messages' });
+        }
+
+        const messages = messagesResult.rows;
+        const productIds = [...new Set(messages.map((msg) => msg.product_id))];
+        const userIds = [
+            ...new Set(
+                messages.flatMap((msg) => [msg.from_user_id, msg.to_user_id])
+            )
+        ];
+
+        if (productIds.length === 0) {
+            return res.status(200).json({ message: 'No messages found' });
+        }
+
+        const productDetailsQuery = `
+            SELECT 
+                re.product_id, 
+                u.email AS owner_email, 
+                u.username AS owner_username, 
+                p.image_url, 
+                p.name AS product_name, 
+                p.description, 
+                p.price, 
+                s.status_name, 
+                p.created_at, 
+                p.updated_at, 
+                p.additional_properties, 
+                t.type_name, 
+                a.city, 
+                a.address, 
+                a.province, 
+                re.address_details, 
+                re.advance_payment, 
+                re.rent_start, 
+                re.rent_end
+            FROM real_estate re 
+            INNER JOIN product p ON re.product_id = p.product_id 
+            INNER JOIN address a ON re.address_id = a.address_id
+            INNER JOIN real_estate_types t ON re.type_id = t.type_id
+            INNER JOIN users u ON p.user_id = u.user_id
+            INNER JOIN statuses s ON p.status_id = s.status_id
+            WHERE p.product_id = ANY($1::int[]);
+        `;
+
+        let productDetailsResult;
+        try {
+            productDetailsResult = await pool.query(productDetailsQuery, [
+                productIds
+            ]);
+        } catch (error) {
+            console.error('Error querying product details:', error);
+            return res
+                .status(500)
+                .json({ message: 'Error retrieving product details' });
+        }
+
+        const userDetailsQuery = `
+            SELECT 
+                user_id,
+                username,
+                email
+            FROM users
+            WHERE user_id = ANY($1::int[]);
+        `;
+
+        let userDetailsResult;
+        try {
+            userDetailsResult = await pool.query(userDetailsQuery, [userIds]);
+        } catch (error) {
+            console.error('Error querying user details:', error);
+            return res
+                .status(500)
+                .json({ message: 'Error retrieving user details' });
+        }
+
+        const productDetails = productDetailsResult.rows;
+        const userDetails = userDetailsResult.rows;
+
+        const groupedMessages = messages.reduce((chats, message) => {
+            try {
+                const product = productDetails.find(
+                    (product) => product.product_id === message.product_id
+                );
+
+                if (!product) {
+                    console.warn(
+                        `No product details found for product_id: ${message.product_id}`
+                    );
+                    return chats;
+                }
+
+                const chatKey = `${message.product_id}_${Math.min(
+                    message.from_user_id,
+                    message.to_user_id
+                )}_${Math.max(message.from_user_id, message.to_user_id)}`;
+
+                if (!chats[chatKey]) {
+                    const fromUser = userDetails.find(
+                        (user) => user.user_id === message.from_user_id
+                    );
+                    const toUser = userDetails.find(
+                        (user) => user.user_id === message.to_user_id
+                    );
+
+                    chats[chatKey] = {
+                        product,
+                        participants: [
+                            {
+                                user_id: message.from_user_id,
+                                username: fromUser?.username || 'Unknown',
+                                email: fromUser?.email || 'Unknown'
+                            },
+                            {
+                                user_id: message.to_user_id,
+                                username: toUser?.username || 'Unknown',
+                                email: toUser?.email || 'Unknown'
+                            }
+                        ],
+                        messages: []
+                    };
+                }
+
+                chats[chatKey].messages.push(message);
+            } catch (error) {
+                console.error(
+                    'Error merging messages with product details:',
+                    error
+                );
+            }
+
+            return chats;
+        }, {});
+
+        res.status(200).json(groupedMessages);
+    } catch (error) {
+        console.error('Unexpected error in /messages endpoint:', error);
+        res.status(500).json({
+            message: 'An unexpected error occurred. Please try again later.'
+        });
+    }
+});
+
+router.post('/message', checkAuth, async (req, res) => {
+    try {
+        const { product_id, to_user_id, message } = req.body;
+        const from_user_id = req.session.user_id;
+
+        if (!product_id || !to_user_id) {
+            return res.status(400).json({
+                error: 'Missing required fields: product_id, to_user_id, and message.'
+            });
+        }
+
+        const insertMessageQuery = `
+            INSERT INTO messages (from_user_id, to_user_id, product_id, message, created_at)
+            VALUES ($1, $2, $3, $4, NOW())
+            RETURNING *;
+        `;
+        const insertMessageResult = await pool.query(insertMessageQuery, [
+            from_user_id,
+            to_user_id,
+            product_id,
+            message
+        ]);
+
+        const createdMessage = insertMessageResult.rows[0];
+
+        // Emit the new message for real-time updates
+        eventEmitter.emit('newMessage', createdMessage);
+
+        res.status(200).json(createdMessage);
+    } catch (error) {
+        console.error('Error sending message:', error);
+        res.status(500).json({
+            error: 'An error occurred while sending the message.'
+        });
+    }
+});
+
+router.get('/events', async (req, res) => {
+    try {
+        const userId = req.session.user_id;
+
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+
+        const sendEvent = (message) => {
+            // Only broadcast messages relevant to the logged-in user
+            if (
+                message.from_user_id === userId ||
+                message.to_user_id === userId
+            ) {
+                res.write(`data: ${JSON.stringify(message)}\n\n`);
+            }
+        };
+
+        eventEmitter.on('newMessage', sendEvent);
+
+        req.on('close', () => {
+            eventEmitter.off('newMessage', sendEvent);
+            res.end();
+        });
+    } catch (error) {
+        res.status(500).json({
+            error: 'An error occurred while sending the message.'
+        });
+    }
+});
+
+// Get additional properties based on category
+router.get('/additional-properties', async (req, res) => {
+    try {
+        const { category_id } = req.query;
+
+        if (!category_id) {
+            return res.status(400).json({ message: 'category_id is required' });
+        }
+
+        const additionalPropertiesQuery = `
+            SELECT DISTINCT jsonb_object_keys(p.additional_properties) AS property_key
+            FROM product p 
+            LEFT JOIN product_has_category pc ON p.product_id = pc.product_id
+            JOIN real_estate re ON re.product_id = p.product_id 
+            WHERE pc.category_id = $1
+        `;
+
+        const additionalPropertiesResult = await pool.query(
+            additionalPropertiesQuery,
+            [category_id]
+        );
+
+        if (additionalPropertiesResult.rows.length === 0) {
+            return res.status(404).json({
+                message:
+                    'No additional properties found for the given category_id'
+            });
+        }
+
+        const additionalProperties = additionalPropertiesResult.rows.map(
+            (row) => row.property_key
+        );
+
+        res.status(200).json(additionalProperties);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
 module.exports = router;

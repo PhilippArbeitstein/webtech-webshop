@@ -1,8 +1,7 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, switchMap, tap } from 'rxjs';
-import { UserService } from './user.service';
-import { response } from 'express';
+import { BehaviorSubject, map, Observable, switchMap, tap } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { User, UserService } from './user.service';
 import { OverlayService } from './overlay.service';
 
 @Injectable({
@@ -22,24 +21,32 @@ export class AuthService {
         email: string;
         password: string;
     }): Observable<any> {
-        // Pipe is being used to chain RxJS operators. In this case to apply the tap operator to the observable
         return this.httpClient
-            .post('http://localhost:3000/login', loginCredentials, {
-                withCredentials: true
-            })
+            .post<{ message: string; id: string }>(
+                'http://localhost:3000/login',
+                loginCredentials,
+                { withCredentials: true }
+            )
             .pipe(
-                // Tap is a side-effect, that lets you perform side-effects on each emission of the observable without changing the observables data
-                tap((response: any) => {
+                tap((response) => {
                     if (response.message === 'Login successful') {
                         this.isAuthenticated.next(true);
                     } else {
                         this.isAuthenticated.next(false);
                     }
                 }),
-                switchMap((response: any) => {
+                switchMap((response) => {
                     if (response.message === 'Login successful') {
-                        return this.userService.getCurrentUser(
-                            parseInt(response.id)
+                        const userId = parseInt(response.id, 10);
+                        return this.userService.getCurrentUser(userId).pipe(
+                            tap((user) => {
+                                this.userService.setLoggedInUser(user);
+                            }),
+                            switchMap((user) => {
+                                return this.userService.getCurrentAddress(
+                                    user.address_id
+                                );
+                            })
                         );
                     } else {
                         throw new Error('Login failed');
@@ -49,28 +56,20 @@ export class AuthService {
     }
 
     register(registrationCredentials: {
-        address: {
-            city: string;
-            user_address: string;
-            province: string;
-        };
-        user: {
-            email: string;
-            username: string;
-            password: string;
-        };
+        address: { city: string; user_address: string; province: string };
+        user: { email: string; username: string; password: string };
     }): Observable<any> {
         return this.httpClient
-            .post(
+            .post<{ message: string; user: User }>(
                 'http://localhost:3000/login/register',
                 registrationCredentials,
                 { withCredentials: true }
             )
             .pipe(
-                tap((response: any) => {
+                tap((response) => {
                     if (response.message === 'Registration successful') {
                         this.isAuthenticated.next(true);
-                        this.userService.loggedInUser = response.user;
+                        this.userService.setLoggedInUser(response.user);
                     } else {
                         this.isAuthenticated.next(false);
                     }
@@ -80,16 +79,15 @@ export class AuthService {
 
     logout(): Observable<any> {
         return this.httpClient
-            .get('http://localhost:3000/logout', {
+            .get<{ message: string }>('http://localhost:3000/logout', {
                 withCredentials: true
             })
             .pipe(
-                tap((response: any) => {
+                tap((response) => {
                     if (response.message === 'Logout successful') {
                         this.overlayService.closeOverlay();
                         this.isAuthenticated.next(false);
-                        this.userService.loggedInUser =
-                            this.userService.emptyUser;
+                        this.userService.clearUserData();
                     } else {
                         this.isAuthenticated.next(true);
                     }
@@ -97,36 +95,45 @@ export class AuthService {
             );
     }
 
-    checkSession(): void {
-        this.httpClient
-            .get('http://localhost:3000/login/session', {
-                withCredentials: true
-            })
+    checkSession(): Observable<void> {
+        return this.httpClient
+            .get<{ loggedIn: boolean; user_id?: string }>(
+                'http://localhost:3000/login/session',
+                { withCredentials: true }
+            )
             .pipe(
-                tap((response: any) => {
+                tap((response) => {
                     this.isAuthenticated.next(response.loggedIn);
                 }),
-                switchMap((response: any) => {
-                    const loggedIn: boolean = response.loggedIn;
-                    if (loggedIn) {
-                        return this.userService.getCurrentUser(
-                            parseInt(response.user_id)
+                switchMap((response) => {
+                    if (response.loggedIn && response.user_id) {
+                        const userId = parseInt(response.user_id, 10);
+                        return this.userService.getCurrentUser(userId).pipe(
+                            tap((user) => {
+                                this.userService.setLoggedInUser(user);
+                            }),
+                            switchMap((user) =>
+                                this.userService
+                                    .getCurrentAddress(user.address_id)
+                                    .pipe(
+                                        tap(() => {
+                                            console.log(
+                                                'Address fetched successfully'
+                                            );
+                                        })
+                                    )
+                            )
                         );
                     } else {
+                        this.isAuthenticated.next(false);
+                        this.userService.clearUserData();
                         throw new Error('No active session');
                     }
-                })
-            )
-            .subscribe({
-                next: (user) => {},
-                error: (error) => {
-                    console.error(
-                        'Session check failed or no active session:',
-                        error
-                    );
-                    this.isAuthenticated.next(false);
-                    this.userService.loggedInUser = this.userService.emptyUser;
-                }
-            });
+                }),
+                tap(() => {
+                    console.log('Session check complete.');
+                }),
+                map(() => {})
+            );
     }
 }

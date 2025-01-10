@@ -12,12 +12,20 @@ import { Router, RouterLink } from '@angular/router';
     styleUrl: './profile-overlay.component.css'
 })
 export class ProfileOverlayComponent {
+    loggedInUser: any;
+
     constructor(
         public authService: AuthService,
         public overlayService: OverlayService,
         public userService: UserService,
         private router: Router
     ) {}
+
+    ngOnInit(): void {
+        this.userService.loggedInUser$.subscribe((user) => {
+            this.loggedInUser = user;
+        });
+    }
 
     onLogout() {
         this.authService.logout().subscribe({

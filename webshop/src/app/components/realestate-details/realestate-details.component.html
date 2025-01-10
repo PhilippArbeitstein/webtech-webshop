@@ -3,8 +3,6 @@
 >
     <div class="flex flex-col h-full space-y-12">
         <app-navbar class="shrink-0"></app-navbar>
-
-        <!-- Centered Content -->
         <div
             class="flex-grow flex flex-col justify-center items-center space-y-6 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none]"
         >
@@ -18,7 +16,6 @@
                     >
                         &times;
                     </button>
-                    <!-- Image Section -->
                     <div class="w-full lg:w-1/2 h-64 lg:h-auto">
                         <img
                             [src]="listing.image_url"
@@ -26,14 +23,11 @@
                             class="object-cover w-full h-full"
                         />
                     </div>
-                    <!-- Details Section -->
                     <div
                         class="w-full lg:w-1/2 p-6 lg:p-8 flex flex-col space-y-6"
                     >
-                        <!-- Name -->
                         <h2 class="text-2xl font-bold">{{ listing.name }}</h2>
 
-                        <!-- Price and Location -->
                         <div class="flex flex-col space-y-2">
                             <span class="text-3xl font-bold text-gray-800">
                                 € {{ listing.price }}
@@ -42,22 +36,18 @@
                                 📍{{ listing.city }}, {{ listing.address }}
                             </span>
                         </div>
-
-                        <!-- Booking Date -->
                         <div>
                             <p class="text-gray-700 font-semibold">
-                                ⏳Buchungszeitraum
+                                ⏳Booking Date
                             </p>
                             <p class="text-gray-600">
                                 {{ listing.rent_start_formatted }} -
                                 {{ listing.rent_end_formatted }}
                             </p>
                         </div>
-
-                        <!-- Description -->
                         <div class="flex-grow">
                             <h3 class="font-semibold text-gray-800 mb-2">
-                                ✏️Beschreibung
+                                Description
                             </h3>
                             <div
                                 class="overflow-y-auto max-h-40 pr-2 [scrollbar-width:thin]"
@@ -85,21 +75,23 @@
                                 </ul>
                             </div>
                         </div>
-
-                        <!-- Button pushed to the bottom -->
                         <button
+                            *ngIf="
+                                loggedInUser?.user_id != -1 &&
+                                loggedInUser?.user_id != listing.user_id
+                            "
                             class="bg-btn_primary text-white font-semibold py-2 px-4 rounded-full hover:bg-btn_primary_darkened w-full mt-auto"
+                            (click)="startNewChat()"
                         >
-                            Anfragen
+                            Request
                         </button>
                     </div>
                 </div>
             </ng-container>
 
-            <!-- Fallback Content -->
             <ng-template #noListing>
                 <p class="text-gray-600 text-center">
-                    🚫 Leider konnte das Listing nicht gefunden werden.
+                    🚫 Sadly the listing could not be found.
                 </p>
             </ng-template>
         </div>

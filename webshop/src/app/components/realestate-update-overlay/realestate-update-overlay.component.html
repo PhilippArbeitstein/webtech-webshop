@@ -1,0 +1,303 @@
+<div
+    class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 overflow-y-auto"
+    (click)="onClose($event)"
+>
+    <div
+        class="bg-white rounded-lg shadow-lg max-w-4xl w-full p-6 relative mt-10 mb-10"
+        style="
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        "
+        (click)="cancelAll($event)"
+    >
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold">Update Real Estate Listing</h2>
+            <button
+                class="text-gray-500 hover:text-gray-800"
+                (click)="onClose($event)"
+            >
+                ✖
+            </button>
+        </div>
+
+        <form [formGroup]="realestateForm" (ngSubmit)="onSubmit()">
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Image URL -->
+                <div>
+                    <label class="block font-medium">Image URL</label>
+                    <input
+                        type="text"
+                        formControlName="image_url"
+                        class="w-full border rounded-lg px-4 py-2"
+                    />
+                    <span
+                        *ngIf="
+                            realestateForm.controls['image_url'].invalid &&
+                            realestateForm.controls['image_url'].touched
+                        "
+                        class="text-red-500 text-sm"
+                    >
+                        <ng-container
+                            *ngIf="
+                                realestateForm.controls['image_url'].hasError(
+                                    'required'
+                                )
+                            "
+                        >
+                            Image URL is required.
+                        </ng-container>
+                    </span>
+                </div>
+                <div>
+                    <label class="block font-medium">Name</label>
+                    <input
+                        type="text"
+                        formControlName="name"
+                        class="w-full border rounded-lg px-4 py-2"
+                    />
+                    <span
+                        *ngIf="
+                            realestateForm.controls['name'].invalid &&
+                            realestateForm.controls['name'].touched
+                        "
+                        class="text-red-500 text-sm"
+                    >
+                        Name is required.
+                    </span>
+                </div>
+                <div class="col-span-2">
+                    <label class="block font-medium">Description</label>
+                    <textarea
+                        formControlName="description"
+                        class="w-full border rounded-lg px-4 py-2"
+                    ></textarea>
+                </div>
+                <div>
+                    <label class="block font-medium">Price (€)</label>
+                    <input
+                        type="number"
+                        formControlName="price"
+                        class="w-full border rounded-lg px-4 py-2"
+                    />
+                    <span
+                        *ngIf="
+                            realestateForm.controls['price'].invalid &&
+                            realestateForm.controls['price'].touched
+                        "
+                        class="text-red-500 text-sm"
+                    >
+                        <ng-container
+                            *ngIf="
+                                realestateForm.controls['price'].hasError(
+                                    'required'
+                                )
+                            "
+                        >
+                            Price is required.
+                        </ng-container>
+                        <ng-container
+                            *ngIf="
+                                realestateForm.controls['price'].hasError('min')
+                            "
+                        >
+                            Price must be greater than 0.
+                        </ng-container>
+                    </span>
+                </div>
+                <div>
+                    <label class="block font-medium">Address</label>
+                    <input
+                        type="text"
+                        formControlName="address"
+                        class="w-full border rounded-lg px-4 py-2"
+                    />
+                    <span
+                        *ngIf="
+                            realestateForm.controls['address'].invalid &&
+                            realestateForm.controls['address'].touched
+                        "
+                        class="text-red-500 text-sm"
+                    >
+                        Address is required.
+                    </span>
+                </div>
+                <div>
+                    <label class="block font-medium">City</label>
+                    <input
+                        type="text"
+                        formControlName="city"
+                        class="w-full border rounded-lg px-4 py-2"
+                    />
+                    <span
+                        *ngIf="
+                            realestateForm.controls['city'].invalid &&
+                            realestateForm.controls['city'].touched
+                        "
+                        class="text-red-500 text-sm"
+                    >
+                        City is required.
+                    </span>
+                </div>
+                <div>
+                    <label class="block font-medium">Province</label>
+                    <input
+                        type="text"
+                        formControlName="province"
+                        class="w-full border rounded-lg px-4 py-2"
+                    />
+                    <span
+                        *ngIf="
+                            realestateForm.controls['province'].invalid &&
+                            realestateForm.controls['province'].touched
+                        "
+                        class="text-red-500 text-sm"
+                    >
+                        Province is required.
+                    </span>
+                </div>
+                <div>
+                    <label class="block font-medium">Advance Payment</label>
+                    <input
+                        type="number"
+                        formControlName="advance_payment"
+                        class="w-full border rounded-lg px-4 py-2"
+                    />
+                    <span
+                        *ngIf="
+                            realestateForm.controls['advance_payment']
+                                .invalid &&
+                            realestateForm.controls['advance_payment'].touched
+                        "
+                        class="text-red-500 text-sm"
+                    >
+                        Advance payment must be a valid amount.
+                    </span>
+                </div>
+                <div>
+                    <label class="block font-medium">Rent Start</label>
+                    <input
+                        type="text"
+                        formControlName="rent_start"
+                        class="w-full border rounded-lg px-4 py-2"
+                        placeholder="YYYY-MM-DD"
+                        pattern="\d{4}-\d{2}-\d{2}"
+                    />
+                    <span
+                        *ngIf="
+                            realestateForm.controls['rent_start'].invalid &&
+                            realestateForm.controls['rent_start'].touched
+                        "
+                        class="text-red-500 text-sm"
+                    >
+                        Rent start date is required and must follow the format
+                        YYYY-MM-DD.
+                    </span>
+                </div>
+                <div>
+                    <label class="block font-medium">Rent End</label>
+                    <input
+                        type="text"
+                        formControlName="rent_end"
+                        class="w-full border rounded-lg px-4 py-2"
+                        placeholder="YYYY-MM-DD"
+                        pattern="\d{4}-\d{2}-\d{2}"
+                    />
+                    <span
+                        *ngIf="
+                            realestateForm.controls['rent_end'].invalid &&
+                            realestateForm.controls['rent_end'].touched
+                        "
+                        class="text-red-500 text-sm"
+                    >
+                        Rent end date is required and must follow the format
+                        YYYY-MM-DD.
+                    </span>
+                </div>
+                <div>
+                    <label class="block font-medium">Property Type</label>
+                    <select
+                        class="w-full border rounded-lg px-4 py-2"
+                        formControlName="type_name"
+                    >
+                        <option value="">Select property type</option>
+                        <option
+                            *ngFor="let type of realEstateTypes"
+                            [value]="type.type_name"
+                        >
+                            {{ type.type_name }}
+                        </option>
+                    </select>
+                    <span
+                        *ngIf="
+                            realestateForm.controls['type_name'].invalid &&
+                            realestateForm.controls['type_name'].touched
+                        "
+                        class="text-red-500 text-sm"
+                    >
+                        Property type is required.
+                    </span>
+                </div>
+            </div>
+            <fieldset class="border p-4 mt-4 rounded-lg">
+                <legend class="font-bold">Additional Properties</legend>
+                <div formArrayName="additional_properties" class="space-y-4">
+                    <div
+                        *ngFor="
+                            let control of additionalProperties.controls;
+                            let i = index
+                        "
+                        [formGroupName]="i"
+                        class="grid grid-cols-[1fr_1fr_auto] gap-x-4 gap-y-2 items-center"
+                    >
+                        <input
+                            type="text"
+                            placeholder="Key"
+                            formControlName="key"
+                            class="border rounded-lg px-4 py-2"
+                        />
+                        <input
+                            type="text"
+                            placeholder="Value"
+                            formControlName="value"
+                            class="border rounded-lg px-4 py-2"
+                        />
+                        <button
+                            type="button"
+                            class="text-white p-2 rounded-full hover:bg-text_gray focus:outline-none flex items-center justify-center"
+                            (click)="removeProperty(i, $event)"
+                            title="Remove"
+                        >
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+                <button
+                    type="button"
+                    class="mt-4 bg-btn_primary text-white px-4 py-2 rounded-lg hover:bg-btn_primary_darkened"
+                    (click)="addProperty($event)"
+                >
+                    Add Property
+                </button>
+            </fieldset>
+
+            <div class="flex justify-end mt-6 space-x-4">
+                <button
+                    type="button"
+                    class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400"
+                    (click)="onClose($event)"
+                >
+                    Cancel
+                </button>
+                <button
+                    type="submit"
+                    class="bg-btn_primary text-white px-4 py-2 rounded-lg hover:bg-btn_primary_darkened"
+                    data-submit="true"
+                >
+                    Update
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,22 +1,38 @@
 import { Component } from '@angular/core';
+import { SearchbarService } from '../../services/searchbar.service';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { FooterComponent } from '../footer/footer.component';
-import { SearchbarService } from '../../services/searchbar.service';
+import { RetailListComponent } from '../retail-list/retail-list.component';
+import {
+  RetailListing,
+  RetailsService,
+} from '../../services/retail.service';
 
 @Component({
-    selector: 'app-retail-page',
-    imports: [NavbarComponent, FooterComponent],
-    templateUrl: './retail-page.component.html',
-    styleUrl: './retail-page.component.css'
+  selector: 'app-retail-page',
+  imports: [NavbarComponent, FooterComponent, RetailListComponent],
+  templateUrl: './retail-page.component.html',
+  styleUrl: './retail-page.component.css',
 })
 export class RetailPageComponent {
-    constructor(private searchbarService: SearchbarService) {}
+  retailListings: RetailListing[] = [];
 
-    ngOnInit(): void {
-        this.searchbarService.setSearchBarContext('retail');
-    }
+  constructor(
+    private searchbarService: SearchbarService,
+    private retailService: RetailsService
+  ) {}
 
-    ngOnDestroy(): void {
-        this.searchbarService.setSearchBarContext(null);
-    }
+  ngOnInit(): void {
+    this.searchbarService.setSearchBarContext('retail');
+    this.retailService.getListings();
+    this.retailService.listings$.subscribe({
+      next: (listings) => (this.retailListings = listings),
+      error: (error) => console.error('Error fetching listings:', error),
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.searchbarService.setSearchBarContext(null);
+    this.searchbarService.setSearchQuery('');
+  }
 }

@@ -1,7 +1,7 @@
 <div
     class="bg-white rounded-2xl shadow-lg overflow-hidden w-72 flex flex-col h-full relative group"
+    (click)="$event.stopPropagation()"
 >
-    <!-- Image Container -->
     <div class="w-full h-56 bg-gray-100 flex items-center justify-center">
         <img
             [src]="listing.image_url"
@@ -13,31 +13,44 @@
             (error)="onImageError($event)"
         />
     </div>
-
-    <!-- Content -->
     <div class="p-4 flex flex-col flex-grow">
-        <!-- Name -->
         <h2 class="text-xl font-bold mb-2">{{ listing.name }}</h2>
-
-        <!-- Price -->
         <p class="text-lg font-semibold text-gray-800 mb-4">
             € {{ listing.price | number }}
         </p>
-
-        <!-- Location -->
         <p class="text-gray-600 mt-auto">{{ listing.city }}</p>
     </div>
-
-    <!-- Trash Icon on Hover -->
-    <button
-        *ngIf="isTrashIconVisible"
-        class="absolute bottom-4 right-4 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition duration-200 hover:bg-text_gray focus:outline-none"
-        (click)="openConfirmationPopup($event, listing.product_id)"
+    <div
+        class="absolute bottom-4 right-4 flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition duration-200"
     >
-        🗑️
-    </button>
-
-    <!-- Confirmation Popup -->
+        <button
+            *ngIf="isEditIconVisible"
+            class="hover:bg-gray-300 p-2 rounded-full"
+            (click)="openEditOverlay($event, listing)"
+            title="Edit"
+        >
+            ✏️
+        </button>
+        <button
+            *ngIf="isTrashIconVisible"
+            class="text-white p-2 rounded-full hover:bg-text_gray focus:outline-none"
+            (click)="openConfirmationPopup($event, listing.product_id)"
+            title="Delete"
+        >
+            🗑️
+        </button>
+    </div>
+    <div
+        *ngIf="showEditOverlayState"
+        class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+        (click)="closeEditOverlay($event)"
+    >
+        <app-realestate-update-overlay
+            [listing]="selectedListing!"
+            (update)="onUpdateCallback()"
+            (close)="closeEditOverlay()"
+        ></app-realestate-update-overlay>
+    </div>
     <div
         *ngIf="showConfirmationPopup"
         class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"

@@ -10,21 +10,24 @@
                 class="w-full flex items-center mt-12 space-x-4 justify-between px-28"
             >
                 <h2 class="text-2xl font-bold text-gray-800">
-                    Deine Immobilien
+                    Your Properties
                 </h2>
                 <button
                     class="bg-btn_primary hover:bg-btn_primary_darkened text-white font-semibold px-4 rounded-lg transition duration-200 h-8 flex items-center"
                     (click)="openOverlay()"
                 >
-                    New
+                    New Property
                 </button>
             </div>
+
+            <!-- Vehicles Button-->
 
             <style>
                 .scrollbar-hidden::-webkit-scrollbar {
                     display: none;
                 }
                 .scrollbar-hidden {
+                    /* Mit Hilfe von ChatGPT */
                     scrollbar-width: none; /* Firefox */
                     -ms-overflow-style: none; /* IE and Edge */
                 }
@@ -33,11 +36,44 @@
                 *ngIf="userListings$ | async as userListings"
                 [listings]="userListings"
                 [onDeleteCallback]="loadUserListings.bind(this)"
+                [onUpdateCallback]="loadUserListings.bind(this)"
             ></app-realestate-list>
+            <div
+                class="w-full flex items-center mt-12 space-x-4 justify-between px-28"
+            >
+                <h2 class="text-2xl font-bold text-gray-800">Your Vehicles</h2>
+                <button
+                    class="bg-btn_primary hover:bg-btn_primary_darkened text-white font-semibold px-4 rounded-lg transition duration-200 h-8 flex items-center"
+                    (click)="openVehicleOverlay()"
+                >
+                    New Vehicle
+                </button>
+            </div>
+            <app-vehicle-list
+                *ngIf="userVehiclesListings$ | async as userVehiclesListings"
+                [listings]="userVehiclesListings"
+                [onDeleteCallback]="loadUserVehicleListings.bind(this)"
+            ></app-vehicle-list>
+            <!-- Retail Button-->
+            <div
+                class="w-full flex items-center mt-12 space-x-4 justify-between px-28"
+            >
+                <h2 class="text-2xl font-bold text-gray-800">
+                    Your Retail Listings
+                </h2>
+                <button
+                    class="bg-btn_primary hover:bg-btn_primary_darkened text-white font-semibold px-4 rounded-lg transition duration-200 h-8 flex items-center"
+                    (click)="openRetailOverlay()"
+                >
+                    New Retail Listing
+                </button>
+            </div>
+            <app-retail-list
+                *ngIf="userRetailListings$ | async as userRetailListings"
+                [listings]="userRetailListings"
+                [onDeleteCallback]="loadUserRetailListings.bind(this)"
+            ></app-retail-list>
         </div>
-        <app-footer
-            class="shrink-0 fixed bottom-0 left-0 w-full z-10"
-        ></app-footer>
     </div>
 </div>
 
@@ -50,4 +86,25 @@
         class="fixed inset-0 bg-gray-500 bg-opacity-20 flex justify-center items-center z-50"
         (close)="closeOverlay()"
     ></app-realestate-create-overlay>
+</div>
+<div
+    *ngIf="isVehicleOverlayOpen"
+    class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50 overflow-y-auto"
+    (click)="closeVehicleOverlay()"
+>
+    <app-vehicle-create-overlay
+        class="fixed inset-0 bg-gray-500 bg-opacity-20 flex justify-center items-center z-50"
+        (close)="closeVehicleOverlay()"
+    ></app-vehicle-create-overlay>
+</div>
+
+<div
+    *ngIf="isRetailOverlayOpen"
+    class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50 overflow-y-auto"
+    (click)="closeRetailOverlay()"
+>
+    <app-retail-create-overlay
+        class="fixed inset-0 bg-gray-500 bg-opacity-20 flex justify-center items-center z-50"
+        (close)="closeRetailOverlay()"
+    ></app-retail-create-overlay>
 </div>

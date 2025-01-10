@@ -1,0 +1,121 @@
+<div
+    class="w-screen h-screen flex flex-col md:px-48 md:py-12 relative "
+>
+    <div class="flex flex-col h-full space-y-12">
+        <app-navbar class="shrink-0"></app-navbar>
+
+        <!-- Centered Content -->
+        <div
+            class="flex-grow flex flex-col justify-center items-center space-y-6 overflow-y-auto "
+        >
+            <ng-container *ngIf="listing; else noListing">
+                <div
+                    class="flex flex-col lg:flex-row bg-white rounded-xl  relative w-full max-w-5xl h-auto lg:h-[60vh]"
+                >
+                    <button
+                        (click)="goBack()"
+                        class="absolute top-7 right-7 text-text_gray hover:text-black text-3xl"
+                    >
+                        &times;
+                    </button>
+                    <!-- Image Section -->
+                    <div class="w-full lg:w-1/2 h-64 lg:h-auto">
+                        <img
+                            [src]="listing.image_url"
+                            alt="{{ listing.name }}"
+                            class="object-cover w-full h-full"
+                        />
+                    </div>
+                    <!-- Details Section -->
+                    <div
+                        class="w-full lg:w-1/2 p-6 lg:p-8 flex flex-col space-y-6"
+                    >
+                        <!-- Name -->
+                        <h2 class="text-2xl font-bold">{{ listing.name }}</h2>
+
+                        <!-- Price and Mileage -->
+                        <div class="flex flex-col space-y-2">
+                            <span class="text-3xl font-bold text-gray-800">
+                                € {{ listing.price }}
+                            </span>
+                            <span class="text-gray-500">
+                                Mileage: {{ listing.mileage }}
+                            </span>
+                           
+                        </div>
+                        
+                        <!-- Fuel Type -->
+                        <div>
+                            <p class="text-gray-700 font-semibold">
+                                Fuel Type
+                            </p>
+                            <p class="text-gray-600">
+                                {{ listing.fuel_type_name }} 
+                            </p>
+                        </div>
+                    
+                        <!-- Description -->
+                        <div class="flex-grow">
+                            <h3 class="font-semibold text-gray-800 mb-2">
+                                ✏️Description
+                            </h3>
+                            <div
+                                class="overflow-y-auto max-h-40 pr-2 [scrollbar-width:thin]"
+                            >
+                                <p class="mt-2 mb-4 text-gray-700">
+                                    {{ listing.description }}
+                                </p>
+                               
+                            </div>
+                        </div>
+                        <!-- Description -->
+                        <div class="flex flex-col space-y-2">
+                            <h3 class="font-semibold text-gray-800 mb-2">
+                                Additional Information
+                            </h3>
+                            <span class="text-gray-500">
+                                Mark: {{ listing.mark_name }}
+                            </span>
+                            <span class="text-gray-500">
+                                Model: {{ listing.model_name }}
+                            </span>
+                            <span class="text-gray-500">
+                                Type: {{ listing.type_name }}
+                            </span>
+                            <span class="text-gray-500">
+                                Condition: {{ listing.condition_name }}
+                            </span>
+                            <span class="text-gray-500">
+                                First Registration: {{ listing.year }}
+                            </span>
+                            <span class="text-gray-500">
+                                Color: {{ listing.color }}
+                            </span>
+                        </div>
+
+                        <!-- Button pushed to the bottom -->
+                        <button
+                            class="bg-btn_primary text-white font-semibold py-2 px-4 rounded-full hover:bg-btn_primary_darkened w-full mt-auto"
+                        >
+                            Inquire 
+                        </button>
+                    </div>
+                </div>
+                
+
+                
+            </ng-container>
+
+            <!-- Fallback Content -->
+            <ng-template #noListing>
+                <p class="text-gray-600 text-center">
+                    🚫 Leider konnte das Listing nicht gefunden werden.
+                </p>
+            </ng-template>
+        </div>
+
+        <app-footer
+            class="shrink-0 fixed bottom-0 left-0 w-full z-10"
+        ></app-footer>
+    </div>
+</div>

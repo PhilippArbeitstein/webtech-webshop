@@ -12,6 +12,13 @@ export class AppComponent {
     constructor(private authService: AuthService) {}
 
     ngOnInit(): void {
-        this.authService.checkSession();
+        this.authService.checkSession().subscribe({
+            next: () => {
+                console.log('Session checked successfully.');
+            },
+            error: (err) => {
+                console.error('Session check failed:', err);
+            }
+        });
     }
 }
