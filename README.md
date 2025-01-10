@@ -96,5 +96,5 @@ Das Projekt verwendet folgende Technologien und Frameworks:
 ## 👥 **Mitwirkende**
 
 -   [Philipp Arbeitstein](https://github.com/PhilippArbeitstein) [RealEstate]
--   [Thomas Wobak](https://github.com/profil) [Vehicles]
--   [Lukas Wobak](https://github.com/profil) [Retail]
+-   [Thomas Wobak](https://github.com/ThomasWobak) [Vehicles]
+-   [Lukas Wobak](https://github.com/l1wobak) [Retail]
