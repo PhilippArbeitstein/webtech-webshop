@@ -27,8 +27,7 @@ router.get("/", async (req, res) => {
 
     if (search) {
         conditions.push(
-            `(product.name ILIKE $${
-                params.length + 1
+            `(product.name ILIKE $${params.length + 1
             } OR product.description ILIKE $${params.length + 1})`
         );
         params.push(`%${search}%`);
@@ -52,24 +51,21 @@ router.get("/", async (req, res) => {
     }
     if (mark) {
         conditions.push(
-            `vehicle_marks.mark_name=$${
-                params.length + 1
+            `vehicle_marks.mark_name=$${params.length + 1
             } AND vehicles.mark_id=vehicle_marks.mark_id`
         );
         params.push(mark);
     }
     if (type) {
         conditions.push(
-            `vehicle_types.type_name ILIKE $${
-                params.length + 1
+            `vehicle_types.type_name ILIKE $${params.length + 1
             } AND vehicles.type_id=vehicle_types.type_id`
         );
         params.push(type);
     }
     if (top_level_category) {
         conditions.push(
-            `vehicle_types.top_level_category ILIKE $${
-                params.length + 1
+            `vehicle_types.top_level_category ILIKE $${params.length + 1
             } AND vehicles.type_id=vehicle_types.type_id`
         );
         params.push(top_level_category);
@@ -82,8 +78,7 @@ router.get("/", async (req, res) => {
     }
     if (fuel_type) {
         conditions.push(
-            `fuel_types.fuel_type_name=$${
-                params.length + 1
+            `fuel_types.fuel_type_name=$${params.length + 1
             } AND vehicles.fuel_type_id=fuel_types.fuel_type_id`
         );
         params.push(fuel_type);
@@ -94,8 +89,7 @@ router.get("/", async (req, res) => {
     }
     if (condition) {
         conditions.push(
-            `conditions.condition_name ILIKE $${
-                params.length + 1
+            `conditions.condition_name ILIKE $${params.length + 1
             } AND conditions.condition_id=vehicles.condition_id`
         );
         params.push(condition);

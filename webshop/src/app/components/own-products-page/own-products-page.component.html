@@ -54,6 +54,25 @@
                 [listings]="userVehiclesListings"
                 [onDeleteCallback]="loadUserVehicleListings.bind(this)"
             ></app-vehicle-list>
+            <!-- Retail Button-->
+            <div
+                class="w-full flex items-center mt-12 space-x-4 justify-between px-28"
+            >
+                <h2 class="text-2xl font-bold text-gray-800">
+                    Your Retail Listings
+                </h2>
+                <button
+                    class="bg-btn_primary hover:bg-btn_primary_darkened text-white font-semibold px-4 rounded-lg transition duration-200 h-8 flex items-center"
+                    (click)="openRetailOverlay()"
+                >
+                    New Retail Listing
+                </button>
+            </div>
+            <app-retail-list
+                *ngIf="userRetailListings$ | async as userRetailListings"
+                [listings]="userRetailListings"
+                [onDeleteCallback]="loadUserRetailListings.bind(this)"
+            ></app-retail-list>
         </div>
     </div>
 </div>
@@ -77,4 +96,15 @@
         class="fixed inset-0 bg-gray-500 bg-opacity-20 flex justify-center items-center z-50"
         (close)="closeVehicleOverlay()"
     ></app-vehicle-create-overlay>
+</div>
+
+<div
+    *ngIf="isRetailOverlayOpen"
+    class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50 overflow-y-auto"
+    (click)="closeRetailOverlay()"
+>
+    <app-retail-create-overlay
+        class="fixed inset-0 bg-gray-500 bg-opacity-20 flex justify-center items-center z-50"
+        (close)="closeRetailOverlay()"
+    ></app-retail-create-overlay>
 </div>
