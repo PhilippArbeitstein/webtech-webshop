@@ -39,7 +39,6 @@ router.post('/', async (req, res) => {
 });
 
 router.get('/session', (req, res) => {
-    console.log('here');
     if (req.session.isAuth) {
         return res.status(200).json({
             loggedIn: true,
