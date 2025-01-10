@@ -96,7 +96,6 @@ export class AuthService {
     }
 
     checkSession(): Observable<void> {
-        console.log('checkSession() invoked');
         return this.httpClient
             .get<{ loggedIn: boolean; user_id?: string }>(
                 'http://localhost:3000/login/session',
@@ -104,7 +103,6 @@ export class AuthService {
             )
             .pipe(
                 tap((response) => {
-                    console.log('Response from /login/session:', response);
                     this.isAuthenticated.next(response.loggedIn);
                 }),
                 switchMap((response) => {

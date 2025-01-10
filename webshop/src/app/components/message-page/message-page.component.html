@@ -5,7 +5,6 @@
     <div
         class="flex-grow rounded-lg overflow-hidden shadow-custom-top bg-white flex"
     >
-        <!-- Sidebar showing list of chats -->
         <div class="w-1/4 h-full overflow-y-auto border-r border-gray-300">
             <div
                 *ngFor="let chat of chats | keyvalue"
@@ -29,10 +28,7 @@
                 </div>
             </div>
         </div>
-
-        <!-- Chat container -->
         <div class="flex-grow flex flex-col h-full">
-            <!-- Chat header -->
             <div
                 class="bg-white p-4 border-b border-gray-300"
                 *ngIf="selectedChat"
@@ -67,8 +63,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Chat messages -->
             <div
                 #scrollContainer
                 class="flex-grow overflow-y-auto p-4 space-y-4"
@@ -82,7 +76,6 @@
                 </div>
 
                 <div *ngIf="!loading && !errorMessage && selectedChat">
-                    <!-- Loop through each message -->
                     <div
                         *ngFor="let message of selectedChat.messages"
                         class="flex mb-4"
@@ -93,7 +86,6 @@
                                 message.from_user_id !== loggedInUser?.user_id
                         }"
                     >
-                        <!-- Message Bubble -->
                         <div
                             [ngClass]="{
                                 'bg-gray-200 text-gray-800':
@@ -107,7 +99,6 @@
                         >
                             <p>{{ message.message }}</p>
                         </div>
-                        <!-- Timestamp -->
                         <span
                             class="text-xs text-gray-500 self-end mx-2"
                             [ngClass]="{
@@ -124,8 +115,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Message input box -->
             <div class="bg-white px-6 py-4 border-gray-300">
                 <div class="flex items-center space-x-4">
                     <input

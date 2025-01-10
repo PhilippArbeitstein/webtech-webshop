@@ -6,7 +6,6 @@ const checkAuth = require('../auth/auth.js');
 
 router.get('/address/:address_id', checkAuth, async (req, res) => {
     const { address_id } = req.params;
-    console.log('Address ID:', address_id);
 
     if (!address_id) {
         return res.status(400).json({ error: 'Address ID is required.' });

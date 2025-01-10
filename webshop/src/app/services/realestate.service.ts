@@ -167,7 +167,6 @@ export class RealestateService {
             .subscribe({
                 next: (response) => {
                     const { listings, categories } = response;
-                    console.log(response);
                     this.filteredListingsSubject.next(listings);
                     this.categoriesSubject.next(categories);
                 },

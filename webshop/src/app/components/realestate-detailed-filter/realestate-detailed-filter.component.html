@@ -1,5 +1,4 @@
 <div class="p-4 bg-white rounded-lg shadow">
-    <!-- Filter Header with Collapse Icon -->
     <div class="flex justify-between items-center mb-4">
         <h2 class="text-lg font-semibold text-gray-800">Filters</h2>
         <button
@@ -15,14 +14,11 @@
             >
         </button>
     </div>
-
-    <!-- Filter Form -->
     <form
         *ngIf="!filterCollapsed"
         (ngSubmit)="applyFilters()"
         class="flex flex-wrap gap-4 items-end"
     >
-        <!-- Category Dropdown -->
         <div class="flex-1 min-w-[200px]">
             <label
                 for="category"
@@ -42,15 +38,12 @@
                     *ngIf="categoryDropdownOpen"
                     class="absolute z-10 mt-2 w-full bg-white shadow-lg max-h-56 rounded-md py-1 text-sm ring-1 ring-black ring-opacity-5 overflow-y-auto"
                 >
-                    <!-- Clear Selection Option -->
                     <div
                         class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-red-600"
                         (click)="clearCategorySelection()"
                     >
                         Clear Selection
                     </div>
-
-                    <!-- Categories and Subcategories -->
                     <ng-container *ngFor="let category of categories">
                         <div
                             class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
@@ -95,8 +88,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Price Range -->
         <div class="flex-1 min-w-[200px]">
             <label class="block text-sm font-medium text-gray-700"
                 >Price Range (€)</label
@@ -120,8 +111,6 @@
                 />
             </div>
         </div>
-
-        <!-- Renting Period -->
         <div class="flex-1 min-w-[200px]">
             <div class="grid grid-cols-2 gap-2">
                 <div>
@@ -148,8 +137,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Province -->
         <div class="flex-1 min-w-[200px]">
             <label class="block text-sm font-medium text-gray-700"
                 >Province</label
@@ -162,8 +149,6 @@
                 placeholder="Province"
             />
         </div>
-
-        <!-- City -->
         <div class="flex-1 min-w-[200px]">
             <label class="block text-sm font-medium text-gray-700">City</label>
             <input
@@ -174,8 +159,6 @@
                 placeholder="City"
             />
         </div>
-
-        <!-- Available Now -->
         <div class="flex items-center min-w-[200px]">
             <input
                 type="checkbox"
@@ -211,8 +194,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Apply Filters Button -->
         <div class="flex-1 min-w-[200px]">
             <button
                 type="submit"
@@ -221,8 +202,6 @@
                 Apply Filters
             </button>
         </div>
-
-        <!-- Clear Filters Button -->
         <div class="flex-1 min-w-[200px]">
             <button
                 type="button"
