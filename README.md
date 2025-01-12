@@ -47,7 +47,7 @@ Das Projekt verwendet folgende Technologien und Frameworks:
 
 ### **Frontend starten**
 
-1. In das Verzeichnis `[webshop]/` wechseln.
+1. In das Verzeichnis `webshop` wechseln.
 2. Abhängigkeiten installieren:
     ```bash
     npm install
@@ -60,7 +60,7 @@ Das Projekt verwendet folgende Technologien und Frameworks:
 
 ### **Backend starten**
 
-1. In das Verzeichnis `[backend/src]/` wechseln.
+1. In das Verzeichnis `backend/src` wechseln.
 2. Abhängigkeiten installieren:
     ```bash
     npm install
