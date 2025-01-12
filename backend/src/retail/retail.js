@@ -241,9 +241,15 @@ router.delete("/:product_id", async (req, res) => {
 
 
 //Update Product
-router.put("/:product_id", async (req, res) => {
+router.put("/update/:product_id", async (req, res) => {
     const productId = req.params.product_id;
     let { image_url, name, description, price, status, additional_properties, delivery_method, condition } = req.body;
+    if (!req.session.user_id) {
+        res.status(400).send("Not logged in");
+    }
+    if (!image_url || !name || !description || !price || !status || !additional_properties || !delivery_method || !condition || !req.session.user_id) {
+        return res.status(400).send("Insufficient Information");
+    }
     let transaction;
     try {
         const ownershipValidation = await validateProductOwnership(
@@ -402,6 +408,31 @@ router.get("/delivery/methods", async (req, res) => {
     }
 });
 
+// Get all retail statuses
+router.get("/status/status", async (req, res) => {
+    try {
+        const query =
+            `
+            SELECT  * FROM statuses;
+        `
+        pool.query(query,
+            (err, result) => {
+                if (err) {
+                    console.log(err);
+                    res.status(500).send("Error retrieving statuses");
+                } else {
+                    if (result.rows.length === 0) {
+                        return res.status(404).json({ message: 'No statuses found' });
+                    }
+                    res.status(200).json(result.rows);
+                }
+            }
+        );
+    } catch (error) {
+        res.status(500).send(`Server Error: ${error}`);
+    }
+});
+
 //Add new retail product
 router.post("/new", async (req, res) => {
     let { image_url, name, description, price, status, additional_properties, delivery_method, condition } = req.body;
@@ -464,34 +495,6 @@ router.post("/new", async (req, res) => {
         if (transaction) transaction.release();
     }
 });
-
-
-router.get('/messages/message', async (req, res) => {
-    const { from_user, to_user, productId } = req.body;
-    if (!from_user || !to_user || !productId) {
-        return res.status(400).json({ error: "Missing parameters" });
-    }
-
-    try {
-        // Query to get messages between two users for a specific product
-        const query = `
-        SELECT from_user_id, to_user_id, message, sent_at
-        FROM messages
-        WHERE from_user_id = $1 AND to_user_id = $2 AND product_id = $3
-        ORDER BY sent_at;`;
-
-        const result = await pool.query(query, [from_user, to_user, productId]);
-
-        if (result.rows.length === 0) {
-            return res.status(404).json({ message: "No messages found" });
-        }
-        res.status(200).json(result.rows);
-    } catch (error) {
-        console.error('Error retrieving messages:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
 
 module.exports = router;
 

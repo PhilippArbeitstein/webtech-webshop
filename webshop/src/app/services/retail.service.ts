@@ -84,6 +84,14 @@ return this.httpClient.get<
 >(`http://localhost:3000/retail/delivery/methods`);
 }
 
+getRetailStatuses(): Observable<
+{ status_id: number; status_name: string }[]
+> {
+return this.httpClient.get<
+  { status_id: number; status_name: string }[]
+>(`http://localhost:3000/retail/status/status`);
+}
+
   deleteListing(
     product_id: number
   ): Observable<{ message: string; product_id: string }> {
@@ -92,4 +100,15 @@ return this.httpClient.get<
       { withCredentials: true }
     );
   }
+
+  updateListing(
+          productId: number,
+          updatedListing: RetailListing
+      ): Observable<{ message: string; product_id: string }> {
+          return this.httpClient.put<{ message: string; product_id: string }>(
+              `http://localhost:3000/retail/update/${productId}`,
+              updatedListing,
+              { withCredentials: true }
+          );
+      }
 }

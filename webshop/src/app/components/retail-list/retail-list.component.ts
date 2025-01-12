@@ -25,6 +25,7 @@ import { SearchbarService } from '../../services/searchbar.service';
 export class RetailListComponent implements OnChanges, OnDestroy {
   @Input() listings: RetailListing[] = [];
   @Input() onDeleteCallback!: () => void;
+  @Input() onUpdateCallback!: () => void;
 
   filteredListings: RetailListing[] = [];
   private searchSubscription: Subscription | null = null;
