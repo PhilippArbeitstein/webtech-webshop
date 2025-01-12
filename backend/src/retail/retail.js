@@ -533,10 +533,11 @@ async function validateProductOwnership(product_id, user_id) {
             message: 'Permission denied: User ID is missing or invalid'
         };
     }
-    await pool.query(query, [from_user, to_user, productId]);
+
+    let query = await pool.connect();
     // Query to check ownership
     const productOwnerQuery = `SELECT user_id FROM product WHERE product_id = $1`;
-    const productOwnerResult = await pool.query(productOwnerQuery, [product_id]);
+    const productOwnerResult = await query.query(productOwnerQuery, [product_id]);
     if (productOwnerResult.rows.length === 0) {
         return {
             success: false,
