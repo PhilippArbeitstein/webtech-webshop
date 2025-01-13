@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { NewRetailListing } from '../components/retail-create-overlay/retail-create-overlay.component';
+import { UpdatedRetailListing } from '../components/retail-update-overlay/retail-update-overlay.component';
 export interface RetailListing {
   product_id: number;
   product_name: string;
@@ -103,7 +104,7 @@ return this.httpClient.get<
 
   updateListing(
           productId: number,
-          updatedListing: RetailListing
+          updatedListing: UpdatedRetailListing
       ): Observable<{ message: string; product_id: string }> {
           return this.httpClient.put<{ message: string; product_id: string }>(
               `http://localhost:3000/retail/update/${productId}`,
