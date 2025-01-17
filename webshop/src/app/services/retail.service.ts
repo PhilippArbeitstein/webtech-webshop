@@ -92,7 +92,13 @@ return this.httpClient.get<
   { status_id: number; status_name: string }[]
 >(`http://localhost:3000/retail/status/status`);
 }
-
+getRetailCategories(): Observable<
+{ category_id: number; parent_category_id: number; name: string; additional_properties: { type: string } }[]
+> {
+return this.httpClient.get<
+  { category_id: number; parent_category_id: number; name: string; additional_properties: { type: string } }[]
+>(`http://localhost:3000/retail/categories/categories`);
+}
   deleteListing(
     product_id: number
   ): Observable<{ message: string; product_id: string }> {
