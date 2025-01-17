@@ -433,6 +433,55 @@ router.get("/status/status", async (req, res) => {
     }
 });
 
+// Get all categories of retail products
+router.get("/categories/categories", async (req, res) => {
+    try {
+        const parentId = 3; //retail as parent category
+        const query =
+            `
+            WITH RECURSIVE category_hierarchy AS (
+                SELECT 
+                    category_id,
+                    parent_category_id,
+                    name,
+                    additional_properties
+                FROM 
+                    categories
+                WHERE 
+                    category_id = $1 
+                UNION ALL
+                SELECT 
+                    c.category_id,
+                    c.parent_category_id,
+                    c.name,
+                    c.additional_properties
+                FROM 
+                    categories c
+                INNER JOIN 
+                    category_hierarchy ch
+                ON 
+                    c.parent_category_id = ch.category_id
+            )
+            SELECT * FROM category_hierarchy;
+            `;
+
+        pool.query(query, [parentId], (err, result) => {
+            if (err) {
+                console.log(err);
+                res.status(500).send("Error retrieving categories");
+            } else {
+                if (result.rows.length === 0) {
+                    return res.status(404).json({ message: 'No categories found for the given parent ID' });
+                }
+                res.status(200).json(result.rows);
+            }
+        });
+    } catch (error) {
+        res.status(500).send(`Server Error: ${error}`);
+    }
+});
+
+
 //Add new retail product
 router.post("/new", async (req, res) => {
     let { image_url, name, description, price, status, additional_properties, delivery_method, condition } = req.body;
