@@ -170,15 +170,32 @@ router.get('/users/user-listings', async (req, res) => {
             product.updated_at,
             product.additional_properties,
             conditions.condition_name,
-            delivery_methods.delivery_method_name
+            delivery_methods.delivery_method_name,
+              COALESCE(
+            MAX(CASE WHEN categories.category_id != 3 THEN categories.name END), 
+            'Retail'
+        ) AS category
         FROM 
             product`;
 
         query += getFullJoinTable();
-        query += ` WHERE users.user_id = $1
-            ORDER BY product.created_at DESC; `
-
-
+        query += ` WHERE users.user_id = $1 `;
+        query += `GROUP BY 
+            product.product_id, 
+            product.name, 
+            users.email, 
+            users.username, 
+            product.image_url,
+            product.description,
+            product.price, 
+            statuses.status_name,
+            product.created_at,
+            product.updated_at,
+            product.additional_properties,
+            conditions.condition_name,
+            delivery_methods.delivery_method_name
+        `;
+        query += ` ORDER BY product.created_at DESC; `
 
         pool.query(query, [req.session.user_id],
             (err, result) => {
