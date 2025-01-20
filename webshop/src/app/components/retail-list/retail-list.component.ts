@@ -19,10 +19,11 @@ interface Category {
   category_id: number;
   name: string;
   parent_category_id?: number | null;
+  parent_category: Category | null;
   additional_properties?: any;
   subcategories?: Category[];
+  isHovered: boolean;
 }
-
 @Component({
   selector: 'app-retail-list',
   imports: [CommonModule, ListItemComponent, RouterLink],
@@ -51,6 +52,7 @@ export class RetailListComponent implements OnChanges, OnDestroy {
   }[] = [];
 
   categories: Category[] = [];
+  categoryTree: Category[] = [];
   currentSubcategories: Category[] | null = null;
   selectedCategory: Category | null = null;
   categoryDropdownOpen = false;
@@ -59,17 +61,6 @@ export class RetailListComponent implements OnChanges, OnDestroy {
 
   private searchSubscription: Subscription | null = null;
 
-  // Filter criteria
-  /*filterCriteria = {
-    searchQuery: '',
-    description: '',
-    priceMin: 0,
-    priceMax: Infinity,
-    condition: '',
-    deliveryMethod: '',
-    category: '',
-  };*/
-
   filterCriteria: {
     searchQuery: string | null;
     description: string | null;
@@ -77,7 +68,7 @@ export class RetailListComponent implements OnChanges, OnDestroy {
     priceMax: number;
     condition: string | null;
     deliveryMethod: string | null;
-    category: string | null;
+    category: string;
     additional_properties: { [key: string]: string | null };
   } = {
     searchQuery: null,
@@ -86,7 +77,7 @@ export class RetailListComponent implements OnChanges, OnDestroy {
     priceMax: Infinity,
     condition: null,
     deliveryMethod: null,
-    category: null,
+    category: '',
     additional_properties: {},
   };
 
@@ -98,39 +89,31 @@ export class RetailListComponent implements OnChanges, OnDestroy {
 
   ngOnInit() {
     this.isFiltersOpen = location.pathname.includes('retail');
-    this.loadRetailConditions(),
-      this.loadRetailDeliveryMethods(),
-      this.loadRetailCategories(),
-      location.pathname.includes('own-product')
-        ? this.routingService.setPreviousRoute('own-product')
-        : this.routingService.setPreviousRoute('retail');
+    this.loadRetailConditions();
+    this.loadRetailDeliveryMethods();
+    this.loadRetailCategories();
 
     this.searchSubscription = this.searchbarService.searchQuery$
-      .pipe(debounceTime(300)) // Wait 300ms after each keystroke
+      .pipe(debounceTime(300))
       .subscribe((query) => {
-        this.filterCriteria.searchQuery = query; // Search input
+        this.filterCriteria.searchQuery = query;
         this.applyFilters();
       });
   }
 
   selectCategory(category: Category) {
-    this.selectedCategory = category;
+    console.log(this.categoryTree);
+    this.selectedCategory = category || null;
     this.filterCriteria.category = category.name;
     this.categoryDropdownOpen = false;
 
-    /*this.filterCriteria.additional_properties = {};
+    // Reset additional properties if applicable
+    this.filterCriteria.additional_properties = {};
     this.additionalProperties = [];
-
-    if (category.category_id) {
-        this.realestateService.getAdditionalProperties(
-            category.category_id
-        );
-    }
-        */
   }
 
-  showSubcategories(subcategories: Category[] | null) {
-    this.currentSubcategories = subcategories;
+  showSubcategories(category: Category) {
+    this.currentSubcategories = category?.subcategories || [];
   }
 
   toggleCategoryDropdown() {
@@ -139,12 +122,14 @@ export class RetailListComponent implements OnChanges, OnDestroy {
 
   clearCategorySelection() {
     this.selectedCategory = null;
-    this.filterCriteria.category = null;
+    this.filterCriteria.category = '';
     this.categoryDropdownOpen = false;
 
-    // Clear additional properties when category is cleared
+    // Clear additional properties
     this.filterCriteria.additional_properties = {};
     this.additionalProperties = [];
+
+    this.loadRetailCategories();
   }
 
   clearFilters() {
@@ -155,17 +140,17 @@ export class RetailListComponent implements OnChanges, OnDestroy {
       priceMax: Infinity,
       condition: null,
       deliveryMethod: null,
-      category: null,
+      category: '',
       additional_properties: {},
     };
     this.selectedCategory = null;
     this.additionalProperties = [];
+    this.loadRetailCategories();
     this.applyFilters();
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['listings']) {
-      // Update filtered listings whenever the listings input changes, nessecary due to reloads on the page
       this.filteredListings = [...this.listings];
     }
   }
@@ -176,56 +161,18 @@ export class RetailListComponent implements OnChanges, OnDestroy {
     }
   }
 
-  setCondition(condition: string): void {
-    this.filterCriteria.condition = condition;
-    this.applyFilters();
-  }
-
-  setDeliveryMethod(delivery_method: string): void {
-    this.filterCriteria.deliveryMethod = delivery_method;
-    this.applyFilters();
-  }
-
-  setPriceInterval(min: number, max: number): void {
-    this.filterCriteria.priceMin = min;
-    this.filterCriteria.priceMax = max;
-    this.applyFilters();
-  }
-
   applyFilter() {
     const selectedCondition = this.retailConditionSelect.nativeElement.value;
     const selectedDeliveryMethod =
       this.retailDeliverySelect.nativeElement.value;
     const minPrice = this.retailMinPrice.nativeElement.value;
     const maxPrice = this.retailMaxPrice.nativeElement.value;
-    if (selectedCondition) {
-      this.filterCriteria.condition = selectedCondition;
-    }
-    if (selectedDeliveryMethod) {
-      this.filterCriteria.deliveryMethod = selectedDeliveryMethod;
-    }
-    if (minPrice) {
-      this.filterCriteria.priceMin =
-        Number(minPrice) > 0 ? Number(minPrice) : 0;
-    }
-    if (maxPrice) {
-      this.filterCriteria.priceMax =
-        Number(maxPrice) > Number(minPrice)
-          ? Number(maxPrice)
-          : Number(minPrice);
-    }
-    if (selectedCondition == '') {
-      this.filterCriteria.condition = '';
-    }
-    if (selectedDeliveryMethod == '') {
-      this.filterCriteria.deliveryMethod = '';
-    }
-    if (minPrice == '') {
-      this.filterCriteria.priceMin = 0;
-    }
-    if (maxPrice == '') {
-      this.filterCriteria.priceMax = Infinity;
-    }
+
+    this.filterCriteria.condition = selectedCondition || null;
+    this.filterCriteria.deliveryMethod = selectedDeliveryMethod || null;
+    this.filterCriteria.priceMin = minPrice ? Number(minPrice) : 0;
+    this.filterCriteria.priceMax = maxPrice ? Number(maxPrice) : Infinity;
+
     this.applyFilters();
   }
 
@@ -243,7 +190,7 @@ export class RetailListComponent implements OnChanges, OnDestroy {
       const matchesPrice =
         listing.price >= this.filterCriteria.priceMin &&
         listing.price <= this.filterCriteria.priceMax;
-      const matchesCondtion =
+      const matchesCondition =
         !this.filterCriteria.condition ||
         listing.condition_name
           .toLowerCase()
@@ -260,24 +207,66 @@ export class RetailListComponent implements OnChanges, OnDestroy {
           .toLowerCase()
           .includes(this.filterCriteria.category.toLowerCase());
 
-      console.log(listing.category);
       return (
         matchesQuery &&
         matchesPrice &&
-        matchesCondtion &&
+        matchesCondition &&
         matchesDeliveryMethod &&
         matchesCategory
       );
     });
   }
 
+  private buildCategoryTree(categories: Category[]): Category[] {
+    const categoryMap = new Map<number, Category>();
+
+    categories.forEach((category) => {
+      categoryMap.set(category.category_id, {
+        ...category,
+        subcategories: [],
+        isHovered: false,
+      });
+    });
+
+    const tree: Category[] = [];
+
+    categories.forEach((category) => {
+      if (category.parent_category_id === null) {
+        tree.push(categoryMap.get(category.category_id)!);
+      } else {
+        const parent =
+          category.parent_category_id !== undefined
+            ? categoryMap.get(category.parent_category_id)
+            : undefined;
+        if (parent) {
+          category.parent_category = parent;
+          parent.subcategories!.push(categoryMap.get(category.category_id)!);
+        }
+      }
+    });
+
+    return tree;
+  }
+
+  loadRetailCategories(): void {
+    this.retailService.getRetailCategories().subscribe({
+      next: (data) => {
+        this.categories = data;
+        this.categoryTree = this.buildCategoryTree(data);
+        console.log(this.categoryTree);
+      },
+      error: (error) => {
+        console.error('Error loading categories:', error);
+      },
+    });
+  }
   loadRetailConditions(): void {
     this.retailService.getRetailConditions().subscribe({
       next: (data) => {
         this.retailConditions = data;
       },
       error: (error) => {
-        console.error('Error loading retail Conditions:', error);
+        console.error('Error loading categories:', error);
       },
     });
   }
@@ -287,18 +276,16 @@ export class RetailListComponent implements OnChanges, OnDestroy {
         this.retailDeliveryMethods = data;
       },
       error: (error) => {
-        console.error('Error loading retail delivery methods:', error);
+        console.error('Error loading categories:', error);
       },
     });
   }
-  loadRetailCategories(): void {
-    this.retailService.getRetailCategories().subscribe({
-      next: (data) => {
-        this.categories = data;
-      },
-      error: (error) => {
-        console.error('Error loading retail delivery methods:', error);
-      },
-    });
+
+  keepDropdownOpen() {
+    this.categoryDropdownOpen = true;
+  }
+
+  closeDropdown() {
+    this.categoryDropdownOpen = false;
   }
 }

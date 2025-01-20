@@ -2,15 +2,10 @@ import { Component } from '@angular/core';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { FooterComponent } from '../footer/footer.component';
 import { SearchbarService } from '../../services/searchbar.service';
-import {
-  RetailListing,
-  RetailsService,
-} from '../../services/retail.service';
+import { RetailListing, RetailsService } from '../../services/retail.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RoutingService } from '../../services/routing.service';
-
-
 
 @Component({
   selector: 'app-retail-details',
@@ -33,19 +28,17 @@ export class RetailDetailsComponent {
   ) {
     const productIdParam = this.route.snapshot.paramMap.get('product_id');
     this.productId = productIdParam ? Number(productIdParam) : -1;
-    console.log("SOMETHIGasdasdN PLEASE");
   }
 
   ngOnInit(): void {
     this.searchbarService.setSearchBarContext('retail');
-    console.log("SOMETHIGN PLEASE");
     this.retailService.getListingById(this.productId).subscribe({
       next: (data) => {
         if (Array.isArray(data) && data.length > 0) {
-          const listingData = data[0]; 
+          const listingData = data[0];
           this.listing = {
             ...listingData,
-            price: Number(listingData.price), 
+            price: Number(listingData.price),
           };
         } else {
           console.error('No listing data found for productId:', this.productId);
@@ -55,7 +48,6 @@ export class RetailDetailsComponent {
         console.error('Error fetching listing:', error);
       },
     });
-    
   }
 
   ngOnDestroy(): void {

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, map, Observable } from 'rxjs';
 import { NewRetailListing } from '../components/retail-create-overlay/retail-create-overlay.component';
 import { UpdatedRetailListing } from '../components/retail-update-overlay/retail-update-overlay.component';
 export interface RetailListing {
@@ -91,23 +91,52 @@ export class RetailsService {
       `http://localhost:3000/retail/status/status`
     );
   }
-  getRetailCategories(): Observable<
-    {
-      category_id: number;
-      parent_category_id: number;
-      name: string;
-      additional_properties: { type: string };
-    }[]
-  > {
-    return this.httpClient.get<
-      {
-        category_id: number;
-        parent_category_id: number;
-        name: string;
-        additional_properties: { type: string };
-      }[]
-    >(`http://localhost:3000/retail/categories/categories`);
+  getRetailCategories(): Observable<any> {
+    return this.httpClient
+      .get<
+        {
+          category_id: number;
+          parent_category_id: number | null;
+          name: string;
+          additional_properties: { type: string };
+        }[]
+      >(`http://localhost:3000/retail/categories/categories`)
+      .pipe(
+        map((categories) => this.buildCategoryTree(categories))
+      );
   }
+  
+  private buildCategoryTree(categories: {
+    category_id: number;
+    parent_category_id: number | null;
+    name: string;
+    additional_properties: { type: string };
+  }[]): any[] {
+    const categoryMap = new Map<number, any>();
+  
+    // Create a map with category_id as the key
+    categories.forEach((category) => {
+      categoryMap.set(category.category_id, { ...category, children: [] });
+    });
+  
+    const tree: any[] = [];
+  
+    categories.forEach((category) => {
+      if (category.parent_category_id === null) {
+        // Add root categories to the tree
+        tree.push(categoryMap.get(category.category_id));
+      } else {
+        // Add as a child to its parent
+        const parent = categoryMap.get(category.parent_category_id);
+        if (parent) {
+          parent.children.push(categoryMap.get(category.category_id));
+        }
+      }
+    });
+  
+    return tree;
+  }
+  
 
   deleteListing(
     product_id: number

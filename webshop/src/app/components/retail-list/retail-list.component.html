@@ -1,85 +1,78 @@
 <div *ngIf="isFiltersOpen" class="filter-bar px-4 py-4 grid gap-4 items-center">
-  <div class="flex-1 min-w-[200px]">
-    <label for="category" class="block text-sm font-medium text-gray-700"
-      >Category</label
-    >
-    <div class="relative">
-      <button
-        type="button"
-        class="w-full h-[40px] bg-gray-100 border border-gray-300 rounded-md shadow-sm px-3 text-left text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        (click)="toggleCategoryDropdown()"
-        [attr.aria-expanded]="categoryDropdownOpen"
+  <!-- Filters Row -->
+  <div class="flex flex-wrap gap-4 items-center">
+    <!-- Category Dropdown -->
+    <div class="flex-1 min-w-[200px]">
+      <label for="category" class="block text-sm font-medium text-gray-700"
+        >Category</label
       >
-        {{ selectedCategory?.name || "Select Category" }}
-      </button>
-      <div
-        *ngIf="categoryDropdownOpen"
-        class="absolute z-10 mt-2 w-full bg-white shadow-lg max-h-56 rounded-md py-1 text-sm ring-1 ring-black ring-opacity-5 overflow-y-auto"
-      >
-        <div
-          class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-red-600"
-          (click)="clearCategorySelection()"
+      <div class="relative">
+        <button
+          type="button"
+          class="w-full h-[40px] bg-gray-100 border border-gray-300 rounded-md shadow-sm px-3 text-left text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          (click)="toggleCategoryDropdown()"
+          [attr.aria-expanded]="categoryDropdownOpen"
         >
-          Clear Selection
+          {{ selectedCategory?.name || "Select Category" }}
+        </button>
+        <div
+          *ngIf="categoryDropdownOpen"
+          class="absolute z-10 mt-2 w-full bg-white shadow-lg max-h-56 rounded-md py-1 text-sm ring-1 ring-black ring-opacity-5 overflow-y-auto"
+        >
+          <div
+            class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-red-600"
+            (click)="clearCategorySelection()"
+          >
+            Clear Selection
+          </div>
+          <ng-container *ngFor="let category of categoryTree || []">
+            <ng-template
+              [ngTemplateOutlet]="renderCategory"
+              [ngTemplateOutletContext]="{ category: category, level: 0 }"
+            ></ng-template>
+          </ng-container>
         </div>
-        <ng-container *ngFor="let category of categories">
-          <div
-            class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-            (mouseenter)="showSubcategories(category.subcategories || null)"
-            (click)="selectCategory(category)"
-          >
-            {{ category.name }}
-            <ng-container *ngIf="category.subcategories?.length">
-              ➤
-            </ng-container>
-          </div>
-          <div
-            *ngIf="
-              currentSubcategories === category.subcategories &&
-              category.subcategories?.length
-            "
-            class="ml-4 border-l border-gray-200 pl-4"
-          >
-            <div
-              *ngFor="let subcategory of category.subcategories"
-              class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-              (click)="selectCategory(subcategory)"
-            >
-              {{ subcategory.name }}
-              <ng-container *ngIf="subcategory.subcategories?.length">
-                ➤
-              </ng-container>
-            </div>
-          </div>
-        </ng-container>
       </div>
     </div>
-  </div>
-  <div class="px-4 py-4 flex gap-2 items-center filter-bar">
-    <!-- Condition-->
-    <select class="w-full border rounded-lg px-4 py-2" #retailConditionSelect>
-      <option value="">Condition</option>
-      <option
-        *ngFor="let condition of retailConditions"
-        [value]="condition.condition_name"
+
+    <!-- Condition Dropdown -->
+    <div class="flex-1 min-w-[200px]">
+      <label for="condition" class="block text-sm font-medium text-gray-700"
+        >Condition</label
       >
-        {{ condition.condition_name }}
-      </option>
-    </select>
-    <!--Delivery Method-->
-    <select
-      class="w-full border rounded-lg px-4 py-2"
-      #retailDeliveryMethodSelect
-    >
-      <option value="">Delivery Method</option>
-      <option
-        *ngFor="let delivery_method of retailDeliveryMethods"
-        [value]="delivery_method.delivery_method_name"
+      <select class="w-full border rounded-lg px-4 py-2" #retailConditionSelect>
+        <option value="">Condition</option>
+        <option
+          *ngFor="let condition of retailConditions"
+          [value]="condition.condition_name"
+        >
+          {{ condition.condition_name }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Delivery Method Dropdown -->
+    <div class="flex-1 min-w-[200px]">
+      <label
+        for="delivery-method"
+        class="block text-sm font-medium text-gray-700"
+        >Delivery Method</label
       >
-        {{ delivery_method.delivery_method_name }}
-      </option>
-    </select>
+      <select
+        class="w-full border rounded-lg px-4 py-2"
+        #retailDeliveryMethodSelect
+      >
+        <option value="">Delivery Method</option>
+        <option
+          *ngFor="let delivery_method of retailDeliveryMethods"
+          [value]="delivery_method.delivery_method_name"
+        >
+          {{ delivery_method.delivery_method_name }}
+        </option>
+      </select>
+    </div>
   </div>
+
   <!-- Price Range Filter -->
   <div class="grid grid-cols-2 items-center">
     <div class="flex gap-2 items-center filter-bar">
@@ -98,6 +91,8 @@
       />
     </div>
   </div>
+
+  <!-- Apply Filters Button -->
   <button
     class="bg-btn_primary hover:bg-btn_primary_darkened text-white px-4 py-2 rounded-lg"
     (click)="applyFilter()"
@@ -106,6 +101,7 @@
   </button>
 </div>
 
+<!-- Listings -->
 <div
   *ngIf="filteredListings && filteredListings.length > 0; else noListings"
   class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-8 px-4 pb-8"
@@ -121,6 +117,35 @@
     ></app-list-item>
   </a>
 </div>
+
+<!-- Templates -->
+<ng-template #renderCategory let-category="category" let-level="level">
+  <div
+    class="px-4 py-2 hover:bg-gray-100 cursor-pointer flex justify-between items-center"
+    [style.paddingLeft.px]="level * 16"
+    (click)="selectCategory(category)"
+    (mouseenter)="category.isHovered = true"
+  >
+    <span>{{ category.name }}</span>
+    <ng-container *ngIf="category.children?.length">
+      <span class="text-gray-500 text-xs">➤</span>
+    </ng-container>
+  </div>
+  <div
+    *ngIf="category.isHovered && category.children?.length"
+    class="ml-4 border-l border-gray-200 pl-4"
+  >
+    <ng-container *ngFor="let subcategory of category.children">
+      <ng-template
+        [ngTemplateOutlet]="renderCategory"
+        [ngTemplateOutletContext]="{
+          category: subcategory,
+          level: level + 1
+        }"
+      ></ng-template>
+    </ng-container>
+  </div>
+</ng-template>
 
 <ng-template #noResults>
   <p class="text-gray-600">No listings match the current filter.</p>
