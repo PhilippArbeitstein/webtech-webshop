@@ -1,4 +1,60 @@
 <div *ngIf="isFiltersOpen" class="filter-bar px-4 py-4 grid gap-4 items-center">
+  <div class="flex-1 min-w-[200px]">
+    <label for="category" class="block text-sm font-medium text-gray-700"
+      >Category</label
+    >
+    <div class="relative">
+      <button
+        type="button"
+        class="w-full h-[40px] bg-gray-100 border border-gray-300 rounded-md shadow-sm px-3 text-left text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        (click)="toggleCategoryDropdown()"
+        [attr.aria-expanded]="categoryDropdownOpen"
+      >
+        {{ selectedCategory?.name || "Select Category" }}
+      </button>
+      <div
+        *ngIf="categoryDropdownOpen"
+        class="absolute z-10 mt-2 w-full bg-white shadow-lg max-h-56 rounded-md py-1 text-sm ring-1 ring-black ring-opacity-5 overflow-y-auto"
+      >
+        <div
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-red-600"
+          (click)="clearCategorySelection()"
+        >
+          Clear Selection
+        </div>
+        <ng-container *ngFor="let category of categories">
+          <div
+            class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+            (mouseenter)="showSubcategories(category.subcategories || null)"
+            (click)="selectCategory(category)"
+          >
+            {{ category.name }}
+            <ng-container *ngIf="category.subcategories?.length">
+              ➤
+            </ng-container>
+          </div>
+          <div
+            *ngIf="
+              currentSubcategories === category.subcategories &&
+              category.subcategories?.length
+            "
+            class="ml-4 border-l border-gray-200 pl-4"
+          >
+            <div
+              *ngFor="let subcategory of category.subcategories"
+              class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              (click)="selectCategory(subcategory)"
+            >
+              {{ subcategory.name }}
+              <ng-container *ngIf="subcategory.subcategories?.length">
+                ➤
+              </ng-container>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
   <div class="px-4 py-4 flex gap-2 items-center filter-bar">
     <!-- Condition-->
     <select class="w-full border rounded-lg px-4 py-2" #retailConditionSelect>
@@ -11,7 +67,10 @@
       </option>
     </select>
     <!--Delivery Method-->
-    <select class="w-full border rounded-lg px-4 py-2" #retailDeliveryMethodSelect>
+    <select
+      class="w-full border rounded-lg px-4 py-2"
+      #retailDeliveryMethodSelect
+    >
       <option value="">Delivery Method</option>
       <option
         *ngFor="let delivery_method of retailDeliveryMethods"

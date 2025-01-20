@@ -36,7 +36,11 @@ router.get("/", async (req, res) => {
         product.updated_at,
         product.additional_properties,
         conditions.condition_name,
-        delivery_methods.delivery_method_name
+        delivery_methods.delivery_method_name,
+        COALESCE(
+            MAX(CASE WHEN categories.category_id != 3 THEN categories.name END), 
+            'Retail'
+        ) AS category
     FROM 
         product`;
     query += getFullJoinTable();
@@ -61,12 +65,36 @@ router.get("/", async (req, res) => {
         params.push(condition);
     }
     if (delivery_method) {
-        conditions.push(`delivery_methods.delivery_method_name ILIKE $${params.length + 1} AND delivery_methods.delivery_method_id=retail.delivery_method_id`)
+        conditions.push(`delivery_methods.delivery_method_name ILIKE $${params.length + 1} AND delivery_methods.delivery_method_id=retail.delivery_method_id`);
+        params.push(delivery_method)
     }
-    if (conditions.length > 0) {
+    if (category) {
+        conditions.push(`categories.name ILIKE $${params.length + 1}`);
+        params.push(category)
+    }
 
+    if (conditions.length > 0) {
         query += " WHERE " + conditions.join(" AND ");
     }
+
+    query += `
+    GROUP BY 
+        product.product_id, 
+        product.name, 
+        users.email, 
+        users.username, 
+        product.image_url,
+        product.description,
+        product.price, 
+        statuses.status_name,
+        product.created_at,
+        product.updated_at,
+        product.additional_properties,
+        conditions.condition_name,
+        delivery_methods.delivery_method_name
+    `;
+
+
     try {
         const result = await pool.query(query, params);
         res.status(200).json(result.rows);
@@ -551,6 +579,7 @@ module.exports = router;
 function getFullJoinTable() {
     let query = " join retail on retail.product_id=product.product_id join users on product.user_id=users.user_id join delivery_methods on retail.delivery_method_id=delivery_methods.delivery_method_id";
     query += " join conditions on retail.condition_id=conditions.condition_id JOIN address on address.address_id=users.address_id JOIN statuses on statuses.status_id=product.status_id";
+    query += " join product_has_category on product_has_category.product_id=product.product_id join categories on categories.category_id=product_has_category.category_id"
     return query;
 }
 

@@ -15,11 +15,10 @@ export interface RetailListing {
   status_name: string;
   created_at: Date;
   updated_at: Date;
-  additional_properties: {
-
-  };
+  additional_properties: {};
   condition_name: string;
   delivery_method_name: string;
+  category: string;
 }
 @Injectable({
   providedIn: 'root',
@@ -70,35 +69,46 @@ export class RetailsService {
   }
 
   getRetailConditions(): Observable<
-  { condition_id: number; condition_name: string }[]
-> {
-  return this.httpClient.get<
     { condition_id: number; condition_name: string }[]
-  >(`http://localhost:3000/retail/conditions/conditions`);
-}
+  > {
+    return this.httpClient.get<
+      { condition_id: number; condition_name: string }[]
+    >(`http://localhost:3000/retail/conditions/conditions`);
+  }
 
-getRetailDeliveryMethods(): Observable<
-{ delivery_method_id: number; delivery_method_name: string }[]
-> {
-return this.httpClient.get<
-  { delivery_method_id: number; delivery_method_name: string }[]
->(`http://localhost:3000/retail/delivery/methods`);
-}
+  getRetailDeliveryMethods(): Observable<
+    { delivery_method_id: number; delivery_method_name: string }[]
+  > {
+    return this.httpClient.get<
+      { delivery_method_id: number; delivery_method_name: string }[]
+    >(`http://localhost:3000/retail/delivery/methods`);
+  }
 
-getRetailStatuses(): Observable<
-{ status_id: number; status_name: string }[]
-> {
-return this.httpClient.get<
-  { status_id: number; status_name: string }[]
->(`http://localhost:3000/retail/status/status`);
-}
-getRetailCategories(): Observable<
-{ category_id: number; parent_category_id: number; name: string; additional_properties: { type: string } }[]
-> {
-return this.httpClient.get<
-  { category_id: number; parent_category_id: number; name: string; additional_properties: { type: string } }[]
->(`http://localhost:3000/retail/categories/categories`);
-}
+  getRetailStatuses(): Observable<
+    { status_id: number; status_name: string }[]
+  > {
+    return this.httpClient.get<{ status_id: number; status_name: string }[]>(
+      `http://localhost:3000/retail/status/status`
+    );
+  }
+  getRetailCategories(): Observable<
+    {
+      category_id: number;
+      parent_category_id: number;
+      name: string;
+      additional_properties: { type: string };
+    }[]
+  > {
+    return this.httpClient.get<
+      {
+        category_id: number;
+        parent_category_id: number;
+        name: string;
+        additional_properties: { type: string };
+      }[]
+    >(`http://localhost:3000/retail/categories/categories`);
+  }
+
   deleteListing(
     product_id: number
   ): Observable<{ message: string; product_id: string }> {
@@ -109,13 +119,13 @@ return this.httpClient.get<
   }
 
   updateListing(
-          productId: number,
-          updatedListing: UpdatedRetailListing
-      ): Observable<{ message: string; product_id: string }> {
-          return this.httpClient.put<{ message: string; product_id: string }>(
-              `http://localhost:3000/retail/update/${productId}`,
-              updatedListing,
-              { withCredentials: true }
-          );
-      }
+    productId: number,
+    updatedListing: UpdatedRetailListing
+  ): Observable<{ message: string; product_id: string }> {
+    return this.httpClient.put<{ message: string; product_id: string }>(
+      `http://localhost:3000/retail/update/${productId}`,
+      updatedListing,
+      { withCredentials: true }
+    );
+  }
 }
