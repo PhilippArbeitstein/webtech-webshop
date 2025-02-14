@@ -108,7 +108,7 @@ router.get("/", async (req, res) => {
 
 //Get specific Product
 router.get("/:product_id", async (req, res) => {
-
+    const productId = req.params.product_id;
     let query = `
     SELECT 
         product.product_id, 
@@ -124,17 +124,36 @@ router.get("/:product_id", async (req, res) => {
         product.updated_at,
         product.additional_properties,
         conditions.condition_name,
-        delivery_methods.delivery_method_name
+        delivery_methods.delivery_method_name,
+          COALESCE(
+        MAX(CASE WHEN categories.category_id != 3 THEN categories.name END), 
+        'Retail'
+    ) AS category
     FROM 
         product`;
-
     query += getFullJoinTable();
     query += " WHERE product.product_id=$1";
-    const productId = req.params.product_id;
+    query += ` GROUP BY 
+        product.product_id, 
+        product.name, 
+        users.email, 
+        users.username, 
+        users.user_id,
+        product.image_url,
+        product.description,
+        product.price, 
+        statuses.status_name,
+        product.created_at,
+        product.updated_at,
+        product.additional_properties,
+        conditions.condition_name,
+        delivery_methods.delivery_method_name
+    `;
     pool.query(query, [productId],
         (err, result) => {
             if (err) {
                 console.log(err);
+                console.log("error here: 157")
                 res.status(500).send("Error retrieving product");
             } else {
                 res.status(200).json(result.rows);
@@ -189,6 +208,7 @@ router.get('/users/user-listings', async (req, res) => {
             product.name, 
             users.email, 
             users.username, 
+            users.user_id,
             product.image_url,
             product.description,
             product.price, 
@@ -292,7 +312,7 @@ router.delete("/:product_id", async (req, res) => {
 //Update Product
 router.put("/update/:product_id", async (req, res) => {
     const productId = req.params.product_id;
-    let { image_url, name, description, price, status, additional_properties, delivery_method, condition } = req.body;
+    let { image_url, name, description, price, status, additional_properties, delivery_method, condition, category } = req.body;
     if (!req.session.user_id) {
         res.status(400).send("Not logged in");
     }
@@ -345,6 +365,15 @@ router.put("/update/:product_id", async (req, res) => {
             paramsRetail.push(productId);
             const retailQuery = `UPDATE retail SET ${setRetail.join(", ")} WHERE product_id = $${paramIndex}`;
             await transaction.query(retailQuery, paramsRetail);
+        }
+
+        if (category) {
+            const categoryQuery =
+                ` UPDATE product_has_category 
+SET category_id = $1 WHERE product_id = $2 AND category_id != 3;
+
+            `;
+            await transaction.query(categoryQuery, [category, productId]);
         }
 
         let setProduct = [];
@@ -533,7 +562,7 @@ router.get("/categories/categories", async (req, res) => {
 
 //Add new retail product
 router.post("/new", async (req, res) => {
-    let { image_url, name, description, price, status, additional_properties, delivery_method, condition } = req.body;
+    let { image_url, name, description, price, status, additional_properties, delivery_method, condition, categories } = req.body;
     if (!req.session.user_id) {
         res.status(400).send("Not logged in");
     }
@@ -579,6 +608,19 @@ router.post("/new", async (req, res) => {
             `,
             [productId, 3]
         );
+
+        if (categories) {
+            const categoryInsertQuery =
+                `
+                INSERT INTO product_has_category (product_id, category_id)
+                VALUES ($1, $2)
+                RETURNING product_id
+                `;
+            const categoryResult = await (transaction.query(categoryInsertQuery, [productId, categories]))
+            if (!categoryResult.rows[0]?.product_id) {
+                throw new Error('Failed to insert product category.');
+            }
+        }
 
         if (!productCategoryResult.rows[0]?.product_id) {
             throw new Error('Failed to insert into product_has_category.');

@@ -206,6 +206,31 @@
         </button>
       </fieldset>
 
+      <div>
+        <label class="block text-gray-700 font-medium">Select Category</label>
+        <div
+          *ngFor="let category of categories"
+          class="flex items-center space-x-2"
+        >
+          <input
+            type="radio"
+            name="categorySelection"
+            [id]="'category_' + category.category_id"
+            [value]="category.category_id"
+            [checked]="category.category_id === selectedCategory"
+            (click)="selectCategory(category.category_id, $event)"
+            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          />
+          <label
+            [for]="'category_' + category.category_id"
+            class="text-gray-700"
+            (click)="selectCategory(category.category_id, $event)"
+          >
+            {{ category.name }}
+          </label>
+        </div>
+      </div>
+
       <div class="flex justify-end mt-6 space-x-4">
         <button
           condition="button"
