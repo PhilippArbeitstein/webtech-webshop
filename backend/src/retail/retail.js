@@ -564,9 +564,9 @@ router.get("/categories/categories", async (req, res) => {
 router.post("/new", async (req, res) => {
     let { image_url, name, description, price, status, additional_properties, delivery_method, condition, categories } = req.body;
     if (!req.session.user_id) {
-        res.status(400).send("Not logged in");
+        return res.status(400).send("Not logged in");
     }
-    if (!image_url || !name || !description || !price || !status || !additional_properties || !delivery_method || !condition || !req.session.user_id) {
+    if (!image_url || !name || !description || !price || !status || !additional_properties || !delivery_method || !condition || !req.session.user_id || !categories) {
         return res.status(400).send("Insufficient Information");
     }
     let transaction;

@@ -180,8 +180,10 @@ export class RetailCreateOverlayComponent {
       ...this.RetailForm.value,
       status: 'Available',
       additional_properties: additionalPropsObj,
+      categories: this.selectedCategory,
     };
 
+    console.log(newListing);
     this.RetailsService.createListing(newListing).subscribe({
       next: (response) => {
         alert(response);
