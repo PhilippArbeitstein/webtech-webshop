@@ -248,6 +248,18 @@ export class RetailListComponent implements OnChanges, OnDestroy {
     return tree;
   }
 
+  handleCategoryClick(category: any, event: Event) {
+    event.stopPropagation(); // Prevent parent clicks from triggering
+
+    if (category.children?.length > 0) {
+      category.isExpanded = !category.isExpanded; // Toggle expansion
+    } else {
+      this.selectCategory(category as Category); // Call selectCategory if no children
+      this.applyFilters();
+    }
+    console.log(category);
+  }
+
   loadRetailCategories(): void {
     this.retailService.getRetailCategories().subscribe({
       next: (data) => {

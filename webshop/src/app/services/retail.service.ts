@@ -8,6 +8,7 @@ export interface RetailListing {
   product_name: string;
   email: string;
   username: string;
+  user_id: number;
   image_url: string;
   name: string;
   description: string;
@@ -101,26 +102,26 @@ export class RetailsService {
           additional_properties: { type: string };
         }[]
       >(`http://localhost:3000/retail/categories/categories`)
-      .pipe(
-        map((categories) => this.buildCategoryTree(categories))
-      );
+      .pipe(map((categories) => this.buildCategoryTree(categories)));
   }
-  
-  private buildCategoryTree(categories: {
-    category_id: number;
-    parent_category_id: number | null;
-    name: string;
-    additional_properties: { type: string };
-  }[]): any[] {
+
+  private buildCategoryTree(
+    categories: {
+      category_id: number;
+      parent_category_id: number | null;
+      name: string;
+      additional_properties: { type: string };
+    }[]
+  ): any[] {
     const categoryMap = new Map<number, any>();
-  
+
     // Create a map with category_id as the key
     categories.forEach((category) => {
       categoryMap.set(category.category_id, { ...category, children: [] });
     });
-  
+
     const tree: any[] = [];
-  
+
     categories.forEach((category) => {
       if (category.parent_category_id === null) {
         // Add root categories to the tree
@@ -133,10 +134,9 @@ export class RetailsService {
         }
       }
     });
-  
+
     return tree;
   }
-  
 
   deleteListing(
     product_id: number

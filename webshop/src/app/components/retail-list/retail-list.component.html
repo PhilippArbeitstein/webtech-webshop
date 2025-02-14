@@ -119,20 +119,22 @@
 </div>
 
 <!-- Templates -->
+<!-- Templates -->
 <ng-template #renderCategory let-category="category" let-level="level">
   <div
     class="px-4 py-2 hover:bg-gray-100 cursor-pointer flex justify-between items-center"
     [style.paddingLeft.px]="level * 16"
-    (click)="selectCategory(category)"
-    (mouseenter)="category.isHovered = true"
+    (click)="handleCategoryClick(category, $event)"
   >
     <span>{{ category.name }}</span>
     <ng-container *ngIf="category.children?.length">
-      <span class="text-gray-500 text-xs">➤</span>
+      <span class="text-gray-500 text-xs">
+        {{ category.isExpanded ? "▼" : "➤" }}
+      </span>
     </ng-container>
   </div>
   <div
-    *ngIf="category.isHovered && category.children?.length"
+    *ngIf="category.isExpanded && category.children?.length"
     class="ml-4 border-l border-gray-200 pl-4"
   >
     <ng-container *ngFor="let subcategory of category.children">

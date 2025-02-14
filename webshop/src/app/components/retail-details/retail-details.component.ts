@@ -6,6 +6,7 @@ import { RetailListing, RetailsService } from '../../services/retail.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RoutingService } from '../../services/routing.service';
+import { User, UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-retail-details',
@@ -17,10 +18,12 @@ import { RoutingService } from '../../services/routing.service';
 export class RetailDetailsComponent {
   productId: number = -1;
   listing: RetailListing | null = null;
+  loggedInUser: any;
 
   constructor(
     private searchbarService: SearchbarService,
     public retailService: RetailsService,
+    public userService: UserService,
     private route: ActivatedRoute,
     private router: Router,
     private datePipe: DatePipe,
@@ -31,6 +34,9 @@ export class RetailDetailsComponent {
   }
 
   ngOnInit(): void {
+    this.userService.loggedInUser$.subscribe((user) => {
+      this.loggedInUser = user;
+    });
     this.searchbarService.setSearchBarContext('retail');
     this.retailService.getListingById(this.productId).subscribe({
       next: (data) => {
@@ -47,6 +53,19 @@ export class RetailDetailsComponent {
       error: (error) => {
         console.error('Error fetching listing:', error);
       },
+    });
+  }
+
+  startNewChat(): void {
+    if (!this.listing) {
+      return; // Ensure the listing is available
+    }
+
+    const productId = this.listing.product_id;
+    const ownerId = this.listing.user_id;
+
+    this.router.navigate(['/messages'], {
+      queryParams: { product_id: productId, to_user_id: ownerId },
     });
   }
 
