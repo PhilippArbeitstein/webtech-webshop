@@ -71,22 +71,30 @@ export class RealestateDetailedFilterComponent implements OnInit {
         this.categoryDropdownOpen = !this.categoryDropdownOpen;
     }
 
-    showSubcategories(subcategories: Category[] | null) {
-        this.currentSubcategories = subcategories;
+    toggleSubcategories(category: Category) {
+        if (this.currentSubcategories === category.subcategories) {
+            this.currentSubcategories = null;
+        } else {
+            this.currentSubcategories = category.subcategories || null;
+        }
     }
 
     selectCategory(category: Category) {
-        this.selectedCategory = category;
-        this.filters.category_id = category.category_id;
-        this.categoryDropdownOpen = false;
+        if (!category.subcategories || category.subcategories.length === 0) {
+            this.selectedCategory = category;
+            this.filters.category_id = category.category_id;
+            this.categoryDropdownOpen = false;
 
-        this.filters.additional_properties = {};
-        this.additionalProperties = [];
+            this.filters.additional_properties = {};
+            this.additionalProperties = [];
 
-        if (category.category_id) {
-            this.realestateService.getAdditionalProperties(
-                category.category_id
-            );
+            if (category.category_id) {
+                this.realestateService.getAdditionalProperties(
+                    category.category_id
+                );
+            }
+        } else {
+            this.toggleSubcategories(category);
         }
     }
 
