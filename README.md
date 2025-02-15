@@ -38,19 +38,18 @@ Das Projekt verwendet folgende Technologien und Frameworks:
 -   **Postman**: API-Testing.
 
 ---
+## 📋 **Wie kriegt man das Projekt zum laufen?**
 
-### **Frontend starten**
+### Setup
+1. In das Verzeichnis `backend/db_imports` wechseln.
+2. In folgender Reihenfolge die Skripts ausführen:
+   ```bash
+   1.) create_db.sql
+   2.) create_tables.sql
+   3.) fill_db.sql
+   ```
+3. Anpassen der Datei `config.json`. Diese ist unter `backend/src` zu finden.
 
-1. In das Verzeichnis `webshop` wechseln.
-2. Abhängigkeiten installieren:
-    ```bash
-    npm install
-    ```
-3. Entwicklungsserver starten:
-    ```bash
-    ng serve
-    ```
-4. Öffne `http://localhost:4200` im Browser.
 
 ### **Backend starten**
 
@@ -64,6 +63,19 @@ Das Projekt verwendet folgende Technologien und Frameworks:
     npm run start
     ```
 4. Die API ist standardmäßig unter `http://localhost:3000` verfügbar. Darauf achten, dass kein anderes Programm einen der zwei Ports verwendet.
+
+### **Frontend starten**
+
+1. In das Verzeichnis `webshop` wechseln.
+2. Abhängigkeiten installieren:
+    ```bash
+    npm install
+    ```
+3. Entwicklungsserver starten:
+    ```bash
+    ng serve
+    ```
+4. Öffne `http://localhost:4200` im Browser.
 
 ---
 
