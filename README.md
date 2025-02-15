@@ -11,11 +11,6 @@ Dieses Projekt ist Teil des Web-Technologie Kurses an der Alpen Adria Universit�
 -   Entwicklung einer responsiven Webshop-Oberfläche mit **Angular**.
 -   Aufbau eines RESTful APIs mit **Node.js** und **Express**.
 -   Verwendung einer Datenbank (**PostgreSQL**) zur Speicherung von Benutzerdaten, Produkten und Bestellungen.
--   Implementierung grundlegender Webshop-Funktionen:
-    -   Produktübersicht und -details.
-    -   Benutzerregistrierung und Login.
-    -   Admin-Dashboard zur Verwaltung von Produkten und Bestellungen.
--   Einsatz moderner Webentwicklungsmethoden und Tools wie **TypeScript** und **JWT** für Authentifizierung.
 
 ---
 
@@ -32,7 +27,6 @@ Das Projekt verwendet folgende Technologien und Frameworks:
 
 -   **Node.js**: JavaScript-Laufzeitumgebung.
 -   **Express**: Minimalistisches Framework für den Aufbau von Web-APIs.
--   **JWT**: JSON Web Tokens für Authentifizierung.
 
 ### **Datenbank**
 
@@ -69,27 +63,23 @@ Das Projekt verwendet folgende Technologien und Frameworks:
     ```bash
     npm run start
     ```
-4. Die API ist standardmäßig unter `http://localhost:3000` verfügbar.
+4. Die API ist standardmäßig unter `http://localhost:3000` verfügbar. Darauf achten, dass kein anderes Programm einen der zwei Ports verwendet.
 
 ---
 
 ## 🔑 **Funktionen**
 
 -   **Benutzer**:
-    -   Registrierung und Login.
-    -   Aufgabe von Bestellungen.
+    -   Registrierung und Login
+    -   Alle Produkte ansehen
+    -   Wenn angemeldet, ein bestimmtes Produkt anfragen
+    -   Detaillierte Filter in jedem Marktplatz anwenden
 -   **Admin**:
-    -   Hinzufügen, Bearbeiten und Löschen von Produkten.
-    -   Übersicht und Verwaltung von Bestellungen.
+    -   Hinzufügen, Bearbeiten und Löschen von Produkten
+    -   Übersicht und Verwaltung von Anfragen via Chat
 -   **Produkte**:
-    -   Kategorisierung und Filterung.
-    -   Produktdetails anzeigen.
-
----
-
-## 🌐 **Live-Demo**
-
--   **[Webshop Live-Demo](https://example.com)**
+    -   Kategorisierung und Filterung
+    -   Produktdetails anzeigen
 
 ---
 
