@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { NewVehicleListing } from '../components/vehicle-create-overlay/vehicle-create-overlay.component';
 export interface VehicleListing {
   product_id: number;
+  user_id: number;
   product_name: string;
   email: string;
   username: string;

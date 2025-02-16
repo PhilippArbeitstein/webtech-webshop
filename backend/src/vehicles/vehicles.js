@@ -20,14 +20,15 @@ router.get("/", async (req, res) => {
         condition,
     } = req.body;
     let query =
-        "SELECT product.product_id, product.name, users.email, users.username, product.image_url, product.description, product.price, statuses.status_name, product.additional_properties, vehicle_marks.mark_name, vehicle_models.model_name, vehicle_types.type_name, vehicles.first_registration_date, vehicles.mileage, fuel_types.fuel_type_name, vehicles.color, conditions.condition_name FROM product";
+        "SELECT product.product_id, product.user_id, product.name, users.email, users.username, product.image_url, product.description, product.price, statuses.status_name, product.additional_properties, vehicle_marks.mark_name, vehicle_models.model_name, vehicle_types.type_name, vehicles.first_registration_date, vehicles.mileage, fuel_types.fuel_type_name, vehicles.color, conditions.condition_name FROM product";
     query += getFullJoinTable();
     let params = [];
     let conditions = [];
 
     if (search) {
         conditions.push(
-            `(product.name ILIKE $${params.length + 1
+            `(product.name ILIKE $${
+                params.length + 1
             } OR product.description ILIKE $${params.length + 1})`
         );
         params.push(`%${search}%`);
@@ -51,21 +52,24 @@ router.get("/", async (req, res) => {
     }
     if (mark) {
         conditions.push(
-            `vehicle_marks.mark_name=$${params.length + 1
+            `vehicle_marks.mark_name=$${
+                params.length + 1
             } AND vehicles.mark_id=vehicle_marks.mark_id`
         );
         params.push(mark);
     }
     if (type) {
         conditions.push(
-            `vehicle_types.type_name ILIKE $${params.length + 1
+            `vehicle_types.type_name ILIKE $${
+                params.length + 1
             } AND vehicles.type_id=vehicle_types.type_id`
         );
         params.push(type);
     }
     if (top_level_category) {
         conditions.push(
-            `vehicle_types.top_level_category ILIKE $${params.length + 1
+            `vehicle_types.top_level_category ILIKE $${
+                params.length + 1
             } AND vehicles.type_id=vehicle_types.type_id`
         );
         params.push(top_level_category);
@@ -78,7 +82,8 @@ router.get("/", async (req, res) => {
     }
     if (fuel_type) {
         conditions.push(
-            `fuel_types.fuel_type_name=$${params.length + 1
+            `fuel_types.fuel_type_name=$${
+                params.length + 1
             } AND vehicles.fuel_type_id=fuel_types.fuel_type_id`
         );
         params.push(fuel_type);
@@ -89,7 +94,8 @@ router.get("/", async (req, res) => {
     }
     if (condition) {
         conditions.push(
-            `conditions.condition_name ILIKE $${params.length + 1
+            `conditions.condition_name ILIKE $${
+                params.length + 1
             } AND conditions.condition_id=vehicles.condition_id`
         );
         params.push(condition);
@@ -113,7 +119,7 @@ router.get("/:product_id", async (req, res) => {
         res.status(400).send("Incorrect Input");
     } else {
         let query =
-            "SELECT product.product_id, product.name, users.email, users.username, product.image_url, product.description, product.price, statuses.status_name, product.additional_properties, vehicle_marks.mark_name, vehicle_models.model_name, vehicle_types.type_name, vehicles.first_registration_date, vehicles.mileage, fuel_types.fuel_type_name, vehicles.color, conditions.condition_name FROM product";
+            "SELECT product.product_id, product.user_id, product.name, users.email, users.username, product.image_url, product.description, product.price, statuses.status_name, product.additional_properties, vehicle_marks.mark_name, vehicle_models.model_name, vehicle_types.type_name, vehicles.first_registration_date, vehicles.mileage, fuel_types.fuel_type_name, vehicles.color, conditions.condition_name FROM product";
         query += getFullJoinTable();
         query += " WHERE product.product_id=$1";
         const productId = req.params.product_id;
@@ -142,7 +148,7 @@ router.get("/users/user-listings", async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
         let query =
-            "SELECT product.product_id, product.name, users.email, users.username, product.image_url, product.description, product.price, statuses.status_name, product.additional_properties, vehicle_marks.mark_name, vehicle_models.model_name, vehicle_types.type_name, vehicles.first_registration_date, vehicles.mileage, fuel_types.fuel_type_name, vehicles.color, conditions.condition_name FROM product";
+            "SELECT product.product_id,product.user_id, product.name, users.email, users.username, product.image_url, product.description, product.price, statuses.status_name, product.additional_properties, vehicle_marks.mark_name, vehicle_models.model_name, vehicle_types.type_name, vehicles.first_registration_date, vehicles.mileage, fuel_types.fuel_type_name, vehicles.color, conditions.condition_name FROM product";
         query += getFullJoinTable();
         query += " WHERE users.user_id = $1 ORDER BY product.created_at DESC;";
 
@@ -594,6 +600,7 @@ router.post("/", async (req, res) => {
             }
             const vehicleValues = [
                 productId,
+                user_id,
                 mark,
                 model,
                 type,
