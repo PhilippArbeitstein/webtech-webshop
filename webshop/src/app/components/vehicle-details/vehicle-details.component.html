@@ -93,12 +93,16 @@
                             </span>
                         </div>
 
-                        <!-- Button pushed to the bottom -->
                         <button
-                            class="bg-btn_primary text-white font-semibold py-2 px-4 rounded-full hover:bg-btn_primary_darkened w-full mt-auto"
-                        >
-                            Inquire 
-                        </button>
+                        *ngIf="
+                            loggedInUser?.user_id != -1 &&
+                            loggedInUser?.user_id != listing.user_id
+                        "
+                        class="bg-btn_primary text-white font-semibold py-2 px-4 rounded-full hover:bg-btn_primary_darkened w-full mt-auto"
+                        (click)="startNewChat()"
+                    >
+                        Request
+                    </button>
                     </div>
                 </div>
                 
