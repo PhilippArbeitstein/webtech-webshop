@@ -47,12 +47,7 @@
                     <ng-container *ngFor="let category of categories">
                         <div
                             class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                            (mouseenter)="
-                                showSubcategories(
-                                    category.subcategories || null
-                                )
-                            "
-                            (click)="selectCategory(category)"
+                            (click)="toggleSubcategories(category)"
                         >
                             {{ category.name }}
                             <ng-container
