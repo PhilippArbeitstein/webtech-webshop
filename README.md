@@ -60,7 +60,7 @@ Das Projekt verwendet folgende Technologien und Frameworks:
     ```
 3. Entwicklungsserver starten:
     ```bash
-    npm run start
+    node server.js
     ```
 4. Die API ist standardmäßig unter `http://localhost:3000` verfügbar. Darauf achten, dass kein anderes Programm einen der zwei Ports verwendet.
 
