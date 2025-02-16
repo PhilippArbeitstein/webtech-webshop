@@ -101,6 +101,7 @@ export class OwnProductsPageComponent {
         this.isOverlayOpen = false;
         this.loadUserListings();
         this.loadUserVehicleListings();
+        this.loadUserRetailListings();
     }
 
     openOverlay(): void {
@@ -113,6 +114,7 @@ export class OwnProductsPageComponent {
         this.isVehicleOverlayOpen = false;
         this.loadUserListings();
         this.loadUserVehicleListings();
+        this.loadUserRetailListings();
     }
 
     openRetailOverlay(): void {

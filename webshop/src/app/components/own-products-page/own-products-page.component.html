@@ -72,6 +72,7 @@
                 *ngIf="userRetailListings$ | async as userRetailListings"
                 [listings]="userRetailListings"
                 [onDeleteCallback]="loadUserRetailListings.bind(this)"
+                [onUpdateCallback]="loadUserRetailListings.bind(this)"
             ></app-retail-list>
         </div>
     </div>

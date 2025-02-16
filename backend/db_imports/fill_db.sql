@@ -64,6 +64,45 @@ VALUES
     -- Level 2: Commercial Properties -> Retail Spaces
     (12, 10, 'Retail Space', '{"type": "subcategory"}');
 
+    INSERT INTO categories (category_id, parent_category_id, name, additional_properties)
+VALUES 
+    -- Level 1: Electronics
+    (13, 3, 'Electronics', '{"type": "subcategory"}'),
+    -- Level 2: Electronics -> Mobile Phones
+    (14, 13, 'Mobile Phones', '{"type": "subcategory"}'),
+    -- Level 2: Electronics -> Laptops
+    (15, 13, 'Laptops', '{"type": "subcategory"}'),
+    -- Level 2: Electronics -> Accessories
+    (16, 13, 'Accessories', '{"type": "subcategory"}'),
+
+    -- Level 1: Toys
+    (17, 3, 'Toys', '{"type": "subcategory"}'),
+    -- Level 2: Toys -> Action Figures
+    (18, 17, 'Action Figures', '{"type": "subcategory"}'),
+    -- Level 2: Toys -> Educational Toys
+    (19, 17, 'Educational Toys', '{"type": "subcategory"}'),
+    -- Level 2: Toys -> Board Games
+    (20, 17, 'Board Games', '{"type": "subcategory"}'),
+
+    -- Level 1: Clothing
+    (21, 3, 'Clothing', '{"type": "subcategory"}'),
+    -- Level 2: Clothing -> Men
+    (22, 21, 'Men', '{"type": "subcategory"}'),
+    -- Level 2: Clothing -> Women
+    (23, 21, 'Women', '{"type": "subcategory"}'),
+    -- Level 2: Clothing -> Kids
+    (24, 21, 'Kids', '{"type": "subcategory"}'),
+
+    -- Level 1: Home Appliances
+    (25, 3, 'Home Appliances', '{"type": "subcategory"}'),
+    -- Level 2: Home Appliances -> Kitchen Appliances
+    (26, 25, 'Kitchen Appliances', '{"type": "subcategory"}'),
+    -- Level 2: Home Appliances -> Cleaning Appliances
+    (27, 25, 'Cleaning Appliances', '{"type": "subcategory"}'),
+    -- Level 2: Home Appliances -> Air Conditioners
+    (28, 25, 'Air Conditioners', '{"type": "subcategory"}');
+
+
 
 -- Populate table: conditions
 INSERT INTO conditions (condition_name) VALUES
@@ -98,7 +137,41 @@ INSERT INTO product (user_id, image_url, name, description, price, status_id, ad
 (2, 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/mba13-midnight-select-202402?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1708367688034', 'MacBook Air', 'Leichtes, leistungsstarkes Notebook mit M2 Chip.', 1199.99, 1, '{"brand": "Apple", "RAM": "8GB", "SSD": "256GB"}'),
 (3, 'https://images.samsung.com/at/galaxy-watch6/feature/galaxy-watch6-kv-pc.jpg', 'Galaxy Watch 6', 'Stylische Smartwatch mit erweiterten Fitness-Funktionen.', 349.99, 1, '{"brand": "Samsung", "color": "Black", "batteryLife": "48 hours"}'),
 (4, 'https://sony.scene7.com/is/image/sonyglobalsolutions/Primary_image_black?$categorypdpnav$&fmt=png-alpha', 'Sony WF-1000XM5', 'Kabellose Ohrhörer mit branchenführender Geräuschunterdrückung.', 299.99, 1, '{"brand": "Sony", "color": "White", "noiseCancelling": "Yes"}'),
-(5, 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/refurb-ipad-pro-13inch-6th-gen-wifi-spacegray-202409?wid=1144&hei=1144&fmt=jpeg&qlt=90&.v=1721694129629', 'iPad Pro', 'Tablet mit M2-Chip für Kreative und Professionals.', 1099.99, 1, '{"brand": "Apple", "RAM": "8GB", "SSD": "128GB"}');
+(5, 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/refurb-ipad-pro-13inch-6th-gen-wifi-spacegray-202409?wid=1144&hei=1144&fmt=jpeg&qlt=90&.v=1721694129629', 'iPad Pro', 'Tablet mit M2-Chip für Kreative und Professionals.', 1099.99, 1, '{"brand": "Apple", "RAM": "8GB", "SSD": "128GB"}'),
+-- Electronics -> Mobile Phones
+(3, 'https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRw-AGQCGJ_sQHHKpskUlWdrkQiGSV23rF04ZxstNGv9UhmLoGtsMI8Up28IgH0aSelTDTMtwLXK-t0S09gwLwiqV3Y0iOVRcAaeZICcKKDZM3m504yT_Si', 'Google Pixel 8', 'Pure Android experience with exceptional camera', 799.99, 1, '{"brand": "Google", "model": "Pixel 8", "color": "Snow"}'),
+-- Electronics -> Laptops
+(4, 'https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSLBORYbqOkZ0xtA7iB3u9iFbQD2ZeGLNOe6siqaOJ-fj-47UJW0lXv17LBsCuL9URjpIAqy1daQFpj5hggMoxzpScRTaiC6ePvceAu7R46JlZk9Aj0I7xA', 'Dell XPS 13', 'Compact, high-performance ultrabook', 1499.99, 1, '{"brand": "Dell", "RAM": "16GB", "SSD": "512GB"}'),
+-- Electronics -> Accessories
+(2, 'https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSenaXpg3o-hVJahepd3tnRWAaFTVJbPSfZRxCKovlX2d8t3COJo5qps5zMt6jOg9ICnYzGGQqq_p4RvCjgVHleOaNskHLynJXJ6_MLQAyxolMXTRDcktxdTQ', 'Anker PowerCore 20000', 'High-capacity power bank with fast charging', 49.99, 1, '{"brand": "Anker", "capacity": "20000mAh", "ports": "2"}'),
+-- Toys -> Action Figures
+(5, 'https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcT3f1xHoVipg5UhwbM-sTGbT9i5WKQecckRyE-WdsinndSW7kcz5nuS7sDUCIoJ7sZy3HrQMvsAC5nMyiQr4FLawZTEtzMv8Sf46QKel1DsV0t2RIj6EalWeZQ', 'Spider-Man Action Figure', 'Highly detailed action figure of Spider-Man', 29.99, 1, '{"brand": "Marvel", "height": "6 inches"}'),
+(3, 'https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcStWflDvunxjy11e3TEqMXEpEWJAOSd_mojakFbG__WQUqxR2-IA58nuiKwGf2ars21-3VBWzlt8lrqJqnBXp87WJ2PObHeysbDzUZKFbM0DRfCHp0t0_vQ', 'Batman Action Figure', 'Premium collectible of Batman', 39.99, 1, '{"brand": "DC", "height": "7 inches"}'),
+-- Toys -> Educational Toys
+(4, 'https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSauGLK6w0QtZAdEwP29PI4va35klSi3QktUudDc9CUt0CcHDjF0mh373RsSJN89t-tAYmahWGETBk0aSLcGsDja21nq_fYEKz_mROKxwqOvz1HPxYyzZ0q5A', 'Magnetic Building Blocks', 'STEM toy for kids to develop creativity', 49.99, 1, '{"pieces": "100", "ageGroup": "3+"}'),
+(2, 'https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTLQKrLTdu5hWUtmeYWcE0K3Nz-162kj8_fxPj__dQ4tIb4CElq89_nhSIAZu7XREY5ZPflBJ5PjIK3GHocnlof9D13pXmazZf3kaWfqI6B', 'Math Flashcards', 'Interactive flashcards for learning basic math', 19.99, 1, '{"subjects": "Math", "ageGroup": "6+"}'),
+-- Toys -> Board Games
+(1, 'https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTB55XhyhGGeDsqpMycLNRbzbCvKlWqnPIf9kXzTNwxh0aERWbTGyi5eDH3LcONp4K01UAu4UEoKfILvVzEVJCS-vlvS8LEO5CUYXB47NF0', 'Settlers of Catan', 'Popular strategy board game', 44.99, 1, '{"players": "3-4", "ageGroup": "10+"}'),
+(5, 'https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcT7aJre8JI_pQA4KfW5oaf9xRKW2v_FXZdFgkqSOQHdK5DHHbNQ1rNzSLm6T2nVOEkuzQKwSRSJso0hpqflPFhGCsK4lwtpMuzOUBmNdHxxilEGczPmTMRM', 'Scrabble', 'Classic word game', 24.99, 1, '{"players": "2-4", "ageGroup": "8+"}'),
+-- Clothing -> Men
+(3, 'https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcT9iGs5hSJF2s1u5ZH_PGjLHgp9X32QKzomVPNVMoed56mTOF7yn4pJo8BEQNkALhCFG-IAWr11jgLISmTiTYeLNTcBFqNDA0_F520Pm8ZJd6xucpBuqJ7a', 'Leather Jacket', 'Stylish men’s leather jacket', 199.99, 1, '{"size": "L", "color": "Black"}'),
+(4, 'https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcT47ov9vTZkc1mtXCAU86dcshcoezEWfX-6I29817ea0hNTHpl0USkK2xUeZGh03eA1dO-71lpn0TlvdbcIBmmeLH60io3xT4rlnN9_Rz5ifxf5nOP-LCuh', 'Blue Jeans', 'Classic men’s denim jeans', 49.99, 1, '{"size": "32", "color": "Blue"}'),
+-- Clothing -> Women
+(2, 'https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRGyW4ri2AU_ELW0o9C4JFCnYZVYtzMBtRv5Yd3j4g_K0jjRNWiKNu2swOrupM_T4rsYVnlenSiOkDOPRSP79pi3GSaOL6FFW9UE2AQj5yyL0sJijUwfQlHQQ', 'Summer Dress', 'Lightweight floral dress for summer', 39.99, 1, '{"size": "M", "color": "Red"}'),
+(5, 'https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQrGigNYLpqPZ-wXrIQpHqSikzaFSzoQwKhKwfweQW16GYyrxFMy06Rko7MHb4kYDtxK3b2I45Lp9okT83ZEOjlK_52bonp8PiVnXmYvYzZ76y_BA4SiuDrYA', 'Winter Jacket', 'Warm and cozy jacket for women', 149.99, 1, '{"size": "S", "color": "Grey"}'),
+-- Clothing -> Kids
+(1, 'https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSvpIJtjXpJPmKbUmq8f2jZd8GY3LeRLUFP76Pr19Q3PkRkDaLSIiCow0cJCxKH_g2jbrdXdlyB83UgqcxcaUpNX6jQ-FMI-8wWhTmZHJrXFwxFoFZylTjoQQ', 'Kids T-Shirt', 'Fun graphic T-shirt for kids', 19.99, 1, '{"size": "S", "color": "Green"}'),
+(3, 'https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSqW2oQ_3P7vop0JZOxSIUxFcnSSLlxUKkjGAqpjlrd0LUvlkmqEpOgfRM5DyW32MULw-D0PBeowFu2XTLVMQV_9CdYpluDt3_-gXbShtNHiPcVqH89btAwxQ', 'Kids Hoodie', 'Comfortable hoodie for kids', 29.99, 1, '{"size": "M", "color": "Blue"}'),
+-- Home Appliances -> Kitchen Appliances
+(4, 'https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSjsU254NgMIy-Lc9zopYtCUqytUzBpuYWQk8VM6yqGnWpFMTpoB0UBYvrUpMpRmO7D7qrVeiiXiHN94rfZto6TJ-XbhYgt1lA_FdlC0hQONNX3mQ2trfZr', 'High-Speed Blender', 'Durable blender for smoothies and shakes', 79.99, 1, '{"brand": "Ninja", "wattage": "1000W"}'),
+(2, 'https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQEfDWaKIulxPCEZKwzUqo3R8ZmBbwP6TmhpRMi7nfN40t_czlSRQMUu8rD9JxdyGZx6uKqfMvpiVOcnCx7n1inb01Xha2mK7naiorDrlASJSAwngU8Ms30Tm8', 'Coffee Maker', 'Automatic coffee maker with timer', 59.99, 1, '{"brand": "Philips", "capacity": "1.2L"}'),
+-- Home Appliances -> Cleaning Appliances
+(3, 'https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRFX9I8ic1buf9J-KDoeS7_XQLIy7gewuJhM7I3adEihYvH039p8CiVHS13teHmm9QVDj79zANCxuMTTJBKrFn_Wz8DvcsZJkoKFJCwhuq4', 'Vacuum Cleaner', 'High-efficiency vacuum cleaner', 199.99, 1, '{"brand": "Dyson", "type": "Cordless"}'),
+(5, 'https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcS58Cw-FZ7Rha488coWZgESwL2Pvi9MItndiD-CtILeqpPdQLGNaQ0HCc5ClOqcThI5V_zV120lK9I_xXfV31nsIfoTC_D3MUXiPFKJXbz4xsKHSpDxRWos', 'Robot Vacuum', 'Smart robot vacuum with app control', 399.99, 1, '{"brand": "iRobot", "model": "Roomba 694"}'),
+-- Home Appliances -> Air Conditioners
+(1, 'https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQnUPI3H12UAteV53oTqXyurlZIj-LXJndJFtnuRGpXDFCwvAfFYAS2RO3j-qaXihVctgOJVzMMYhpb2F2uDxGVx7xlEITeWOEhc-vQELM9natk3ySGc4JG', 'Window Air Conditioner', 'Energy-efficient window AC unit', 249.99, 1, '{"brand": "LG", "coolingCapacity": "12000 BTU"}'),
+(2, 'https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSNu1ukzLWhPPQzPf9hSkSBKjLHl2r30rf_ecNPAld7MHD4xB7bmkxCwUk-_g-xp_49gix5zT_1j-S5mdGDsMp7Uio1n6nBHoOn-myHTrwfH1PcjgPMqSsb7Q', 'Split Air Conditioner', 'Split AC with remote control', 699.99, 1, '{"brand": "Samsung", "coolingCapacity": "24000 BTU"}');
+
 
 -- Populate table: product_has_category
 INSERT INTO product_has_category (product_id, category_id) VALUES
@@ -118,10 +191,57 @@ INSERT INTO product_has_category (product_id, category_id) VALUES
 (14, 1), -- Toyota RAV4 to Vehicles
 (15, 1), -- Audi Q5 to Vehicles
 (16, 3), -- iPhone 15 to Retail
+(16, 14), -- iPhone 15 zu Mobile Phones
 (17, 3), -- MacBook Air to Retail
+(17, 15), -- MacBook Air zu Laptops
 (18, 3), -- Galaxy Watch 6 to Retail
+(18, 16), -- Galaxy Watch 6 zu Accessories
 (19, 3), -- Sony WF-1000XM5 to Retail
-(20, 3); -- iPad Pro to Retail
+(19, 16), -- Sony WF-1000XM5 zu Accessories
+(20, 3), -- iPad Pro to Retail
+(20, 16), -- iPad Pro zu Accessories
+(21, 3), -- Google Pixel 8 to Retail
+(21, 14), -- Google Pixel 8 to Mobile Phones
+(22, 3), -- Dell XPS 13 to Retail
+(22, 15), -- Dell XPS 13 to Laptops
+(23, 3), -- Anker PowerCore 20000 to Retail
+(23, 16), -- Anker PowerCore 20000 to Accessories
+(24, 3), -- Spider-Man Action Figure to Retail
+(24, 18), -- Spider-Man Action Figure to Action Figures
+(25, 3), -- Batman Action Figure to Retail
+(25, 18), -- Batman Action Figure to Action Figures
+(26, 3), -- Magnetic Building Blocks to Retail
+(26, 19), -- Magnetic Building Blocks to Educational Toys
+(27, 3), -- Math Flashcards to Retail
+(27, 19), -- Math Flashcards to Educational Toys
+(28, 3), -- Settlers of Catan to Retail
+(28, 20), -- Settlers of Catan to Board Games
+(29, 3), -- Scrabble to Retail
+(29, 20), -- Scrabble to Board Games
+(30, 3), -- Leather Jacket to Retail
+(30, 22), -- Leather Jacket to Men Clothing
+(31, 3), -- Blue Jeans to Retail
+(31, 22), -- Blue Jeans to Men Clothing
+(32, 3), -- Summer Dress to Retail
+(32, 23), -- Summer Dress to Women Clothing
+(33, 3), -- Winter Jacket to Retail
+(33, 23), -- Winter Jacket to Women Clothing
+(34, 3), -- Kids T-Shirt to Retail
+(34, 24), -- Kids T-Shirt to Kids Clothing
+(35, 3), -- Kids Hoodie to Retail
+(35, 24), -- Kids Hoodie to Kids Clothing
+(36, 3), -- High-Speed Blender to Retail
+(36, 26), -- High-Speed Blender to Kitchen Appliances
+(37, 3), -- Coffee Maker to Retail
+(37, 26), -- Coffee Maker to Kitchen Appliances
+(38, 3), -- Vacuum Cleaner to Retail
+(38, 27), -- Vacuum Cleaner to Cleaning Appliances
+(39, 3), -- Robot Vacuum to Retail
+(39, 27), -- Robot Vacuum to Cleaning Appliances
+(40, 3), -- Window Air Conditioner to Retail
+(40, 28), -- Window Air Conditioner to Air Conditioners
+(41, 3), -- Split Air Conditioner to Retail
+(41, 28); -- Split Air Conditioner to Air Conditioners
 
 -- Populate table: vehicle_marks
 INSERT INTO vehicle_marks (mark_name) VALUES
@@ -190,7 +310,28 @@ INSERT INTO retail (product_id, delivery_method_id, condition_id) VALUES
 (17, 1, 2), -- MacBook Air, Selbstabholung, Used
 (18, 3, 3), -- Galaxy Watch 6, Beides, Broken
 (19, 3, 1), -- Sony WF-1000XMS, Beides, New
-(20, 1, 1); -- IPad Pro, Selbstabholung, New
+(20, 1, 1), -- IPad Pro, Selbstabholung, New
+(21, 3, 1), -- Google Pixel 8, Beides, New
+(22, 3, 1), -- Dell XPS 13, Beides, New
+(23, 2, 1), -- Anker PowerCore 20000, Lieferung, New
+(24, 1, 1), -- Spider-Man Action Figure, Selbstabholung, New
+(25, 1, 1), -- Batman Action Figure, Selbstabholung, New
+(26, 3, 1), -- Magnetic Building Blocks, Beides, New
+(27, 3, 1), -- Math Flashcards, Beides, New
+(28, 3, 1), -- Settlers of Catan, Beides, New
+(29, 3, 1), -- Scrabble, Beides, New
+(30, 2, 1), -- Leather Jacket, Lieferung, New
+(31, 2, 1), -- Blue Jeans, Lieferung, New
+(32, 3, 2), -- Summer Dress, Beides, Used
+(33, 3, 2), -- Winter Jacket, Beides, Used
+(34, 1, 1), -- Kids T-Shirt, Selbstabholung, New
+(35, 1, 1), -- Kids Hoodie, Selbstabholung, New
+(36, 2, 1), -- High-Speed Blender, Lieferung, New
+(37, 2, 1), -- Coffee Maker, Lieferung, New
+(38, 3, 1), -- Vacuum Cleaner, Beides, New
+(39, 3, 1), -- Robot Vacuum, Beides, New
+(40, 1, 1), -- Window Air Conditioner, Selbstabholung, New
+(41, 1, 1); -- Split Air Conditioner, Selbstabholung, New
 
 -- Messages about product_id 1 (Audi A4)
 INSERT INTO messages (from_user_id, to_user_id, product_id, message, created_at) VALUES

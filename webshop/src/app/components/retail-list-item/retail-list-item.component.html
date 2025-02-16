@@ -33,7 +33,25 @@
   >
     🗑️
   </button>
-
+  <!-- Edit Icon on Hover -->
+  <button
+    *ngIf="isEditIconVisible"
+    class="hover:bg-gray-300 p-2 rounded-full"
+    (click)="openEditOverlay($event, listing)"
+    title="Edit"
+  >
+    ✏️
+  </button>
+  <div
+    *ngIf="showEditOverlayState"
+    class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+    (click)="closeEditOverlay($event)"
+  >
+    <app-retail-update-overlay
+      [listing]="selectedListing!"
+      (close)="closeEditOverlay()"
+    ></app-retail-update-overlay>
+  </div>
   <!-- Confirmation Popup -->
   <div
     *ngIf="showConfirmationPopup"

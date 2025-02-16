@@ -28,6 +28,7 @@ router.get("/", async (req, res) => {
         product.name, 
         users.email, 
         users.username, 
+        users.user_id, 
         product.image_url,
         product.description,
         product.price, 
@@ -36,7 +37,11 @@ router.get("/", async (req, res) => {
         product.updated_at,
         product.additional_properties,
         conditions.condition_name,
-        delivery_methods.delivery_method_name
+        delivery_methods.delivery_method_name,
+        COALESCE(
+            MAX(CASE WHEN categories.category_id != 3 THEN categories.name END), 
+            'Retail'
+        ) AS category
     FROM 
         product`;
     query += getFullJoinTable();
@@ -61,12 +66,37 @@ router.get("/", async (req, res) => {
         params.push(condition);
     }
     if (delivery_method) {
-        conditions.push(`delivery_methods.delivery_method_name ILIKE $${params.length + 1} AND delivery_methods.delivery_method_id=retail.delivery_method_id`)
+        conditions.push(`delivery_methods.delivery_method_name ILIKE $${params.length + 1} AND delivery_methods.delivery_method_id=retail.delivery_method_id`);
+        params.push(delivery_method)
     }
-    if (conditions.length > 0) {
+    if (category) {
+        conditions.push(`categories.name ILIKE $${params.length + 1}`);
+        params.push(category)
+    }
 
+    if (conditions.length > 0) {
         query += " WHERE " + conditions.join(" AND ");
     }
+
+    query += `
+    GROUP BY 
+        product.product_id, 
+        product.name, 
+        users.email, 
+        users.username, 
+        users.user_id, 
+        product.image_url,
+        product.description,
+        product.price, 
+        statuses.status_name,
+        product.created_at,
+        product.updated_at,
+        product.additional_properties,
+        conditions.condition_name,
+        delivery_methods.delivery_method_name
+    `;
+
+
     try {
         const result = await pool.query(query, params);
         res.status(200).json(result.rows);
@@ -78,13 +108,37 @@ router.get("/", async (req, res) => {
 
 //Get specific Product
 router.get("/:product_id", async (req, res) => {
-
+    const productId = req.params.product_id;
     let query = `
     SELECT 
         product.product_id, 
         product.name, 
         users.email, 
         users.username, 
+        users.user_id, 
+        product.image_url,
+        product.description,
+        product.price, 
+        statuses.status_name,
+        product.created_at,
+        product.updated_at,
+        product.additional_properties,
+        conditions.condition_name,
+        delivery_methods.delivery_method_name,
+          COALESCE(
+        MAX(CASE WHEN categories.category_id != 3 THEN categories.name END), 
+        'Retail'
+    ) AS category
+    FROM 
+        product`;
+    query += getFullJoinTable();
+    query += " WHERE product.product_id=$1";
+    query += ` GROUP BY 
+        product.product_id, 
+        product.name, 
+        users.email, 
+        users.username, 
+        users.user_id,
         product.image_url,
         product.description,
         product.price, 
@@ -94,16 +148,12 @@ router.get("/:product_id", async (req, res) => {
         product.additional_properties,
         conditions.condition_name,
         delivery_methods.delivery_method_name
-    FROM 
-        product`;
-
-    query += getFullJoinTable();
-    query += " WHERE product.product_id=$1";
-    const productId = req.params.product_id;
+    `;
     pool.query(query, [productId],
         (err, result) => {
             if (err) {
                 console.log(err);
+                console.log("error here: 157")
                 res.status(500).send("Error retrieving product");
             } else {
                 res.status(200).json(result.rows);
@@ -134,6 +184,31 @@ router.get('/users/user-listings', async (req, res) => {
             product.name, 
             users.email, 
             users.username, 
+            users.user_id, 
+            product.image_url,
+            product.description,
+            product.price, 
+            statuses.status_name,
+            product.created_at,
+            product.updated_at,
+            product.additional_properties,
+            conditions.condition_name,
+            delivery_methods.delivery_method_name,
+              COALESCE(
+            MAX(CASE WHEN categories.category_id != 3 THEN categories.name END), 
+            'Retail'
+        ) AS category
+        FROM 
+            product`;
+
+        query += getFullJoinTable();
+        query += ` WHERE users.user_id = $1 `;
+        query += `GROUP BY 
+            product.product_id, 
+            product.name, 
+            users.email, 
+            users.username, 
+            users.user_id,
             product.image_url,
             product.description,
             product.price, 
@@ -143,14 +218,8 @@ router.get('/users/user-listings', async (req, res) => {
             product.additional_properties,
             conditions.condition_name,
             delivery_methods.delivery_method_name
-        FROM 
-            product`;
-
-        query += getFullJoinTable();
-        query += ` WHERE users.user_id = $1
-            ORDER BY product.created_at DESC; `
-
-
+        `;
+        query += ` ORDER BY product.created_at DESC; `
 
         pool.query(query, [req.session.user_id],
             (err, result) => {
@@ -241,9 +310,15 @@ router.delete("/:product_id", async (req, res) => {
 
 
 //Update Product
-router.put("/:product_id", async (req, res) => {
+router.put("/update/:product_id", async (req, res) => {
     const productId = req.params.product_id;
-    let { image_url, name, description, price, status, additional_properties, delivery_method, condition } = req.body;
+    let { image_url, name, description, price, status, additional_properties, delivery_method, condition, category } = req.body;
+    if (!req.session.user_id) {
+        res.status(400).send("Not logged in");
+    }
+    if (!image_url || !name || !description || !price || !status || !additional_properties || !delivery_method || !condition || !req.session.user_id) {
+        return res.status(400).send("Insufficient Information");
+    }
     let transaction;
     try {
         const ownershipValidation = await validateProductOwnership(
@@ -290,6 +365,15 @@ router.put("/:product_id", async (req, res) => {
             paramsRetail.push(productId);
             const retailQuery = `UPDATE retail SET ${setRetail.join(", ")} WHERE product_id = $${paramIndex}`;
             await transaction.query(retailQuery, paramsRetail);
+        }
+
+        if (category) {
+            const categoryQuery =
+                ` UPDATE product_has_category 
+SET category_id = $1 WHERE product_id = $2 AND category_id != 3;
+
+            `;
+            await transaction.query(categoryQuery, [category, productId]);
         }
 
         let setProduct = [];
@@ -402,13 +486,87 @@ router.get("/delivery/methods", async (req, res) => {
     }
 });
 
+// Get all retail statuses
+router.get("/status/status", async (req, res) => {
+    try {
+        const query =
+            `
+            SELECT  * FROM statuses;
+        `
+        pool.query(query,
+            (err, result) => {
+                if (err) {
+                    console.log(err);
+                    res.status(500).send("Error retrieving statuses");
+                } else {
+                    if (result.rows.length === 0) {
+                        return res.status(404).json({ message: 'No statuses found' });
+                    }
+                    res.status(200).json(result.rows);
+                }
+            }
+        );
+    } catch (error) {
+        res.status(500).send(`Server Error: ${error}`);
+    }
+});
+
+// Get all categories of retail products
+router.get("/categories/categories", async (req, res) => {
+    try {
+        const parentId = 3; //retail as parent category
+        const query =
+            `
+            WITH RECURSIVE category_hierarchy AS (
+                SELECT 
+                    category_id,
+                    parent_category_id,
+                    name,
+                    additional_properties
+                FROM 
+                    categories
+                WHERE 
+                    category_id = $1 
+                UNION ALL
+                SELECT 
+                    c.category_id,
+                    c.parent_category_id,
+                    c.name,
+                    c.additional_properties
+                FROM 
+                    categories c
+                INNER JOIN 
+                    category_hierarchy ch
+                ON 
+                    c.parent_category_id = ch.category_id
+            )
+            SELECT * FROM category_hierarchy;
+            `;
+
+        pool.query(query, [parentId], (err, result) => {
+            if (err) {
+                console.log(err);
+                res.status(500).send("Error retrieving categories");
+            } else {
+                if (result.rows.length === 0) {
+                    return res.status(404).json({ message: 'No categories found for the given parent ID' });
+                }
+                res.status(200).json(result.rows);
+            }
+        });
+    } catch (error) {
+        res.status(500).send(`Server Error: ${error}`);
+    }
+});
+
+
 //Add new retail product
 router.post("/new", async (req, res) => {
-    let { image_url, name, description, price, status, additional_properties, delivery_method, condition } = req.body;
+    let { image_url, name, description, price, status, additional_properties, delivery_method, condition, categories } = req.body;
     if (!req.session.user_id) {
-        res.status(400).send("Not logged in");
+        return res.status(400).send("Not logged in");
     }
-    if (!image_url || !name || !description || !price || !status || !additional_properties || !delivery_method || !condition || !req.session.user_id) {
+    if (!image_url || !name || !description || !price || !status || !additional_properties || !delivery_method || !condition || !req.session.user_id || !categories) {
         return res.status(400).send("Insufficient Information");
     }
     let transaction;
@@ -451,6 +609,19 @@ router.post("/new", async (req, res) => {
             [productId, 3]
         );
 
+        if (categories) {
+            const categoryInsertQuery =
+                `
+                INSERT INTO product_has_category (product_id, category_id)
+                VALUES ($1, $2)
+                RETURNING product_id
+                `;
+            const categoryResult = await (transaction.query(categoryInsertQuery, [productId, categories]))
+            if (!categoryResult.rows[0]?.product_id) {
+                throw new Error('Failed to insert product category.');
+            }
+        }
+
         if (!productCategoryResult.rows[0]?.product_id) {
             throw new Error('Failed to insert into product_has_category.');
         }
@@ -465,40 +636,13 @@ router.post("/new", async (req, res) => {
     }
 });
 
-
-router.get('/messages/message', async (req, res) => {
-    const { from_user, to_user, productId } = req.body;
-    if (!from_user || !to_user || !productId) {
-        return res.status(400).json({ error: "Missing parameters" });
-    }
-
-    try {
-        // Query to get messages between two users for a specific product
-        const query = `
-        SELECT from_user_id, to_user_id, message, sent_at
-        FROM messages
-        WHERE from_user_id = $1 AND to_user_id = $2 AND product_id = $3
-        ORDER BY sent_at;`;
-
-        const result = await pool.query(query, [from_user, to_user, productId]);
-
-        if (result.rows.length === 0) {
-            return res.status(404).json({ message: "No messages found" });
-        }
-        res.status(200).json(result.rows);
-    } catch (error) {
-        console.error('Error retrieving messages:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-
 module.exports = router;
 
 
 function getFullJoinTable() {
     let query = " join retail on retail.product_id=product.product_id join users on product.user_id=users.user_id join delivery_methods on retail.delivery_method_id=delivery_methods.delivery_method_id";
     query += " join conditions on retail.condition_id=conditions.condition_id JOIN address on address.address_id=users.address_id JOIN statuses on statuses.status_id=product.status_id";
+    query += " join product_has_category on product_has_category.product_id=product.product_id join categories on categories.category_id=product_has_category.category_id"
     return query;
 }
 
@@ -533,10 +677,11 @@ async function validateProductOwnership(product_id, user_id) {
             message: 'Permission denied: User ID is missing or invalid'
         };
     }
-    await pool.query(query, [from_user, to_user, productId]);
+
+    let query = await pool.connect();
     // Query to check ownership
     const productOwnerQuery = `SELECT user_id FROM product WHERE product_id = $1`;
-    const productOwnerResult = await pool.query(productOwnerQuery, [product_id]);
+    const productOwnerResult = await query.query(productOwnerQuery, [product_id]);
     if (productOwnerResult.rows.length === 0) {
         return {
             success: false,

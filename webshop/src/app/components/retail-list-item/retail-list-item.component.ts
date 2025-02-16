@@ -6,24 +6,32 @@ import {
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
+import { RetailUpdateOverlayComponent } from '../retail-update-overlay/retail-update-overlay.component';
 
 @Component({
   selector: 'app-list-item',
-  imports: [CommonModule],
+  imports: [CommonModule, RetailUpdateOverlayComponent],
   templateUrl: './retail-list-item.component.html',
   styleUrl: './retail-list-item.component.css',
 })
 export class ListItemComponent {
   @Input() listing!: RetailListing;
   @Input() onDeleteCallback!: () => void; // Accept a callback for post-delete actions
+  @Input() onUpdateCallback!: () => void;
 
   fallbackImageUrl = '../../../assets/house.svg';
   isTrashIconVisible: boolean = false;
+  isEditIconVisible: boolean = false;
+
   imageError: boolean = false;
   showConfirmationPopup: boolean = false;
   currentProductIdToDelete: number | null = null;
 
+  selectedListing: RetailListing | null = null;
+  showEditOverlayState: boolean = false;
+  
   private routeSubscription: Subscription | null = null;
+     
 
   constructor(
     private router: Router,
@@ -37,6 +45,26 @@ export class ListItemComponent {
     });
     this.checkRoute();
   }
+
+  openEditOverlay(event: MouseEvent, listing: RetailListing): void {
+          event.stopPropagation();
+          event.preventDefault();
+          this.selectedListing = listing;
+          this.showEditOverlayState = true;
+      }
+  
+      closeEditOverlay(event?: MouseEvent): void {
+          if (event) {
+              event.stopPropagation();
+              event.preventDefault();
+          }
+          this.selectedListing = null;
+          this.showEditOverlayState = false;
+  
+          if (this.onUpdateCallback) {
+              this.onUpdateCallback();
+          }
+      }
 
   openConfirmationPopup(event: MouseEvent, productId: number): void {
     event.stopPropagation();
@@ -69,6 +97,7 @@ export class ListItemComponent {
   private checkRoute(): void {
     const currentRoute = this.router.url;
     this.isTrashIconVisible = currentRoute.includes('own-products');
+    this.isEditIconVisible = currentRoute.includes('own-products');
   }
 
   confirmDelete(event: MouseEvent): void {

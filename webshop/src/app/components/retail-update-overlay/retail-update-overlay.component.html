@@ -1,0 +1,252 @@
+<div
+  class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 overflow-y-auto"
+  (click)="onClose($event)"
+>
+  <div
+    class="bg-white rounded-lg shadow-lg max-w-4xl w-full p-6 relative mt-10 mb-10"
+    style="
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+    "
+    (click)="cancelAll($event)"
+  >
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold">Update Retail Listing</h2>
+      <button
+        class="text-gray-500 hover:text-gray-800"
+        (click)="onClose($event)"
+      >
+        ✖
+      </button>
+    </div>
+
+    <form [formGroup]="retailForm" (ngSubmit)="onSubmit()">
+      <div class="grid grid-cols-2 gap-4">
+        <!-- Image URL -->
+        <div>
+          <label class="block font-medium">Image URL</label>
+          <input
+            condition="text"
+            formControlName="image_url"
+            class="w-full border rounded-lg px-4 py-2"
+          />
+          <span
+            *ngIf="
+              retailForm.controls['image_url'].invalid &&
+              retailForm.controls['image_url'].touched
+            "
+            class="text-red-500 text-sm"
+          >
+            <ng-container
+              *ngIf="retailForm.controls['image_url'].hasError('required')"
+            >
+              Image URL is required.
+            </ng-container>
+          </span>
+        </div>
+        <div>
+          <label class="block font-medium">Name</label>
+          <input
+            condition="text"
+            formControlName="name"
+            class="w-full border rounded-lg px-4 py-2"
+          />
+          <span
+            *ngIf="
+              retailForm.controls['name'].invalid &&
+              retailForm.controls['name'].touched
+            "
+            class="text-red-500 text-sm"
+          >
+            Name is required.
+          </span>
+        </div>
+        <div class="col-span-2">
+          <label class="block font-medium">Description</label>
+          <textarea
+            formControlName="description"
+            class="w-full border rounded-lg px-4 py-2"
+          ></textarea>
+        </div>
+        <div>
+          <label class="block font-medium">Price (€)</label>
+          <input
+            condition="number"
+            formControlName="price"
+            class="w-full border rounded-lg px-4 py-2"
+          />
+          <span
+            *ngIf="
+              retailForm.controls['price'].invalid &&
+              retailForm.controls['price'].touched
+            "
+            class="text-red-500 text-sm"
+          >
+            <ng-container
+              *ngIf="retailForm.controls['price'].hasError('required')"
+            >
+              Price is required.
+            </ng-container>
+            <ng-container *ngIf="retailForm.controls['price'].hasError('min')">
+              Price must be greater than 0.
+            </ng-container>
+          </span>
+        </div>
+        <div>
+          <label class="block font-medium">Condition</label>
+          <select
+            class="w-full border rounded-lg px-4 py-2"
+            formControlName="condition_name"
+          >
+            <option value="">Select condition</option>
+            <option
+              *ngFor="let condition of retailConditions"
+              [value]="condition.condition_name"
+            >
+              {{ condition.condition_name }}
+            </option>
+          </select>
+          <span
+            *ngIf="
+              retailForm.controls['condition_name'].invalid &&
+              retailForm.controls['condition_name'].touched
+            "
+            class="text-red-500 text-sm"
+          >
+            condition is required.
+          </span>
+        </div>
+        <div>
+          <label class="block font-medium">Delivery Method</label>
+          <select
+            class="w-full border rounded-lg px-4 py-2"
+            formControlName="delivery_method_name"
+          >
+            <option value="">Select delivery method</option>
+            <option
+              *ngFor="let delivery_method of retailDeliveryMethods"
+              [value]="delivery_method.delivery_method_name"
+            >
+              {{ delivery_method.delivery_method_name }}
+            </option>
+          </select>
+          <span
+            *ngIf="
+              retailForm.controls['delivery_method_name'].invalid &&
+              retailForm.controls['delivery_method_name'].touched
+            "
+            class="text-red-500 text-sm"
+          >
+            Delivery method is required.
+          </span>
+        </div>
+        <div>
+          <label class="block font-medium">Status</label>
+          <select
+            class="w-full border rounded-lg px-4 py-2"
+            formControlName="status_name"
+          >
+            <option value="">Select status</option>
+            <option
+              *ngFor="let status of retailStatus"
+              [value]="status.status_name"
+            >
+              {{ status.status_name }}
+            </option>
+          </select>
+          <span
+            *ngIf="
+              retailForm.controls['status_name'].invalid &&
+              retailForm.controls['status_name'].touched
+            "
+            class="text-red-500 text-sm"
+          >
+            status is required.
+          </span>
+        </div>
+      </div>
+      <fieldset class="border p-4 mt-4 rounded-lg">
+        <legend class="font-bold">Additional Properties</legend>
+        <div formArrayName="additional_properties" class="space-y-4">
+          <div
+            *ngFor="let control of additionalProperties.controls; let i = index"
+            [formGroupName]="i"
+            class="grid grid-cols-[1fr_1fr_auto] gap-x-4 gap-y-2 items-center"
+          >
+            <input
+              condition="text"
+              placeholder="Key"
+              formControlName="key"
+              class="border rounded-lg px-4 py-2"
+            />
+            <input
+              condition="text"
+              placeholder="Value"
+              formControlName="value"
+              class="border rounded-lg px-4 py-2"
+            />
+            <button
+              condition="button"
+              class="text-white p-2 rounded-full hover:bg-text_gray focus:outline-none flex items-center justify-center"
+              (click)="removeProperty(i, $event)"
+              title="Remove"
+            >
+              🗑️
+            </button>
+          </div>
+        </div>
+        <button
+          condition="button"
+          class="mt-4 bg-btn_primary text-white px-4 py-2 rounded-lg hover:bg-btn_primary_darkened"
+          (click)="addProperty($event)"
+        >
+          Add Property
+        </button>
+      </fieldset>
+
+      <div>
+        <label class="block text-gray-700 font-medium">Select Category</label>
+        <div
+          *ngFor="let category of categories"
+          class="flex items-center space-x-2"
+        >
+          <input
+            type="radio"
+            name="categorySelection"
+            [id]="'category_' + category.category_id"
+            [value]="category.category_id"
+            [checked]="category.category_id === selectedCategory"
+            (click)="selectCategory(category.category_id, $event)"
+            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          />
+          <label
+            [for]="'category_' + category.category_id"
+            class="text-gray-700"
+            (click)="selectCategory(category.category_id, $event)"
+          >
+            {{ category.name }}
+          </label>
+        </div>
+      </div>
+
+      <div class="flex justify-end mt-6 space-x-4">
+        <button
+          condition="button"
+          class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400"
+          (click)="onClose($event)"
+        >
+          Cancel
+        </button>
+        <button
+          condition="submit"
+          class="bg-btn_primary text-white px-4 py-2 rounded-lg hover:bg-btn_primary_darkened"
+          data-submit="true"
+        >
+          Update
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
