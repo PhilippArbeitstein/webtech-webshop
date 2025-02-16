@@ -224,7 +224,7 @@ export class MessagePageComponent {
                     .newMessage(
                         productId,
                         toUserId,
-                        'Hallo, ich bin an Ihrem Produkt interessiert'
+                        'Hello, I am interested in buying your product.'
                     )
                     .subscribe({
                         next: () => {
@@ -247,7 +247,7 @@ export class MessagePageComponent {
                 .newMessage(
                     productId,
                     toUserId,
-                    'Hallo, ich bin an Ihrem Produkt interessiert'
+                    'Hello, I am interested in buying your product.'
                 )
                 .subscribe({
                     next: () => {
@@ -313,15 +313,7 @@ export class MessagePageComponent {
                                     status_name: '',
                                     created_at: '',
                                     updated_at: '',
-                                    additional_properties: {},
-                                    type_name: '',
-                                    city: '',
-                                    address: '',
-                                    province: '',
-                                    address_details: '',
-                                    advance_payment: '',
-                                    rent_start: '',
-                                    rent_end: ''
+                                    additional_properties: {}
                                 },
                                 messages: [message],
                                 participants: []

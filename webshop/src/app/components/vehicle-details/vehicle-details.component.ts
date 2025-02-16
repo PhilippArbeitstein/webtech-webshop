@@ -8,6 +8,7 @@ import {
 } from '../../services/vehicles.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
+import { UserService } from '../../services/user.service';
 import { RoutingService } from '../../services/routing.service';
 
 // Extend VehicleListing locally to include display properties
@@ -23,12 +24,14 @@ type DisplayVehicleListing = VehicleListing & {
   providers: [DatePipe],
 })
 export class VehicleDetailsComponent {
+  loggedInUser: any;
   productId: number = -1;
   listing: DisplayVehicleListing | null = null;
 
   constructor(
     private searchbarService: SearchbarService,
     public vehicleService: VehiclesService,
+    public userService: UserService,
     private route: ActivatedRoute,
     private router: Router,
     private datePipe: DatePipe,
@@ -39,6 +42,9 @@ export class VehicleDetailsComponent {
   }
 
   ngOnInit(): void {
+    this.userService.loggedInUser$.subscribe((user) => {
+      this.loggedInUser = user;
+    });
     this.searchbarService.setSearchBarContext('vehicles');
 
     // Fetch the listing directly
@@ -77,5 +83,17 @@ export class VehicleDetailsComponent {
     } else {
       this.router.navigate(['/vehicles']);
     }
+  }
+  startNewChat(): void {
+    if (!this.listing) {
+      return; // Ensure the listing is available
+    }
+
+    const productId = this.listing.product_id;
+    const ownerId = this.listing.user_id;
+
+    this.router.navigate(['/messages'], {
+      queryParams: { product_id: productId, to_user_id: ownerId },
+    });
   }
 }

@@ -1,20 +1,20 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-const pool = require('../pool');
-const checkAuth = require('../auth/auth.js');
+const pool = require("../pool");
+const checkAuth = require("../auth/auth.js");
 
-const EventEmitter = require('events');
+const EventEmitter = require("events");
 const eventEmitter = new EventEmitter();
 
-router.get('/', (req, res) => {
+router.get("/", (req, res) => {
     res.status(200).json({
-        message: 'Real Estate Routes Work'
+        message: "Real Estate Routes Work",
     });
 });
 
 // Get all real-estate listings
-router.get('/listings', async (req, res) => {
+router.get("/listings", async (req, res) => {
     const {
         category_id,
         min_price,
@@ -24,7 +24,7 @@ router.get('/listings', async (req, res) => {
         province,
         city,
         available_now,
-        additional_properties
+        additional_properties,
     } = req.query;
 
     try {
@@ -35,7 +35,7 @@ router.get('/listings', async (req, res) => {
         // Filter out empty or null additional properties
         const validAdditionalProperties = Object.entries(
             parsedAdditionalProperties
-        ).filter(([key, value]) => value !== null && value !== '');
+        ).filter(([key, value]) => value !== null && value !== "");
 
         let query = `
             SELECT re.product_id, u.user_id, u.email, u.username, p.image_url, p.name, p.description, p.price, 
@@ -107,9 +107,9 @@ router.get('/listings', async (req, res) => {
 
         if (filteredListings.rows.length === 0) {
             return res.status(200).json({
-                message: 'No listings found',
+                message: "No listings found",
                 listings: [],
-                categories: []
+                categories: [],
             });
         }
 
@@ -139,7 +139,7 @@ router.get('/listings', async (req, res) => {
                     subcategories: formatCategories(
                         categories,
                         category.category_id
-                    )
+                    ),
                 }));
         };
 
@@ -147,18 +147,18 @@ router.get('/listings', async (req, res) => {
 
         res.status(200).json({
             listings: filteredListings.rows,
-            categories: categoryHierarchy
+            categories: categoryHierarchy,
         });
     } catch (error) {
-        console.error('Error fetching listings:', error);
+        console.error("Error fetching listings:", error);
         res.status(500).json({
-            error: 'Internal server error',
-            details: error.message
+            error: "Internal server error",
+            details: error.message,
         });
     }
 });
 
-router.get('/listings/:product_id', async (req, res) => {
+router.get("/listings/:product_id", async (req, res) => {
     const { product_id } = req.params;
     try {
         const allListings = await pool.query(
@@ -177,7 +177,7 @@ router.get('/listings/:product_id', async (req, res) => {
         );
 
         if (allListings.rows.length === 0) {
-            return res.status(404).json({ message: 'No listings found' });
+            return res.status(404).json({ message: "No listings found" });
         }
 
         res.status(200).json(allListings.rows[0]);
@@ -191,7 +191,7 @@ async function validateProductOwnership(transaction, product_id, user_id) {
     if (!user_id) {
         return {
             success: false,
-            message: 'Permission denied: User ID is missing or invalid'
+            message: "Permission denied: User ID is missing or invalid",
         };
     }
 
@@ -205,7 +205,7 @@ async function validateProductOwnership(transaction, product_id, user_id) {
     if (productOwnerResult.rows.length === 0) {
         return {
             success: false,
-            message: 'Permission denied: Product not found'
+            message: "Permission denied: Product not found",
         };
     }
 
@@ -214,7 +214,7 @@ async function validateProductOwnership(transaction, product_id, user_id) {
     if (productOwnerId !== user_id) {
         return {
             success: false,
-            message: 'Permission denied: You do not own this product'
+            message: "Permission denied: You do not own this product",
         };
     }
 
@@ -222,7 +222,7 @@ async function validateProductOwnership(transaction, product_id, user_id) {
 }
 
 // Get real-estate listings from a single user
-router.get('/user-listings', async (req, res) => {
+router.get("/user-listings", async (req, res) => {
     try {
         const userExists = await pool.query(
             `
@@ -232,7 +232,7 @@ router.get('/user-listings', async (req, res) => {
         );
 
         if (userExists.rows.length === 0) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: "User not found" });
         }
 
         const allListings = await pool.query(
@@ -252,7 +252,7 @@ router.get('/user-listings', async (req, res) => {
         );
 
         if (allListings.rows.length === 0) {
-            return res.status(404).json({ message: 'No listings found' });
+            return res.status(404).json({ message: "No listings found" });
         }
 
         res.status(200).json(allListings.rows);
@@ -262,7 +262,7 @@ router.get('/user-listings', async (req, res) => {
 });
 
 // Create new real-estate listing
-router.post('/new', async (req, res) => {
+router.post("/new", async (req, res) => {
     const {
         image_url,
         name,
@@ -277,13 +277,13 @@ router.post('/new', async (req, res) => {
         address_details,
         advance_payment,
         rent_start,
-        rent_end
+        rent_end,
     } = req.body;
     let transaction;
     try {
         transaction = await pool.connect();
 
-        await transaction.query('BEGIN');
+        await transaction.query("BEGIN");
 
         let status_id = null;
         if (status_name !== undefined) {
@@ -308,11 +308,11 @@ router.post('/new', async (req, res) => {
                 name,
                 description,
                 price,
-                additional_properties
+                additional_properties,
             ]
         );
         if (!productResult.rows[0]?.product_id) {
-            throw new Error('Failed to insert product.');
+            throw new Error("Failed to insert product.");
         }
         const product_id = productResult.rows[0].product_id;
 
@@ -326,7 +326,7 @@ router.post('/new', async (req, res) => {
         );
 
         if (!addressResult.rows[0]?.address_id) {
-            throw new Error('Failed to insert product (address).');
+            throw new Error("Failed to insert product (address).");
         }
         const address_id = addressResult.rows[0].address_id;
 
@@ -343,12 +343,12 @@ router.post('/new', async (req, res) => {
                 address_details,
                 advance_payment,
                 rent_start,
-                rent_end
+                rent_end,
             ]
         );
 
         if (!realEstateResult.rows[0]?.product_id) {
-            throw new Error('Failed to insert real estate entry.');
+            throw new Error("Failed to insert real estate entry.");
         }
 
         const productCategoryResult = await transaction.query(
@@ -361,16 +361,16 @@ router.post('/new', async (req, res) => {
         );
 
         if (!productCategoryResult.rows[0]?.product_id) {
-            throw new Error('Failed to insert into product_has_category.');
+            throw new Error("Failed to insert into product_has_category.");
         }
 
-        await transaction.query('COMMIT');
+        await transaction.query("COMMIT");
         res.status(200).json({
-            message: 'Real estate listing created successfully',
-            product_id: product_id
+            message: "Real estate listing created successfully",
+            product_id: product_id,
         });
     } catch (error) {
-        await transaction.query('ROLLBACK');
+        await transaction.query("ROLLBACK");
         res.status(500).send(`Server Error: ${error}`);
     } finally {
         transaction.release();
@@ -378,13 +378,13 @@ router.post('/new', async (req, res) => {
 });
 
 // Delete a real estate listing
-router.delete('/:product_id', async (req, res) => {
+router.delete("/:product_id", async (req, res) => {
     const { product_id } = req.params;
     let transaction;
     try {
         transaction = await pool.connect();
 
-        await transaction.query('BEGIN');
+        await transaction.query("BEGIN");
 
         const ownershipValidation = await validateProductOwnership(
             transaction,
@@ -393,7 +393,7 @@ router.delete('/:product_id', async (req, res) => {
         );
 
         if (!ownershipValidation.success) {
-            await transaction.query('ROLLBACK');
+            await transaction.query("ROLLBACK");
             return res
                 .status(403)
                 .json({ message: ownershipValidation.message });
@@ -419,7 +419,7 @@ router.delete('/:product_id', async (req, res) => {
 
         if (!productCategoryResult.rows.length) {
             throw new Error(
-                'Failed to delete product from product_has_category. Entry does not exist.'
+                "Failed to delete product from product_has_category. Entry does not exist."
             );
         }
 
@@ -434,7 +434,7 @@ router.delete('/:product_id', async (req, res) => {
 
         if (!realEstateResult.rows[0]?.product_id) {
             throw new Error(
-                'Failed to delete real estate entry or entry does not exist.'
+                "Failed to delete real estate entry or entry does not exist."
             );
         }
 
@@ -460,19 +460,19 @@ router.delete('/:product_id', async (req, res) => {
 
         if (!productResult.rows[0]?.product_id) {
             throw new Error(
-                'Failed to delete product entry or entry does not exist.'
+                "Failed to delete product entry or entry does not exist."
             );
         }
 
-        await transaction.query('COMMIT');
+        await transaction.query("COMMIT");
 
         res.status(200).json({
-            message: 'Real estate listing deleted successfully',
-            product_id: product_id
+            message: "Real estate listing deleted successfully",
+            product_id: product_id,
         });
     } catch (error) {
-        await transaction.query('ROLLBACK');
-        console.error('Transaction Error:', error);
+        await transaction.query("ROLLBACK");
+        console.error("Transaction Error:", error);
         res.status(500).json({ message: `Server Error: ${error.message}` });
     } finally {
         transaction.release();
@@ -520,7 +520,7 @@ async function updateProduct(transaction, product_id, updates) {
         name,
         description,
         price,
-        additional_properties
+        additional_properties,
     } = updates;
     const fields = [];
     const values = [];
@@ -561,14 +561,14 @@ async function updateProduct(transaction, product_id, updates) {
         values.push(product_id);
         const query = `
             UPDATE product
-            SET ${fields.join(', ')}, updated_at = NOW()
+            SET ${fields.join(", ")}, updated_at = NOW()
             WHERE product_id = $${index}
             RETURNING product_id
         `;
         const result = await transaction.query(query, values);
         if (!result.rows[0]?.product_id) {
             throw new Error(
-                'Failed to update product or product does not exist.'
+                "Failed to update product or product does not exist."
             );
         }
     }
@@ -601,13 +601,13 @@ async function updateAddress(transaction, address_id, updates) {
         values.push(address_id);
         const query = `
             UPDATE address
-            SET ${fields.join(', ')}
+            SET ${fields.join(", ")}
             WHERE address_id = $${index}
             RETURNING address_id
         `;
         const result = await transaction.query(query, values);
         if (!result.rows[0]?.address_id) {
-            throw new Error('Failed to update address.');
+            throw new Error("Failed to update address.");
         }
     }
 }
@@ -650,19 +650,19 @@ async function updateRealEstate(transaction, product_id, updates) {
         values.push(product_id);
         const query = `
             UPDATE real_estate
-            SET ${fields.join(', ')}
+            SET ${fields.join(", ")}
             WHERE product_id = $${index}
             RETURNING product_id
         `;
         const result = await transaction.query(query, values);
         if (!result.rows[0]?.product_id) {
-            throw new Error('Failed to update real estate entry.');
+            throw new Error("Failed to update real estate entry.");
         }
     }
 }
 
 // Main Route to update the Product
-router.put('/update/:product_id', async (req, res) => {
+router.put("/update/:product_id", async (req, res) => {
     const transaction = await pool.connect();
     const { product_id } = req.params;
 
@@ -680,11 +680,11 @@ router.put('/update/:product_id', async (req, res) => {
         address_details,
         advance_payment,
         rent_start,
-        rent_end
+        rent_end,
     } = req.body;
 
     try {
-        await transaction.query('BEGIN');
+        await transaction.query("BEGIN");
         const ownershipValidation = await validateProductOwnership(
             transaction,
             product_id,
@@ -692,7 +692,7 @@ router.put('/update/:product_id', async (req, res) => {
         );
 
         if (!ownershipValidation.success) {
-            await transaction.query('ROLLBACK');
+            await transaction.query("ROLLBACK");
             return res
                 .status(403)
                 .json({ message: ownershipValidation.message });
@@ -714,7 +714,7 @@ router.put('/update/:product_id', async (req, res) => {
             name,
             description,
             price,
-            additional_properties
+            additional_properties,
         });
 
         // Handle address update
@@ -732,7 +732,7 @@ router.put('/update/:product_id', async (req, res) => {
             await updateAddress(transaction, address_id, {
                 city,
                 address,
-                province
+                province,
             });
         }
 
@@ -741,7 +741,7 @@ router.put('/update/:product_id', async (req, res) => {
             address_details,
             advance_payment,
             rent_start,
-            rent_end
+            rent_end,
         });
 
         // Find `category_id` based on `type_name` (category_name)
@@ -755,8 +755,8 @@ router.put('/update/:product_id', async (req, res) => {
             );
 
             if (categoryResult.rows.length === 0) {
-                await transaction.query('ROLLBACK');
-                return res.status(404).json({ message: 'Category not found' });
+                await transaction.query("ROLLBACK");
+                return res.status(404).json({ message: "Category not found" });
             }
 
             const category_id = categoryResult.rows[0].category_id;
@@ -782,28 +782,28 @@ router.put('/update/:product_id', async (req, res) => {
             }
         }
 
-        await transaction.query('COMMIT');
+        await transaction.query("COMMIT");
         res.status(200).json({
-            message: 'Real estate listing updated successfully',
-            product_id: product_id
+            message: "Real estate listing updated successfully",
+            product_id: product_id,
         });
     } catch (error) {
-        await transaction.query('ROLLBACK');
-        console.error('Transaction Error:', error);
+        await transaction.query("ROLLBACK");
+        console.error("Transaction Error:", error);
         res.status(500).send(`Server Error: ${error.message}`);
     } finally {
         transaction.release();
     }
 });
 
-router.get('/', (req, res) => {
+router.get("/", (req, res) => {
     res.status(200).json({
-        message: 'Real Estate Routes Work'
+        message: "Real Estate Routes Work",
     });
 });
 
 // Get all types
-router.get('/types', async (req, res) => {
+router.get("/types", async (req, res) => {
     try {
         const real_estate_types = await pool.query(
             `
@@ -814,7 +814,7 @@ router.get('/types', async (req, res) => {
         if (real_estate_types.rows.length === 0) {
             return res
                 .status(404)
-                .json({ message: 'No realestate types found' });
+                .json({ message: "No realestate types found" });
         }
 
         res.status(200).json(real_estate_types.rows);
@@ -823,15 +823,15 @@ router.get('/types', async (req, res) => {
     }
 });
 
-router.get('/messages', async (req, res) => {
+router.get("/messages", async (req, res) => {
     try {
         const user_id = req.session.user_id;
 
         if (!user_id) {
-            console.warn('Unauthorized access attempt');
+            console.warn("Unauthorized access attempt");
             return res
                 .status(401)
-                .json({ message: 'Unauthorized: User not logged in' });
+                .json({ message: "Unauthorized: User not logged in" });
         }
 
         const messagesQuery = `
@@ -842,7 +842,7 @@ router.get('/messages', async (req, res) => {
                 m.message,
                 m.created_at
             FROM messages m
-            JOIN real_estate re ON m.product_id = re.product_id
+            JOIN product re ON m.product_id = re.product_id
             WHERE m.from_user_id = $1 OR m.to_user_id = $1
             ORDER BY m.product_id, m.created_at;
         `;
@@ -851,10 +851,10 @@ router.get('/messages', async (req, res) => {
         try {
             messagesResult = await pool.query(messagesQuery, [user_id]);
         } catch (error) {
-            console.error('Error querying messages:', error);
+            console.error("Error querying messages:", error);
             return res
                 .status(500)
-                .json({ message: 'Error retrieving messages' });
+                .json({ message: "Error retrieving messages" });
         }
 
         const messages = messagesResult.rows;
@@ -862,16 +862,16 @@ router.get('/messages', async (req, res) => {
         const userIds = [
             ...new Set(
                 messages.flatMap((msg) => [msg.from_user_id, msg.to_user_id])
-            )
+            ),
         ];
 
         if (productIds.length === 0) {
-            return res.status(200).json({ message: 'No messages found' });
+            return res.status(200).json({ message: "No messages found" });
         }
 
         const productDetailsQuery = `
             SELECT 
-                re.product_id, 
+                p.product_id, 
                 u.email AS owner_email, 
                 u.username AS owner_username, 
                 p.image_url, 
@@ -881,19 +881,8 @@ router.get('/messages', async (req, res) => {
                 s.status_name, 
                 p.created_at, 
                 p.updated_at, 
-                p.additional_properties, 
-                t.type_name, 
-                a.city, 
-                a.address, 
-                a.province, 
-                re.address_details, 
-                re.advance_payment, 
-                re.rent_start, 
-                re.rent_end
-            FROM real_estate re 
-            INNER JOIN product p ON re.product_id = p.product_id 
-            INNER JOIN address a ON re.address_id = a.address_id
-            INNER JOIN real_estate_types t ON re.type_id = t.type_id
+                p.additional_properties
+            from product p 
             INNER JOIN users u ON p.user_id = u.user_id
             INNER JOIN statuses s ON p.status_id = s.status_id
             WHERE p.product_id = ANY($1::int[]);
@@ -902,13 +891,13 @@ router.get('/messages', async (req, res) => {
         let productDetailsResult;
         try {
             productDetailsResult = await pool.query(productDetailsQuery, [
-                productIds
+                productIds,
             ]);
         } catch (error) {
-            console.error('Error querying product details:', error);
+            console.error("Error querying product details:", error);
             return res
                 .status(500)
-                .json({ message: 'Error retrieving product details' });
+                .json({ message: "Error retrieving product details" });
         }
 
         const userDetailsQuery = `
@@ -924,10 +913,10 @@ router.get('/messages', async (req, res) => {
         try {
             userDetailsResult = await pool.query(userDetailsQuery, [userIds]);
         } catch (error) {
-            console.error('Error querying user details:', error);
+            console.error("Error querying user details:", error);
             return res
                 .status(500)
-                .json({ message: 'Error retrieving user details' });
+                .json({ message: "Error retrieving user details" });
         }
 
         const productDetails = productDetailsResult.rows;
@@ -964,23 +953,23 @@ router.get('/messages', async (req, res) => {
                         participants: [
                             {
                                 user_id: message.from_user_id,
-                                username: fromUser?.username || 'Unknown',
-                                email: fromUser?.email || 'Unknown'
+                                username: fromUser?.username || "Unknown",
+                                email: fromUser?.email || "Unknown",
                             },
                             {
                                 user_id: message.to_user_id,
-                                username: toUser?.username || 'Unknown',
-                                email: toUser?.email || 'Unknown'
-                            }
+                                username: toUser?.username || "Unknown",
+                                email: toUser?.email || "Unknown",
+                            },
                         ],
-                        messages: []
+                        messages: [],
                     };
                 }
 
                 chats[chatKey].messages.push(message);
             } catch (error) {
                 console.error(
-                    'Error merging messages with product details:',
+                    "Error merging messages with product details:",
                     error
                 );
             }
@@ -990,21 +979,21 @@ router.get('/messages', async (req, res) => {
 
         res.status(200).json(groupedMessages);
     } catch (error) {
-        console.error('Unexpected error in /messages endpoint:', error);
+        console.error("Unexpected error in /messages endpoint:", error);
         res.status(500).json({
-            message: 'An unexpected error occurred. Please try again later.'
+            message: "An unexpected error occurred. Please try again later.",
         });
     }
 });
 
-router.post('/message', checkAuth, async (req, res) => {
+router.post("/message", checkAuth, async (req, res) => {
     try {
         const { product_id, to_user_id, message } = req.body;
         const from_user_id = req.session.user_id;
 
         if (!product_id || !to_user_id) {
             return res.status(400).json({
-                error: 'Missing required fields: product_id, to_user_id, and message.'
+                error: "Missing required fields: product_id, to_user_id, and message.",
             });
         }
 
@@ -1017,30 +1006,30 @@ router.post('/message', checkAuth, async (req, res) => {
             from_user_id,
             to_user_id,
             product_id,
-            message
+            message,
         ]);
 
         const createdMessage = insertMessageResult.rows[0];
 
         // Emit the new message for real-time updates
-        eventEmitter.emit('newMessage', createdMessage);
+        eventEmitter.emit("newMessage", createdMessage);
 
         res.status(200).json(createdMessage);
     } catch (error) {
-        console.error('Error sending message:', error);
+        console.error("Error sending message:", error);
         res.status(500).json({
-            error: 'An error occurred while sending the message.'
+            error: "An error occurred while sending the message.",
         });
     }
 });
 
-router.get('/events', async (req, res) => {
+router.get("/events", async (req, res) => {
     try {
         const userId = req.session.user_id;
 
-        res.setHeader('Content-Type', 'text/event-stream');
-        res.setHeader('Cache-Control', 'no-cache');
-        res.setHeader('Connection', 'keep-alive');
+        res.setHeader("Content-Type", "text/event-stream");
+        res.setHeader("Cache-Control", "no-cache");
+        res.setHeader("Connection", "keep-alive");
 
         const sendEvent = (message) => {
             // Only broadcast messages relevant to the logged-in user
@@ -1052,26 +1041,26 @@ router.get('/events', async (req, res) => {
             }
         };
 
-        eventEmitter.on('newMessage', sendEvent);
+        eventEmitter.on("newMessage", sendEvent);
 
-        req.on('close', () => {
-            eventEmitter.off('newMessage', sendEvent);
+        req.on("close", () => {
+            eventEmitter.off("newMessage", sendEvent);
             res.end();
         });
     } catch (error) {
         res.status(500).json({
-            error: 'An error occurred while sending the message.'
+            error: "An error occurred while sending the message.",
         });
     }
 });
 
 // Get additional properties based on category
-router.get('/additional-properties', async (req, res) => {
+router.get("/additional-properties", async (req, res) => {
     try {
         const { category_id } = req.query;
 
         if (!category_id) {
-            return res.status(400).json({ message: 'category_id is required' });
+            return res.status(400).json({ message: "category_id is required" });
         }
 
         const additionalPropertiesQuery = `
@@ -1090,7 +1079,7 @@ router.get('/additional-properties', async (req, res) => {
         if (additionalPropertiesResult.rows.length === 0) {
             return res.status(404).json({
                 message:
-                    'No additional properties found for the given category_id'
+                    "No additional properties found for the given category_id",
             });
         }
 
@@ -1100,7 +1089,7 @@ router.get('/additional-properties', async (req, res) => {
 
         res.status(200).json(additionalProperties);
     } catch (error) {
-        res.status(500).json({ message: 'Server error', error: error.message });
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 });
 
